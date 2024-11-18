@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
+import 'package:giuseppe/router/app_routes.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 
 class LoginPage extends StatefulWidget {
@@ -82,7 +83,10 @@ class _SignInForm extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, 'tabs_page');
+                  Navigator.pushNamed(context, AppRoutes.tabsPage, arguments: false);
+                },
+                onLongPress: () {
+                  Navigator.pushNamed(context, AppRoutes.tabsPage, arguments: true);
                 },
                 child: const Text('Ingresar'),
               ),
