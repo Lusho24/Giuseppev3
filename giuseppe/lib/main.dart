@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/router/app_routes.dart';
+import 'package:giuseppe/utils/theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,11 +12,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Giuseppe',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      title: "Giuseppe",
+      theme: AppTheme.generalTheme,
       routes: AppRoutes.getRoutes(),
       initialRoute: AppRoutes.loginPage,
     );
