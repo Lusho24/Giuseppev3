@@ -30,7 +30,7 @@ class AppTheme {
         bodyMedium: TextStyle( // *Para texto de botones
             color: AppColors.primaryTextColor),
         bodySmall: TextStyle( // *Para descripciones de las cards
-            color: AppColors.primaryTextColor,fontWeight: FontWeight.w500,fontSize: 13.0),
+            color: AppColors.variantTextColor,fontSize: 14.0),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
