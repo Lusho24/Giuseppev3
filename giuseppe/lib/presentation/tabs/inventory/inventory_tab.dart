@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:giuseppe/presentation/tabs/inventory/object_form/object_form.dart';
+import 'package:giuseppe/router/app_routes.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 
 class InventoryTab extends StatefulWidget {
@@ -84,6 +86,16 @@ class _InventoryTabState extends State<InventoryTab> {
                         );
                       }).toList(),
                     ),
+                  ),
+                  const SizedBox(width: 15.0),
+                  ElevatedButton(
+                    onPressed: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ObjectForm()),
+                      );
+                    },
+                    child: const Icon(Icons.add)
                   )
                 ],
               ),

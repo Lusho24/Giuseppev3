@@ -29,8 +29,8 @@ class CustomTextFormField extends StatelessWidget {
         controller: controller,
         keyboardType: getKeyboardType(formFieldType: formFieldType),
         obscureText: formFieldType == FormFieldType.password ? true : false,
-        minLines: formFieldType == FormFieldType.description ? 4 : 1,
-        maxLines: formFieldType == FormFieldType.description ? 4 : 1,
+        minLines: formFieldType == FormFieldType.description ? 2 : 1,
+        maxLines: formFieldType == FormFieldType.description ? 2 : 1,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(color: AppColors.hintTextColor),

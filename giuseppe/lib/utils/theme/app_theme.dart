@@ -22,7 +22,7 @@ class AppTheme {
         displaySmall: TextStyle(
             color: AppColors.primaryTextColor, fontWeight: FontWeight.bold),
         headlineSmall: TextStyle( // *Para titulos principales
-            color: AppColors.primaryTextColor, fontWeight: FontWeight.bold,fontSize: 30.0),
+            color: AppColors.primaryTextColor, fontWeight: FontWeight.bold,fontSize: 25.0),
         titleLarge: TextStyle(  // *Para subtitulos
             color: AppColors.primaryTextColor, fontWeight: FontWeight.bold),
         titleSmall: TextStyle( // *Para texto de botones
