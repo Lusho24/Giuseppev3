@@ -103,7 +103,7 @@ class _InventoryTabState extends State<InventoryTab> {
                 ),
                 itemCount: inventoryItems.length,
                 itemBuilder: (context, index) {
-                  return InventoryCard(item: inventoryItems[index]);
+                  return InventoryCard(item: inventoryItems[index], context: context);
                 },
               ),
             ),
@@ -116,45 +116,115 @@ class _InventoryTabState extends State<InventoryTab> {
 
 class InventoryCard extends StatelessWidget {
   final Map<String, String> item;
+  final BuildContext context;
   const InventoryCard({super.key,
     required this.item,
+    required this.context
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      color: AppColors.primaryColor,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Image.asset(
-              item['image']!,
-              height: 60.0,
-              width: double.infinity,
-            ),
-            const SizedBox(height: 10.0),
-            Text(
-              item['name']!,
-              style: Theme.of(context).textTheme.titleSmall,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8.0),
-            Expanded(
-              child: Text(
-                "Disponibles: ${item['quantity']!}",
-                style: Theme.of(context).textTheme.bodySmall,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
+    return GestureDetector(
+      onTap: (){
+        modalObject();
+      },
+      child: Card(
+        elevation: 4.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        color: AppColors.primaryColor,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              Image.asset(
+                item['image']!,
+                height: 60.0,
+                width: double.infinity,
               ),
-            ),
-          ],
+              const SizedBox(height: 10.0),
+              Text(
+                item['name']!,
+                style: Theme.of(context).textTheme.titleSmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8.0),
+              Expanded(
+                child: Text(
+                  "Disponibles: ${item['quantity']!}",
+                  style: Theme.of(context).textTheme.bodySmall,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  // * Ventana modal
+  void modalObject() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 15.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop()
+                    )
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed:() {}
+                      ),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Image.asset(item['image']!,
+                              height: 130.0,
+                            ),
+                            const SizedBox(height: 15),
+                            Text(item['name']!,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            Text("Disponibles: ${item['quantity']!}",
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Text("Detalle quemado",
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ]),
+                      ),
+                      IconButton(
+                          icon: const Icon(Icons.arrow_forward),
+                          onPressed: (){}
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
 }
