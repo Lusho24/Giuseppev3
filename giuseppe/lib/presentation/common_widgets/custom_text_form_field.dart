@@ -13,19 +13,21 @@ class CustomTextFormField extends StatelessWidget {
   final FormFieldType formFieldType;
   final String hintText;
   final TextEditingController? controller;
+  final double? height;
 
   const CustomTextFormField({
     super.key,
     required this.formFieldType,
     required this.hintText,
-    this.controller
+    this.controller,
+    this.height,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 5.0),
-      child:  TextFormField(
+      child: TextFormField(
         controller: controller,
         keyboardType: getKeyboardType(formFieldType: formFieldType),
         obscureText: formFieldType == FormFieldType.password ? true : false,
@@ -36,7 +38,7 @@ class CustomTextFormField extends StatelessWidget {
           hintStyle: const TextStyle(color: AppColors.hintTextColor),
           errorMaxLines: 2,
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0)
+            borderRadius: BorderRadius.circular(10.0),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
@@ -45,11 +47,16 @@ class CustomTextFormField extends StatelessWidget {
               width: 1.0,
             ),
           ),
+          contentPadding: height != null
+              ? EdgeInsets.symmetric(
+              vertical: height! / 2, horizontal: 8.0)
+              : const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
         ),
         validator: (value) => validateFormField(value: value, formFieldType: formFieldType),
       ),
     );
   }
+
 
   // *Funcion para obtener el tipo de campo
   TextInputType? getKeyboardType({ required FormFieldType formFieldType }) {

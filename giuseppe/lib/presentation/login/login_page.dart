@@ -55,11 +55,11 @@ class _SignInForm extends StatelessWidget {
             boxShadow: const [
               BoxShadow(
                   color: AppColors.primaryVariantColor,
-                  blurRadius: 5.0
+                  blurRadius: 3.0
               )
             ]
         ),
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             Column(
@@ -68,7 +68,7 @@ class _SignInForm extends StatelessWidget {
                 Text('Usuario', style: Theme.of(context).textTheme.bodyMedium),
                 const CustomTextFormField(
                     formFieldType: FormFieldType.identity_card,
-                    hintText: 'Usuario(Cédula)'),
+                    hintText: ''),
               ],
             ),
             const SizedBox(height: 20.0),
@@ -78,7 +78,7 @@ class _SignInForm extends StatelessWidget {
                 Text('Contraseña', style: Theme.of(context).textTheme.bodyMedium),
                 const CustomTextFormField(
                     formFieldType: FormFieldType.password,
-                    hintText: '********'),
+                    hintText: ''),
               ],
             ),
             Container(
