@@ -9,12 +9,15 @@ class DispatchOrderTab extends StatefulWidget {
 }
 
 class _DispatchOrderTabState extends State<DispatchOrderTab> {
-
   // Simulamos una lista de ordenes
   final List<Map<String, String>> _orders = [
-    {"name": "Nombrssssssssssssssssssssssssssssssssssssssssssssssse", "abiable": "999", 'image': 'assets/images/lampara.png'},
-    {"name": "Objeto 1", "abiable": "99",'image': 'assets/images/mesa.png'},
-    {"name": "Objeto 2", "abiable": "99",'image': 'assets/images/mesa.png'},
+    {
+      "name": "Nombrssssssssssssssssssssssssssssssssssssssssssssssse",
+      "abiable": "999",
+      'image': 'assets/images/lampara.png'
+    },
+    {"name": "Objeto 1", "abiable": "99", 'image': 'assets/images/mesa.png'},
+    {"name": "Objeto 2", "abiable": "99", 'image': 'assets/images/mesa.png'},
     {"name": "Silla", "abiable": "20", 'image': 'assets/images/silla.png'},
   ];
 
@@ -53,7 +56,7 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                     childAspectRatio: 2.1,
                   ),
                   delegate: SliverChildBuilderDelegate(
-                        (context, index) {
+                    (context, index) {
                       return Container(
                         padding: const EdgeInsets.all(5.0),
                         decoration: const BoxDecoration(
@@ -70,7 +73,8 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                 SliverList(
                   delegate: SliverChildListDelegate([
                     Container(
-                      padding: const EdgeInsets.only(top: 50.0, left: 120.0, right: 120.0, bottom: 20.0),
+                      padding: const EdgeInsets.only(
+                          top: 50.0, left: 120.0, right: 120.0, bottom: 20.0),
                       child: ElevatedButton(
                         onPressed: () {},
                         child: const Row(
@@ -95,10 +99,7 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
 
 class OrderCard extends StatelessWidget {
   final Map<String, String> order;
-  const OrderCard({
-    required this.order,
-    super.key
-  });
+  const OrderCard({required this.order, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -121,20 +122,21 @@ class OrderCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text( order['name']!,
+                  Text(
+                    order['name']!,
                     style: const TextStyle(
-                        color: AppColors.primaryTextColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w300,
+                      color: AppColors.primaryTextColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
                     ),
                     overflow: TextOverflow.ellipsis, // Evitar desbordamiento
                   ),
-                  Text("Disponible: ${order['abiable']!}",
+                  Text(
+                    "Disponible: ${order['abiable']!}",
                     style: const TextStyle(
-                        color: AppColors.primaryTextColor,
-                        fontSize: 14,
+                      color: AppColors.primaryTextColor,
+                      fontSize: 14,
                       fontWeight: FontWeight.w300,
-
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -144,16 +146,21 @@ class OrderCard extends StatelessWidget {
                       const Expanded(
                         child: NumberInput(),
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          child: const Text("Eliminar"),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(50, 30),
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          textStyle: TextStyle(fontSize: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
                         ),
+                        child: const Text("Eliminar"),
                       ),
+
                     ],
                   )
-
                 ],
               ),
             )
@@ -163,7 +170,6 @@ class OrderCard extends StatelessWidget {
     );
   }
 }
-
 
 class NumberInput extends StatefulWidget {
   const NumberInput({super.key});
@@ -195,33 +201,37 @@ class _NumberInputState extends State<NumberInput> {
     return Row(
       children: [
         Container(
-          height: 30, // Altura del recuadro
-          width: 30,  // Ancho del recuadro
+          height: 30,
+          width: 30,
           decoration: BoxDecoration(
-            color: Colors.grey[200], // Color de fondo
-            shape: BoxShape.circle, // Fondo circular
+            color: AppColors.secondaryColor,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(6.0),
           ),
           child: IconButton(
             icon: Icon(Icons.remove),
-            iconSize: 15, // Tamaño del ícono
-            padding: EdgeInsets.all(0), // Reduce el padding interno
+            iconSize: 15,
+            color: AppColors.primaryColor,
+            padding: EdgeInsets.all(0),
             onPressed: _decrement,
           ),
         ),
-        SizedBox(width: 10.0,),
+        SizedBox(
+          width: 10.0,
+        ),
         Expanded(
           child: Container(
-            height: 40.0, // Altura adecuada para contener texto y borde
+            height: 30.0,
             child: TextField(
               enabled: true,
               controller: _controller,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16.0), // Ajusta el tamaño del texto
+              style: TextStyle(fontSize: 16.0),
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'cantidad',
-                contentPadding: EdgeInsets.symmetric(vertical: 10.0), // Centra el texto
+                hintText: '',
+                contentPadding: EdgeInsets.symmetric(vertical: 10.0),
               ),
               onChanged: (text) {
                 setState(() {
@@ -231,23 +241,28 @@ class _NumberInputState extends State<NumberInput> {
             ),
           ),
         ),
-
-        SizedBox(width: 10.0,),
+        SizedBox(
+          width: 10.0,
+        ),
         Container(
-          height: 30, // Altura del recuadro
-          width: 30,  // Ancho del recuadro
+          height: 30,
+          width: 30,
           decoration: BoxDecoration(
-            color: Colors.grey[200], // Color de fondo
-            shape: BoxShape.circle, // Fondo circular
+            color: AppColors.secondaryColor,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(6.0),
           ),
           child: IconButton(
             icon: Icon(Icons.add),
-            iconSize: 15, // Tamaño del ícono
-            padding: EdgeInsets.all(0), // Reduce el padding interno
+            iconSize: 15,
+            color: AppColors.primaryColor,
+            padding: EdgeInsets.all(0),
             onPressed: _increment,
           ),
         ),
-        SizedBox(width: 10.0,),
+        SizedBox(
+          width: 10.0,
+        ),
       ],
     );
   }
