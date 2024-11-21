@@ -16,43 +16,43 @@ class _ObjectFormState extends State<ObjectForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
+      body: Column(
+        children: [
+          // Logo y texto "Añadir a Inventario" fijos
+          Stack(
             children: [
-              Stack(
-                children: [
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-                      child: const Image(
-                        image: AssetImage('assets/images/logo.png'),
-                        height: 75.0,
-                      ),
-                    ),
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
+                  child: const Image(
+                    image: AssetImage('assets/images/logo.png'),
+                    height: 70.0,
                   ),
-                  Positioned(
-                    top: 20.0,
-                    left: 10.0,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                ],
+                ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: Text("AÑADIR A INVENTARIO",
-                    style: Theme.of(context).textTheme.headlineSmall
-                )
-              ),
-              const Padding(padding: EdgeInsets.all(20.0), child: _NewObjectForm()),
             ],
           ),
-        ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 22.0),
+            child: const Text(
+              "AÑADIR A INVENTARIO",
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          ),
+
+          // Formulario deslizante
+          const Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: _NewObjectForm(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -70,13 +70,11 @@ class _NewObjectFormState extends State<_NewObjectForm> {
   final List<File> _images = []; // Lista para almacenar imágenes seleccionadas
 
   Future<void> pickImagesFromGallery() async {
-    final List<XFile>? pickedFiles = await picker.pickMultiImage(); // Selección múltiple.
-    if (pickedFiles != null) {
-      setState(() {
-        _images.addAll(pickedFiles.map((file) => File(file.path)));
-      });
+    final List<XFile> pickedFiles = await picker.pickMultiImage(); // Selección múltiple.
+    setState(() {
+      _images.addAll(pickedFiles.map((file) => File(file.path)));
+    });
     }
-  }
 
   //Eliminar imagen
   void removeImage(int index) {

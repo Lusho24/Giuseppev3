@@ -125,7 +125,7 @@ class _InventoryTabState extends State<InventoryTab> {
               ],
             ),
           ),
-          Divider(
+          const Divider(
             color: AppColors.primaryVariantColor,
             thickness: 1.0,
             indent: 20.0,
