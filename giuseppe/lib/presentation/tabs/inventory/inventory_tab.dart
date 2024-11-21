@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/tabs/inventory/object_form/object_form.dart';
+import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
 import 'package:giuseppe/router/app_routes.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 
@@ -12,132 +13,180 @@ class InventoryTab extends StatefulWidget {
 
 class _InventoryTabState extends State<InventoryTab> {
   String? _selectedCategory;
-  List<String> _categories = ['Plasticos', 'Metales', 'Vidrio', 'Papel', 'Otros'];
+  List<String> _categories = [
+    'Plasticos',
+    'Metales',
+    'Vidrio',
+    'Papel',
+    'Otros'
+  ];
+  bool isAdmin = true;
+  /*final bool isAdmin = rol == 'admin';*/ //bool para mostrar o no botones
 
   final List<Map<String, String>> inventoryItems = [
     {'name': 'Jarron', 'quantity': '10', 'image': 'assets/images/jarron.png'},
-    {'name': 'Jarron 2', 'quantity': '10', 'image': 'assets/images/jarron2.png'},
+    {
+      'name': 'Jarron 2',
+      'quantity': '10',
+      'image': 'assets/images/jarron2.png'
+    },
     {'name': 'Lampara', 'quantity': '4', 'image': 'assets/images/lampara.png'},
     {'name': 'Mesa', 'quantity': '4', 'image': 'assets/images/mesa.png'},
     {'name': 'Silla', 'quantity': '16', 'image': 'assets/images/silla.png'},
   ];
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverList(delegate: SliverChildListDelegate([
-            Container(
-              padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-              child: const Image(
-                image: AssetImage('assets/images/logo.png'),
-                height: 75.0,
-              ),
+        body: CustomScrollView(
+      slivers: [
+        SliverList(
+            delegate: SliverChildListDelegate([
+          Container(
+            padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
+            child: const Image(
+              image: AssetImage('assets/images/logo.png'),
+              height: 90.0,
             ),
-            Container(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        hintText: "Buscar...",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0)
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          borderSide: const BorderSide(
-                            color: AppColors.primaryVariantColor,
-                            width: 1.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: DropdownMenu(
-                      initialSelection: _selectedCategory,
-                      inputDecorationTheme: InputDecorationTheme(
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          borderSide: const BorderSide(
-                            color: AppColors.primaryVariantColor,
-                            width: 1.0,
-                          ),
-                        ),
-                      ),
-                      hintText: 'Categoría',
-                      onSelected: (String? value) {
-                        setState(() {
-                          _selectedCategory = value;
-                        });
-                      },
-                      dropdownMenuEntries: _categories.map((String category) {
-                        return DropdownMenuEntry<String>(
-                          value: category,
-                          label: category,
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(width: 15.0),
-                  ElevatedButton(
-                    onPressed: (){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ObjectForm()),
-                      );
-                    },
-                    child: const Icon(Icons.add)
-                  )
-                ],
-              ),
-            ),
-          ])
           ),
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.only(left: 20.0 ,right: 20.0),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
+          Container(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "Buscar",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: const BorderSide(
+                          color: AppColors.primaryVariantColor,
+                          width: 1.0,
+                        ),
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: AppColors.primaryVariantColor,
+                      ),
+                    ),
+                  ),
                 ),
-                itemCount: inventoryItems.length,
-                itemBuilder: (context, index) {
-                  return InventoryCard(item: inventoryItems[index], context: context);
-                },
+                const SizedBox(width: 10.0),
+                Expanded(
+                  child: DropdownMenu(
+                    initialSelection: _selectedCategory,
+                    inputDecorationTheme: InputDecorationTheme(
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: const BorderSide(
+                          color: AppColors.primaryVariantColor,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                    hintText: 'Filtrar',
+                    onSelected: (String? value) {
+                      setState(() {
+                        _selectedCategory = value;
+                      });
+                    },
+                    dropdownMenuEntries: _categories.map((String category) {
+                      return DropdownMenuEntry<String>(
+                        value: category,
+                        label: category,
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(width: 10.0),
+                Column(
+                  children: [
+                    if (isAdmin)
+                      SizedBox(
+                        width: 30,
+                        height: 30,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SearchObjectTab()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: const Icon(Icons.camera_alt,
+                              size: 16, color: AppColors.primaryColor),
+                        ),
+                      ),
+                    if (isAdmin)
+                      const SizedBox(height: 5.0),
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ObjectForm()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: const Icon(Icons.add,
+                            size: 16, color: AppColors.primaryColor),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          )
+        ])),
+        SliverToBoxAdapter(
+          child: Container(
+            padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
               ),
+              itemCount: inventoryItems.length,
+              itemBuilder: (context, index) {
+                return InventoryCard(
+                    item: inventoryItems[index], context: context);
+              },
             ),
           ),
-        ],
-      )
-    );
+        ),
+      ],
+    ));
   }
 }
 
 class InventoryCard extends StatelessWidget {
   final Map<String, String> item;
   final BuildContext context;
-  const InventoryCard({super.key,
-    required this.item,
-    required this.context
-  });
+  const InventoryCard({super.key, required this.item, required this.context});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         modalObject();
       },
       child: Card(
@@ -187,47 +236,45 @@ class InventoryCard extends StatelessWidget {
       ),
       builder: (context) {
         return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setModalState) {
+          builder: (BuildContext context, StateSetter setModalState) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 15.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.of(context).pop()
-                    )
-                  ),
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.of(context).pop())),
                   Row(
                     children: [
                       IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed:() {}
-                      ),
+                          icon: const Icon(Icons.arrow_back), onPressed: () {}),
                       Expanded(
-                        child: Column(
-                          children: [
-                            Image.asset(item['image']!,
-                              height: 130.0,
-                            ),
-                            const SizedBox(height: 15),
-                            Text(item['name']!,
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                            Text("Disponibles: ${item['quantity']!}",
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            Text("Detalle quemado",
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ]),
+                        child: Column(children: [
+                          Image.asset(
+                            item['image']!,
+                            height: 130.0,
+                          ),
+                          const SizedBox(height: 15),
+                          Text(
+                            item['name']!,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          Text(
+                            "Disponibles: ${item['quantity']!}",
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            "Detalle quemado",
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ]),
                       ),
                       IconButton(
                           icon: const Icon(Icons.arrow_forward),
-                          onPressed: (){}
-                      ),
+                          onPressed: () {}),
                     ],
                   ),
                 ],
@@ -238,5 +285,4 @@ class InventoryCard extends StatelessWidget {
       },
     );
   }
-
 }

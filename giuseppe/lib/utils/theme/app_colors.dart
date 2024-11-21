@@ -4,7 +4,7 @@ class AppColors {
   // Colores de la app
   static const Color primaryColor = Color.fromRGBO(255, 255, 255, 1.0);
   static const Color primaryVariantColor = Color.fromRGBO(164, 164, 164, 0.75);
-  static const Color secondaryColor = Color.fromRGBO(0, 0, 0, 1.0);
+  static const Color secondaryColor = Color.fromRGBO(44, 44, 44, 1.0);
   static const Color secondaryVariantColor = Color.fromRGBO(66, 65, 65, 1.0);
   static const Color backgroundColor = Color.fromRGBO(255, 255, 255, 1.0);
   static const Color surfaceColor= Color.fromRGBO(255, 255, 255, 1.0);
