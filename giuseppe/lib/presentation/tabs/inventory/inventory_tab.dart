@@ -21,15 +21,10 @@ class _InventoryTabState extends State<InventoryTab> {
     'Otros'
   ];
   bool isAdmin = true;
-  /*final bool isAdmin = rol == 'admin';*/ //bool para mostrar o no botones
 
   final List<Map<String, String>> inventoryItems = [
     {'name': 'Jarron', 'quantity': '10', 'image': 'assets/images/jarron.png'},
-    {
-      'name': 'Jarron 2',
-      'quantity': '10',
-      'image': 'assets/images/jarron2.png'
-    },
+    {'name': 'Jarron 2', 'quantity': '10', 'image': 'assets/images/jarron2.png'},
     {'name': 'Lampara', 'quantity': '4', 'image': 'assets/images/lampara.png'},
     {'name': 'Mesa', 'quantity': '4', 'image': 'assets/images/mesa.png'},
     {'name': 'Silla', 'quantity': '16', 'image': 'assets/images/silla.png'},
@@ -38,10 +33,9 @@ class _InventoryTabState extends State<InventoryTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: CustomScrollView(
-      slivers: [
-        SliverList(
-            delegate: SliverChildListDelegate([
+      body: Column(
+        children: [
+          // Parte estática
           Container(
             padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
             child: const Image(
@@ -52,8 +46,7 @@ class _InventoryTabState extends State<InventoryTab> {
           Container(
             padding: const EdgeInsets.all(20.0),
             child: Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: TextFormField(
@@ -104,6 +97,9 @@ class _InventoryTabState extends State<InventoryTab> {
                         label: category,
                       );
                     }).toList(),
+                    menuStyle: MenuStyle(
+                      backgroundColor: WidgetStateProperty.all(AppColors.primaryColor),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10.0),
@@ -137,8 +133,7 @@ class _InventoryTabState extends State<InventoryTab> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => const ObjectForm()),
+                            MaterialPageRoute(builder: (context) => const ObjectForm()),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -152,31 +147,34 @@ class _InventoryTabState extends State<InventoryTab> {
                 ),
               ],
             ),
-          )
-        ])),
-        SliverToBoxAdapter(
-          child: Container(
-            padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+          ),
+
+          // Parte desplazable
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const AlwaysScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: inventoryItems.length,
+                itemBuilder: (context, index) {
+                  return InventoryCard(
+                      item: inventoryItems[index], context: context);
+                },
               ),
-              itemCount: inventoryItems.length,
-              itemBuilder: (context, index) {
-                return InventoryCard(
-                    item: inventoryItems[index], context: context);
-              },
             ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 }
+
 
 class InventoryCard extends StatelessWidget {
   final Map<String, String> item;
