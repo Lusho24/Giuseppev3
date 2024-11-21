@@ -49,7 +49,7 @@ class CustomTextFormField extends StatelessWidget {
           ),
           contentPadding: height != null
               ? EdgeInsets.symmetric(
-              vertical: height! / 2, horizontal: 8.0)
+              vertical: height! , horizontal: 8.0)
               : const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
         ),
         validator: (value) => validateFormField(value: value, formFieldType: formFieldType),

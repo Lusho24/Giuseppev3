@@ -14,26 +14,22 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-                child: const Image(
-                  image: AssetImage('assets/images/logo.png'),
-                  height: 130.0,
-                ),
+        body: SingleChildScrollView(
+      child: Center(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(top: 90.0, bottom: 30.0),
+              child: const Image(
+                image: AssetImage('assets/images/logo.png'),
+                height: 160.0,
               ),
-              const Padding(
-                  padding: EdgeInsets.all(60.0),
-                  child: _SignInForm()
-              )
-            ],
-          ),
+            ),
+            const Padding(padding: EdgeInsets.all(60.0), child: _SignInForm())
+          ],
         ),
-      )
-    );
+      ),
+    ));
   }
 }
 
@@ -50,15 +46,12 @@ class _SignInForm extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(color: AppColors.primaryVariantColor, width: 1.0),
+            border:
+                Border.all(color: AppColors.primaryVariantColor, width: 1.0),
             borderRadius: BorderRadius.circular(10.0),
             boxShadow: const [
-              BoxShadow(
-                  color: AppColors.primaryVariantColor,
-                  blurRadius: 3.0
-              )
-            ]
-        ),
+              BoxShadow(color: AppColors.primaryVariantColor, blurRadius: 3.0)
+            ]),
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
@@ -67,18 +60,19 @@ class _SignInForm extends StatelessWidget {
               children: [
                 Text('Usuario', style: Theme.of(context).textTheme.bodyMedium),
                 const CustomTextFormField(
-                    formFieldType: FormFieldType.identity_card,
-                    hintText: ''),
+                  formFieldType: FormFieldType.identity_card,
+                  hintText: '',
+                ),
               ],
             ),
             const SizedBox(height: 20.0),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Contraseña', style: Theme.of(context).textTheme.bodyMedium),
+                Text('Contraseña',
+                    style: Theme.of(context).textTheme.bodyMedium),
                 const CustomTextFormField(
-                    formFieldType: FormFieldType.password,
-                    hintText: ''),
+                    formFieldType: FormFieldType.password, hintText: ''),
               ],
             ),
             Container(
@@ -86,10 +80,12 @@ class _SignInForm extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.tabsPage, arguments: false);
+                  Navigator.pushNamed(context, AppRoutes.tabsPage,
+                      arguments: false);
                 },
                 onLongPress: () {
-                  Navigator.pushNamed(context, AppRoutes.tabsPage, arguments: true);
+                  Navigator.pushNamed(context, AppRoutes.tabsPage,
+                      arguments: true);
                 },
                 child: const Text('Ingresar'),
               ),
@@ -99,8 +95,7 @@ class _SignInForm extends StatelessWidget {
                   decoration: TextDecoration.underline,
                   decorationColor: AppColors.secondaryColor,
                   decorationThickness: 2.0,
-                )
-            ),
+                )),
           ],
         ),
       ),

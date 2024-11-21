@@ -17,16 +17,16 @@ class FormValidators {
 
   static String? validatePassword({required String password}) {
     if (password.isEmpty) {
-      return 'Se requiere contraseña.';
+      return 'Contraseña incorrecta.';
     }
-    return password.length >= 6 ? null : 'La contraseña debe contener al menos 6 caracteres.';
+    return password.length >= 6 ? null : 'Contraseña incorrecta.';
   }
 
   static String? validateIdentityCard({required String identityCard}) {
     if (identityCard.isEmpty) {
-      return 'Se requiere una cédula.';
+      return 'Usuario incorrecto.';
     }
-    return identityCard.length >= 10 ? null : 'La cédula debe contener 10 números.';
+    return identityCard.length >= 10 ? null : 'Usuario incorrecto.';
   }
 
   static String? validateUserName({required String name}) {
