@@ -21,64 +21,74 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverList(delegate: SliverChildListDelegate([
-            Container(
-              padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-              child: const Image(
-                image: AssetImage('assets/images/logo.png'),
-                height: 75.0,
+      body: Column(
+        children: [
+          // Parte fija
+          Container(
+            padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
+            child: const Image(
+              image: AssetImage('assets/images/logo.png'),
+              height: 70.0,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 22.0),
+            alignment: Alignment.center,
+            child: const Text(
+              "ORDEN DE DESPACHO",
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w300,
               ),
             ),
-            Container(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                alignment: Alignment.center,
-                child: Text("Orden de despacho",
-                    style: Theme.of(context).textTheme.headlineSmall
-                )
-            ),
-            const SizedBox(height: 20.0)
-          ])
           ),
-          SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              mainAxisSpacing: 10.0,
-              childAspectRatio: 2.1,
-            ),
-            delegate: SliverChildBuilderDelegate( (context, index) {
-              return Container(
-                  padding: const EdgeInsets.all(5.0),
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Colors.grey, width: 1.5), // Línea gris
-                    ),
+          // Contenido desplazable
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    mainAxisSpacing: 10.0,
+                    childAspectRatio: 2.1,
                   ),
-                  child: OrderCard(order: _orders[index])
-              );
-            },
-              childCount: _orders.length,
+                  delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                      return Container(
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: Colors.grey, width: 1.5),
+                          ),
+                        ),
+                        child: OrderCard(order: _orders[index]),
+                      );
+                    },
+                    childCount: _orders.length,
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate([
+                    Container(
+                      padding: const EdgeInsets.only(top: 50.0, left: 120.0, right: 120.0, bottom: 20.0),
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Siguiente"),
+                            Icon(Icons.arrow_forward),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
+              ],
             ),
-          ),
-          SliverList(delegate: SliverChildListDelegate([
-            Container(
-              padding: const EdgeInsets.only(top: 50.0,left: 120.0,right: 120.0,bottom: 20.0),
-              child: ElevatedButton(
-                  onPressed: (){},
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Siguiente"),
-                      Icon(Icons.arrow_forward)
-                    ],
-                  )
-              ),
-            )
-          ])
           ),
         ],
-      )
+      ),
     );
   }
 }
