@@ -9,86 +9,97 @@ class DispatchOrderTab extends StatefulWidget {
 }
 
 class _DispatchOrderTabState extends State<DispatchOrderTab> {
-
   // Simulamos una lista de ordenes
   final List<Map<String, String>> _orders = [
-    {"name": "Nombre", "abiable": "999", 'image': 'assets/images/lampara.png'},
-    {"name": "Objeto 1", "abiable": "99",'image': 'assets/images/mesa.png'},
-    {"name": "Objeto 2", "abiable": "99",'image': 'assets/images/mesa.png'},
+    {
+      "name": "Nombrssssssssssssssssssssssssssssssssssssssssssssssse",
+      "abiable": "999",
+      'image': 'assets/images/lampara.png'
+    },
+    {"name": "Objeto 1", "abiable": "99", 'image': 'assets/images/mesa.png'},
+    {"name": "Objeto 2", "abiable": "99", 'image': 'assets/images/mesa.png'},
     {"name": "Silla", "abiable": "20", 'image': 'assets/images/silla.png'},
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverList(delegate: SliverChildListDelegate([
-            Container(
-              padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-              child: const Image(
-                image: AssetImage('assets/images/logo.png'),
-                height: 75.0,
+      body: Column(
+        children: [
+          // Parte fija
+          Container(
+            padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
+            child: const Image(
+              image: AssetImage('assets/images/logo.png'),
+              height: 70.0,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 22.0),
+            alignment: Alignment.center,
+            child: const Text(
+              "ORDEN DE DESPACHO",
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w300,
               ),
             ),
-            Container(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                alignment: Alignment.center,
-                child: Text("Orden de despacho",
-                    style: Theme.of(context).textTheme.headlineSmall
-                )
-            ),
-            const SizedBox(height: 20.0)
-          ])
           ),
-          SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              mainAxisSpacing: 10.0,
-              childAspectRatio: 2.1,
-            ),
-            delegate: SliverChildBuilderDelegate( (context, index) {
-              return Container(
-                  padding: const EdgeInsets.all(5.0),
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Colors.grey, width: 1.5), // Línea gris
-                    ),
+          // Contenido desplazable
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    mainAxisSpacing: 10.0,
+                    childAspectRatio: 2.1,
                   ),
-                  child: OrderCard(order: _orders[index])
-              );
-            },
-              childCount: _orders.length,
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return Container(
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: Colors.grey, width: 1.5),
+                          ),
+                        ),
+                        child: OrderCard(order: _orders[index]),
+                      );
+                    },
+                    childCount: _orders.length,
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate([
+                    Container(
+                      padding: const EdgeInsets.only(
+                          top: 50.0, left: 120.0, right: 120.0, bottom: 20.0),
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Siguiente"),
+                            Icon(Icons.arrow_forward),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
+              ],
             ),
-          ),
-          SliverList(delegate: SliverChildListDelegate([
-            Container(
-              padding: const EdgeInsets.only(top: 50.0,left: 120.0,right: 120.0,bottom: 20.0),
-              child: ElevatedButton(
-                  onPressed: (){},
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Siguiente"),
-                      Icon(Icons.arrow_forward)
-                    ],
-                  )
-              ),
-            )
-          ])
           ),
         ],
-      )
+      ),
     );
   }
 }
 
 class OrderCard extends StatelessWidget {
   final Map<String, String> order;
-  const OrderCard({
-    required this.order,
-    super.key
-  });
+  const OrderCard({required this.order, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -102,39 +113,53 @@ class OrderCard extends StatelessWidget {
           children: [
             Image.asset(
               order['image']!,
-              height: 140.0,
-              width: 120.0,
+              height: 100.0,
+              width: 100.0,
               fit: BoxFit.cover,
             ),
-            const SizedBox(width: 15.0),
+            const SizedBox(width: 5.0),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text( order['name']!,
+                  Text(
+                    order['name']!,
                     style: const TextStyle(
-                        color: AppColors.primaryTextColor,
-                        fontSize: 22.5
+                      color: AppColors.primaryTextColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
                     ),
                     overflow: TextOverflow.ellipsis, // Evitar desbordamiento
                   ),
-                  Text("Disponible: ${order['abiable']!}",
+                  Text(
+                    "Disponible: ${order['abiable']!}",
                     style: const TextStyle(
-                        color: AppColors.primaryTextColor,
-                        fontSize: 15
+                      color: AppColors.primaryTextColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w300,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 10.0),
-                  const Expanded(
-                      child: NumberInput()
-                  ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                        onPressed: (){},
-                        child: const Text("Eliminar")
-                    ),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: NumberInput(),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(50, 30),
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          textStyle: TextStyle(fontSize: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                        child: const Text("Eliminar"),
+                      ),
+
+                    ],
                   )
                 ],
               ),
@@ -145,7 +170,6 @@ class OrderCard extends StatelessWidget {
     );
   }
 }
-
 
 class NumberInput extends StatefulWidget {
   const NumberInput({super.key});
@@ -176,30 +200,68 @@ class _NumberInputState extends State<NumberInput> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        IconButton(
-          icon: Icon(Icons.remove),
-          onPressed: _decrement,
-        ),
-        Expanded(
-          child: TextField(
-            enabled: false,
-            controller: _controller,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'cantidad',
-            ),
-            onChanged: (text) {
-              setState(() {
-                _currentValue = int.tryParse(text) ?? 0;
-              });
-            },
+        Container(
+          height: 30,
+          width: 30,
+          decoration: BoxDecoration(
+            color: AppColors.secondaryColor,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(6.0),
+          ),
+          child: IconButton(
+            icon: Icon(Icons.remove),
+            iconSize: 15,
+            color: AppColors.primaryColor,
+            padding: EdgeInsets.all(0),
+            onPressed: _decrement,
           ),
         ),
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: _increment,
+        SizedBox(
+          width: 10.0,
+        ),
+        Expanded(
+          child: Container(
+            height: 30.0,
+            child: TextField(
+              enabled: true,
+              controller: _controller,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16.0),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: '',
+                contentPadding: EdgeInsets.symmetric(vertical: 10.0),
+              ),
+              onChanged: (text) {
+                setState(() {
+                  _currentValue = int.tryParse(text) ?? 0;
+                });
+              },
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 10.0,
+        ),
+        Container(
+          height: 30,
+          width: 30,
+          decoration: BoxDecoration(
+            color: AppColors.secondaryColor,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(6.0),
+          ),
+          child: IconButton(
+            icon: Icon(Icons.add),
+            iconSize: 15,
+            color: AppColors.primaryColor,
+            padding: EdgeInsets.all(0),
+            onPressed: _increment,
+          ),
+        ),
+        SizedBox(
+          width: 10.0,
         ),
       ],
     );

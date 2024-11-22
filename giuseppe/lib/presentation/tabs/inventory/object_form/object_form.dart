@@ -16,43 +16,43 @@ class _ObjectFormState extends State<ObjectForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
+      body: Column(
+        children: [
+          // Parte fija
+          Stack(
             children: [
-              Stack(
-                children: [
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-                      child: const Image(
-                        image: AssetImage('assets/images/logo.png'),
-                        height: 75.0,
-                      ),
-                    ),
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
+                  child: const Image(
+                    image: AssetImage('assets/images/logo.png'),
+                    height: 70.0,
                   ),
-                  Positioned(
-                    top: 20.0,
-                    left: 10.0,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                ],
+                ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: Text("AÑADIR A INVENTARIO",
-                    style: Theme.of(context).textTheme.headlineSmall
-                )
-              ),
-              const Padding(padding: EdgeInsets.all(20.0), child: _NewObjectForm()),
             ],
           ),
-        ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 22.0),
+            child: const Text(
+              "AÑADIR A INVENTARIO",
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          ),
+
+          // Parte deslizante
+          const Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: _NewObjectForm(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -67,16 +67,14 @@ class _NewObjectForm extends StatefulWidget {
 
 class _NewObjectFormState extends State<_NewObjectForm> {
   final ImagePicker picker = ImagePicker();
-  final List<File> _images = []; // Lista para almacenar imágenes seleccionadas
+  final List<File> _images = [];
 
   Future<void> pickImagesFromGallery() async {
-    final List<XFile>? pickedFiles = await picker.pickMultiImage(); // Selección múltiple.
-    if (pickedFiles != null) {
-      setState(() {
-        _images.addAll(pickedFiles.map((file) => File(file.path)));
-      });
+    final List<XFile> pickedFiles = await picker.pickMultiImage();
+    setState(() {
+      _images.addAll(pickedFiles.map((file) => File(file.path)));
+    });
     }
-  }
 
   //Eliminar imagen
   void removeImage(int index) {
@@ -110,7 +108,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                       // Carrusel de imágenes
                       _images.isNotEmpty
                           ? SizedBox(
-                        height: 150,
+                        height: 120,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: _images.length,
@@ -121,14 +119,14 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                                   margin: const EdgeInsets.all(8.0),
                                   child: Image.file(
                                     _images[index],
-                                    height: 150,
-                                    width: 150,
+                                    height: 100,
+                                    width: 100,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
                                 Positioned(
-                                  top: 5,
-                                  right: 5,
+                                  top: 0,
+                                  right: 0,
                                   child: GestureDetector(
                                     onTap: () => removeImage(index),
                                     //boton para borrar imagenes
@@ -153,36 +151,38 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                         ),
                       )
                           : const Center(
-                        child: Icon(Icons.image, size: 150),
                       ),
-                      ElevatedButton(
-                        onPressed: pickImagesFromGallery,
-                        child: const Text("Añadir Imágenes"),
-                      ),
+                      SizedBox(
+                        width: 160,
+                        child: ElevatedButton(
+                          onPressed: pickImagesFromGallery,
+                          child: const Text("Añadir Imágenes"),
+                        ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 15.0),
                   Text('ID', style: Theme.of(context).textTheme.bodyMedium),
                   const CustomTextFormField(
                     formFieldType: FormFieldType.id,
-                    hintText: '12345a',
+                    hintText: 'Ingrese ID del item',
                   ),
                   const SizedBox(height: 15.0),
                   Text('Nombre', style: Theme.of(context).textTheme.bodyMedium),
                   const CustomTextFormField(
                       formFieldType: FormFieldType.name,
-                      hintText: 'Nombre objeto'),
+                      hintText: 'Ingrese nombre del item'),
                   const SizedBox(height: 15.0),
                   Text('Cantidad', style: Theme.of(context).textTheme.bodyMedium),
                   const CustomTextFormField(
                     formFieldType: FormFieldType.quantity,
-                    hintText: '2',
+                    hintText: 'Ingrese la cantidad en stock',
                   ),
                   const SizedBox(height: 15.0),
                   Text('Detalle', style: Theme.of(context).textTheme.bodyMedium),
                   const CustomTextFormField(
                       formFieldType: FormFieldType.description,
-                      hintText: 'Nombre objeto'),
+                      hintText: 'Ingrese Detalles del item (ubicación, dimensiones)'),
                   const SizedBox(height: 15.0),
                   Text('Categoría', style: Theme.of(context).textTheme.bodyMedium),
                   const SizedBox(height: 6.0),
@@ -222,10 +222,13 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                   ),
                   const SizedBox(height: 30.0),
                   Center(
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      child: const Text("Añadir"),
-                    ),
+                    child: SizedBox(
+                      width: 160,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: const Text("Añadir"),
+                      ),
+                    )
                   ),
                 ],
               ),

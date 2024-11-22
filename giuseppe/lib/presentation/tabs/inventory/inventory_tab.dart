@@ -40,7 +40,7 @@ class _InventoryTabState extends State<InventoryTab> {
             padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
             child: const Image(
               image: AssetImage('assets/images/logo.png'),
-              height: 90.0,
+              height: 70.0,
             ),
           ),
           Container(
@@ -103,52 +103,34 @@ class _InventoryTabState extends State<InventoryTab> {
                   ),
                 ),
                 const SizedBox(width: 10.0),
-                Column(
-                  children: [
-                    if (isAdmin)
-                      SizedBox(
-                        width: 30,
-                        height: 30,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const SearchObjectTab()),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                          ),
-                          child: const Icon(Icons.camera_alt,
-                              size: 16, color: AppColors.primaryColor),
-                        ),
+                if (isAdmin)
+                  SizedBox(
+                    width: 50,
+                    height: 55,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SearchObjectTab()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.zero,
                       ),
-                    if (isAdmin)
-                      const SizedBox(height: 5.0),
-                    SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ObjectForm()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: const Icon(Icons.add,
-                            size: 16, color: AppColors.primaryColor),
-                      ),
+                      child: const Icon(Icons.camera_alt,
+                          size: 16, color: AppColors.primaryColor),
                     ),
-                  ],
-                ),
+                  ),
               ],
             ),
           ),
-
+          const Divider(
+            color: AppColors.primaryVariantColor,
+            thickness: 1.0,
+            indent: 20.0,
+            endIndent: 20.0,
+          ),
           // Parte desplazable
           Expanded(
             child: Container(
