@@ -5,6 +5,7 @@ import 'package:giuseppe/presentation/tabs/orders/orders_tab.dart';
 import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
 import 'package:giuseppe/presentation/tabs/users/users_tab.dart';
+import 'package:giuseppe/utils/theme/app_colors.dart';
 
 class TabsPage extends StatefulWidget {
   final bool isAdmin;
@@ -89,6 +90,8 @@ class _TabsPageState extends State<TabsPage> {
     return Scaffold(
       body: tabsOptions.elementAt(_selectedItemIndex),
       bottomNavigationBar: NavigationBar(
+        backgroundColor: AppColors.primaryVariantColor,
+        indicatorColor: AppColors.primaryColor,
         selectedIndex: _selectedItemIndex,
         onDestinationSelected: _onItemTapped,
         destinations: destinations
