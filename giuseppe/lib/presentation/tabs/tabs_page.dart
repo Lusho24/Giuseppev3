@@ -22,7 +22,7 @@ class _TabsPageState extends State<TabsPage> {
     const InventoryTab(),
     const UsersTab(),
     const DispatchOrderTab(),
-    const OrdersTab()
+    OrdersTab(isAdmin: widget.isAdmin)
   ];
 
   // Navegación para admin
@@ -53,7 +53,7 @@ class _TabsPageState extends State<TabsPage> {
   late final List<Widget> _userTabsOptions = [
     const InventoryTab(),
     const SearchObjectTab(),
-    const OrdersTab()
+    OrdersTab(isAdmin: widget.isAdmin)
   ];
 
   late final List<NavigationDestination> _userDestinations = const [
