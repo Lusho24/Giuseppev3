@@ -210,7 +210,7 @@ class InventoryCard extends StatelessWidget {
               right: 4,
               child: Theme(
                 data: Theme.of(context).copyWith(
-                  popupMenuTheme: PopupMenuThemeData(
+                  popupMenuTheme: const PopupMenuThemeData(
                     color: AppColors.primaryColor, // Fondo del menú
                   ),
                 ),
