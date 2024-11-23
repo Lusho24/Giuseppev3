@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 
 class DispatchOrderTab extends StatefulWidget {
@@ -82,27 +83,30 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                             child: SizedBox(
                               height: 40,
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) => DispatchOrderModal(),
+                                  );
+                                },
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(6.0),
                                   ),
                                 ),
-                                child: Row(
+                                child: const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Siguiente",
                                       style: TextStyle(fontSize: 16.0),
                                     ),
-                                    const SizedBox(width: 20),
-                                    Container(
-                                      child: const Icon(
-                                        Icons.arrow_forward,
-                                        size: 18,
-                                        color: AppColors.primaryColor,
-                                      ),
+                                    SizedBox(width: 20),
+                                    Icon(
+                                      Icons.arrow_forward,
+                                      size: 18,
+                                      color: AppColors.primaryColor,
                                     ),
                                   ],
                                 ),
@@ -308,4 +312,127 @@ class _NumberInputState extends State<NumberInput> {
     );
   }
 
+}
+
+// * Ventana modal
+class DispatchOrderModal extends StatefulWidget {
+  const DispatchOrderModal({super.key});
+
+  @override
+  State<DispatchOrderModal> createState() => _DispatchOrderModalState();
+}
+
+class _DispatchOrderModalState extends State<DispatchOrderModal> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _clientNameController = TextEditingController();
+  final TextEditingController _linkController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+  DateTime _eventDate = DateTime.now();
+
+  // Método para seleccionar la fecha
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _eventDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (pickedDate != null && pickedDate != _eventDate) {
+      setState(() {
+        _eventDate = pickedDate;
+        _dateController.text = _eventDate.toLocal().toString().split(' ')[0];
+      });
+    }
+  }
+
+  void _generatePDF(String clientName, String date, String link) {
+    print('Datos para el PDF:');
+    print('Nombre del Cliente: $clientName');
+    print('Fecha: $date');
+    print('Link: $link');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Icon(Icons.info_outline,size: 16.0),
+                  const SizedBox(width: 10.0),
+                  const Expanded(
+                    child: Text("DATOS DE ORDEN DE DESPACHO",
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.visible,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: (){
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.close)
+                  )
+                ],
+              ), 
+              const SizedBox(height: 20),
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('CLIENTE', style: Theme.of(context).textTheme.bodyMedium),
+                    CustomTextFormField(
+                      formFieldType: FormFieldType.client_name,
+                      hintText: 'Nombre del Cliente',
+                      controller: _clientNameController,
+                    ),
+                    const SizedBox(height: 10),
+
+                    Text('FECHA DE BODA', style: Theme.of(context).textTheme.bodyMedium),
+                    CustomTextFormField(
+                      formFieldType: FormFieldType.event_date,
+                      hintText: 'dd/mm/yy',
+                      controller: _dateController,
+                      onSuffixIconPressed: () => _selectDate(context),
+                    ),
+                    const SizedBox(height: 10),
+
+                    Text('UBICACIÓN', style: Theme.of(context).textTheme.bodyMedium),
+                    CustomTextFormField(
+                      formFieldType: FormFieldType.url_location,
+                      hintText: 'Link',
+                      controller: _linkController,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    String clientName = _clientNameController.text;
+                    String link = _linkController.text;
+                    String formattedDate = "${_eventDate.day.toString().padLeft(2, '0')}/"
+                        "${_eventDate.month.toString().padLeft(2, '0')}/"
+                        "${_eventDate.year}";
+
+                    _generatePDF(clientName, formattedDate, link);
+
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text("Crear Orden"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

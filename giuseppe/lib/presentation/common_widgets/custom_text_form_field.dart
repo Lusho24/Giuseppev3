@@ -6,7 +6,9 @@ enum FormFieldType{
   // Campos para los formularios de Usuario:
   email, password, identity_card, username, address, phone,
   // Campos para los formularios de Objetos:
-  id, name, description, quantity, status, category
+  id, name, description, quantity, status, category,
+  // Campos para ventana modal de despacho de orden:
+  client_name, event_date, url_location
 }
 
 class CustomTextFormField extends StatelessWidget {
@@ -14,6 +16,7 @@ class CustomTextFormField extends StatelessWidget {
   final String hintText;
   final TextEditingController? controller;
   final double? height;
+  final VoidCallback? onSuffixIconPressed;
 
   const CustomTextFormField({
     super.key,
@@ -21,6 +24,7 @@ class CustomTextFormField extends StatelessWidget {
     required this.hintText,
     this.controller,
     this.height,
+    this.onSuffixIconPressed
   });
 
   @override
@@ -51,6 +55,11 @@ class CustomTextFormField extends StatelessWidget {
               ? EdgeInsets.symmetric(
               vertical: height! , horizontal: 8.0)
               : const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+          suffixIcon: formFieldType == FormFieldType.event_date ?
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: onSuffixIconPressed,
+          ) : null,
         ),
         validator: (value) => validateFormField(value: value, formFieldType: formFieldType),
       ),
