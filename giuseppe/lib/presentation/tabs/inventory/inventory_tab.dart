@@ -175,35 +175,119 @@ class InventoryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(10.0),
         ),
         color: AppColors.primaryColor,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Image.asset(
-                item['image']!,
-                height: 60.0,
-                width: double.infinity,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Image.asset(
+                    item['image']!,
+                    height: 60.0,
+                    width: double.infinity,
+                  ),
+                  const SizedBox(height: 10.0),
+                  Text(
+                    item['name']!,
+                    style: Theme.of(context).textTheme.titleSmall,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8.0),
+                  Expanded(
+                    child: Text(
+                      "Disponibles: ${item['quantity']!}",
+                      style: Theme.of(context).textTheme.bodySmall,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10.0),
-              Text(
-                item['name']!,
-                style: Theme.of(context).textTheme.titleSmall,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8.0),
-              Expanded(
-                child: Text(
-                  "Disponibles: ${item['quantity']!}",
-                  style: Theme.of(context).textTheme.bodySmall,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
+            ),
+            // Icono de mas opciones
+            Positioned(
+              top: 4,
+              right: 4,
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  popupMenuTheme: PopupMenuThemeData(
+                    color: AppColors.primaryColor, // Fondo del menú
+                  ),
+                ),
+                child: PopupMenuButton<String>(
+                  offset: const Offset(0, 40), // Ajustar la posición del menú
+                  onSelected: (String value) {
+                    handleMenuOption(value);
+                  },
+                  icon: const Icon(
+                    Icons.more_vert,
+                    color: AppColors.primaryVariantColor,
+                    size: 20.0,
+                  ),
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'editar',
+                      child: Text('Editar'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'eliminar',
+                      child: Text('Eliminar'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'ver_detalles',
+                      child: Text('Ver Detalles'),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+
+          ],
         ),
       ),
     );
+  }
+
+  // Manejar opciones seleccionadas del menú
+  void handleMenuOption(String value) {
+    switch (value) {
+      case 'editar':
+      // Acciones para editar
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ObjectForm()),
+        );
+        break;
+      case 'eliminar':
+      // Acciones para eliminar
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmar Eliminación'),
+              content: Text('¿Está seguro que desea eliminar "${item['name']}"?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Lógica para eliminar el objeto
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Eliminar'),
+                ),
+              ],
+            );
+          },
+        );
+        break;
+      case 'ver_detalles':
+      // Mostrar detalles del objeto
+        modalObject();
+        break;
+    }
   }
 
   // * Ventana modal
