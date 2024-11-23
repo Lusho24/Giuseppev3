@@ -226,6 +226,10 @@ class InventoryCard extends StatelessWidget {
                   ),
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                     const PopupMenuItem<String>(
+                      value: 'añadir_orden',
+                      child: Text('Añadir a Orden'),
+                    ),
+                    const PopupMenuItem<String>(
                       value: 'editar',
                       child: Text('Editar'),
                     ),
@@ -233,30 +237,24 @@ class InventoryCard extends StatelessWidget {
                       value: 'eliminar',
                       child: Text('Eliminar'),
                     ),
-                    const PopupMenuItem<String>(
-                      value: 'ver_detalles',
-                      child: Text('Ver Detalles'),
-                    ),
                   ],
                 ),
               ),
             ),
-
           ],
         ),
       ),
     );
   }
 
-  // Manejar opciones seleccionadas del menú
+  //Opciones del menú
   void handleMenuOption(String value) {
     switch (value) {
+      case 'añadir_orden':
+        addItem(item);
+        break;
       case 'editar':
-      // Acciones para editar
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ObjectForm()),
-        );
+
         break;
       case 'eliminar':
       // Acciones para eliminar
@@ -283,12 +281,74 @@ class InventoryCard extends StatelessWidget {
           },
         );
         break;
-      case 'ver_detalles':
-      // Mostrar detalles del objeto
-        modalObject();
-        break;
     }
   }
+
+  void addItem(Map<String, String> item) {
+    final TextEditingController quantityController = TextEditingController(text: item['quantity']);
+    final TextEditingController additionalInfoController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 15.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop())),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Image.asset(
+                      item['image']!,
+                      height: 130.0,
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      'Añadir a Orden',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 10),
+                    Text('Producto: ${item['name']}'),
+                    const SizedBox(height: 10),
+                    Text('Stock: ${item['quantity']}'),
+                    const SizedBox(height: 10),
+                    TextField(
+                      decoration: const InputDecoration(labelText: 'Cantidad'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: additionalInfoController,
+                      decoration: const InputDecoration(labelText: 'Observaciones:'),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Añadir'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
   // * Ventana modal
   void modalObject() {
