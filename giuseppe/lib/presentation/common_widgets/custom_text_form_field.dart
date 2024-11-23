@@ -35,7 +35,7 @@ class CustomTextFormField extends StatelessWidget {
         maxLines: formFieldType == FormFieldType.description ? 2 : 1,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(color: AppColors.hintTextColor),
+          hintStyle: const TextStyle(color: AppColors.hintTextColor,fontSize: 13.0, fontWeight: FontWeight.w400),
           errorMaxLines: 2,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),

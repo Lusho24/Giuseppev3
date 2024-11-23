@@ -195,8 +195,9 @@ class OrderCard extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: "Observaciones:",
                       hintStyle: const TextStyle(
-                        fontSize: 12.0,
-                        color: Colors.grey,
+                        fontSize: 13.0,
+                        color: AppColors.hintTextColor,
+                        fontWeight: FontWeight.w400,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(6.0),

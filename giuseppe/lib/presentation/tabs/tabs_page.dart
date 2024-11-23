@@ -90,7 +90,7 @@ class _TabsPageState extends State<TabsPage> {
     return Scaffold(
       body: tabsOptions.elementAt(_selectedItemIndex),
       bottomNavigationBar: NavigationBar(
-        backgroundColor: AppColors.primaryVariantColor,
+        backgroundColor: AppColors.onSecondaryColor,
         indicatorColor: AppColors.primaryColor,
         selectedIndex: _selectedItemIndex,
         onDestinationSelected: _onItemTapped,

@@ -155,8 +155,10 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                       SizedBox(
                         width: 160,
                         child: ElevatedButton(
+                          style: ButtonStyle(),
                           onPressed: pickImagesFromGallery,
                           child: const Text("Añadir Imágenes"),
+
                         ),
                       )
                     ],
