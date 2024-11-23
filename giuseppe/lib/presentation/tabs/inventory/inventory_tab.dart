@@ -254,10 +254,9 @@ class InventoryCard extends StatelessWidget {
         addItem(item);
         break;
       case 'editar':
-
+        editItem(item);  // Cambiado para abrir el modal de edición
         break;
       case 'eliminar':
-      // Acciones para eliminar
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -271,7 +270,6 @@ class InventoryCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    // Lógica para eliminar el objeto
                     Navigator.of(context).pop();
                   },
                   child: const Text('Eliminar'),
@@ -284,6 +282,7 @@ class InventoryCard extends StatelessWidget {
     }
   }
 
+  //ventana modal de añadir item a la orden de despacho
   void addItem(Map<String, String> item) {
     final TextEditingController quantityController = TextEditingController(text: item['quantity']);
     final TextEditingController additionalInfoController = TextEditingController();
@@ -323,8 +322,8 @@ class InventoryCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     Text('Stock: ${item['quantity']}'),
                     const SizedBox(height: 10),
-                    TextField(
-                      decoration: const InputDecoration(labelText: 'Cantidad'),
+                    const TextField(
+                      decoration: InputDecoration(labelText: 'Cantidad'),
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 10),
@@ -349,8 +348,76 @@ class InventoryCard extends StatelessWidget {
     );
   }
 
+  //ventana modal de editar item
+  void editItem(Map<String, String> item) {
+    final TextEditingController nameController = TextEditingController(text: item['name']);
+    final TextEditingController quantityController = TextEditingController(text: item['quantity']);
 
-  // * Ventana modal
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 15.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Image.asset(
+                      item['image']!,
+                      height: 130.0,
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      'Editar ${item['name']}',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(labelText: 'Nombre'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: quantityController,
+                      decoration: const InputDecoration(labelText: 'Cantidad'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const TextField(
+                      decoration: InputDecoration(labelText: 'Detalle'),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Guardar'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // * Ventana modal info
   void modalObject() {
     showModalBottomSheet(
       context: context,
