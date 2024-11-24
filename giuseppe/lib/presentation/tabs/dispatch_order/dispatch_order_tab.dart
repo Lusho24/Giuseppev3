@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
+import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 
 class DispatchOrderTab extends StatefulWidget {
@@ -345,12 +346,6 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
     }
   }
 
-  void _generatePDF(String clientName, String date, String link) {
-    print('Datos para el PDF:');
-    print('Nombre del Cliente: $clientName');
-    print('Fecha: $date');
-    print('Link: $link');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -422,10 +417,17 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                         "${_eventDate.month.toString().padLeft(2, '0')}/"
                         "${_eventDate.year}";
 
-                    _generatePDF(clientName, formattedDate, link);
-
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => OrderPdf(
+                              name: clientName,
+                              date: formattedDate,
+                              link: link)
+                      ),
+                    );
                   }
+
                 },
                 child: const Text("Crear Orden"),
               ),
