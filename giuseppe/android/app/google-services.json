@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "656495872961",
+    "project_id": "giuseppe-7b8cb",
+    "storage_bucket": "giuseppe-7b8cb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656495872961:android:9b501048f67480af277d40",
+        "android_client_info": {
+          "package_name": "com.example.app_movil_giuseppe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZ2RGaBeDPeacSVeA3UGJzwgUA1RDXc_8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656495872961:android:db29683ac2403b6b277d40",
+        "android_client_info": {
+          "package_name": "com.example.giuseppe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZ2RGaBeDPeacSVeA3UGJzwgUA1RDXc_8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656495872961:android:b456784eae74e001277d40",
+        "android_client_info": {
+          "package_name": "com.giuseppe.giuseppe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZ2RGaBeDPeacSVeA3UGJzwgUA1RDXc_8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
