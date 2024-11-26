@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
+import 'package:giuseppe/presentation/login/login_view_model.dart';
 import 'package:giuseppe/router/app_routes.dart';
+import 'package:giuseppe/services/firebase_service/user_service/user_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,23 +16,27 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SingleChildScrollView(
-      child: Center(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.only(top: 90.0, bottom: 30.0),
-              child: const Image(
-                image: AssetImage('assets/images/logo.png'),
-                height: 160.0,
+    return ChangeNotifierProvider(
+      create: (context) => LoginViewModel(UserService()),
+      child: Scaffold(
+          body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(top: 90.0, bottom: 30.0),
+                child: const Image(
+                  image: AssetImage('assets/images/logo.png'),
+                  height: 160.0,
+                ),
               ),
-            ),
-            const Padding(padding: EdgeInsets.all(60.0), child: _SignInForm())
-          ],
+              const Padding(padding: EdgeInsets.all(60.0), child: _SignInForm())
+            ],
+          ),
         ),
-      ),
-    ));
+      )
+    )
+    );
   }
 }
 
