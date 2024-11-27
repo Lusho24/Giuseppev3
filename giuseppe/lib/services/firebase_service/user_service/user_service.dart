@@ -1,35 +1,44 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:giuseppe/models/user_model.dart';
-import 'package:giuseppe/services/firebase_service/user_service/user_service_interface.dart';
 import 'dart:developer' as dev;
 
-class UserService implements UserServiceInterface{
-  @override
-  Future<void> createUser(UserModel user) {
-    // TODO: implement createUser
-    throw UnimplementedError();
-  }
+class UserService{
+  final  FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  @override
-  Future<void> deleteUser(String id) {
-    // TODO: implement deleteUser
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<UserModel>? getUserById(String id) {
+  Future<List<UserModel>> getAllUsers() async {
     try {
-      // TODO: implement getUserById
-      return null;
+      final querySnapshot = await _firestore.collection('users')
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        List<UserModel> users = querySnapshot.docs
+            .map((doc) => UserModel.fromJson(doc.data()))
+            .toList();
+
+        return users;
+      }
+      return [];
     } catch (e) {
-      dev.log('Error al obtener usuario: $e');
-      return null;
+      dev.log(' - ERROR EN LA CONEXION Y OBTENER LOS DATOS: $e');
+      return [];
     }
   }
 
-  @override
-  Future<List<UserModel>> getUsers() {
-    // TODO: implement getUsers
-    throw UnimplementedError();
+  Future<UserModel?> getUserById(String id) async {
+    try {
+      final query = await _firestore.collection('users')
+          .where('id', isEqualTo: id)
+          .limit(1)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        final doc = query.docs.first;
+        return UserModel.fromJson(doc.data());
+      }
+      return null;
+    } catch (e) {
+      dev.log(' - ERROR EN LA CONEXION Y OBTENER LOS DATOS: $e');
+      return null;
+    }
   }
   
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/presentation/login/login_view_model.dart';
 import 'package:giuseppe/router/app_routes.dart';
-import 'package:giuseppe/services/firebase_service/user_service/user_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => LoginViewModel(UserService()),
+      create: (context) => LoginViewModel(),
       child: Scaffold(
           body: SingleChildScrollView(
         child: Center(
@@ -29,6 +28,21 @@ class _LoginPageState extends State<LoginPage> {
                   image: AssetImage('assets/images/logo.png'),
                   height: 160.0,
                 ),
+              ),
+              Consumer<LoginViewModel>(
+                  builder: (context, viewmodel, child){
+                    return ElevatedButton(
+                        onPressed: () async {
+                          //ESTA FUNCION SI VALE
+                          //await viewmodel.funcionTest();
+
+                          // ESTA NO
+                          await viewmodel.getAllUsers();
+
+                        },
+                        child: Text("OBTENER TODOS LOS USUARIOS")
+                    );
+                  }
               ),
               const Padding(padding: EdgeInsets.all(60.0), child: _SignInForm())
             ],
