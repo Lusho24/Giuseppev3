@@ -29,21 +29,6 @@ class _LoginPageState extends State<LoginPage> {
                   height: 160.0,
                 ),
               ),
-              Consumer<LoginViewModel>(
-                  builder: (context, viewmodel, child){
-                    return ElevatedButton(
-                        onPressed: () async {
-                          //ESTA FUNCION SI VALE
-                          //await viewmodel.funcionTest();
-
-                          // ESTA NO
-                          await viewmodel.getAllUsers();
-
-                        },
-                        child: Text("OBTENER TODOS LOS USUARIOS")
-                    );
-                  }
-              ),
               const Padding(padding: EdgeInsets.all(60.0), child: _SignInForm())
             ],
           ),
@@ -61,8 +46,12 @@ class _SignInForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController _idController = TextEditingController();
+    final TextEditingController _passwordController = TextEditingController();
+    final _formKey = GlobalKey<FormState>();
+
     return Form(
-      key: GlobalKey<FormState>(),
+      key: _formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Container(
         decoration: BoxDecoration(
@@ -80,9 +69,10 @@ class _SignInForm extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Usuario', style: Theme.of(context).textTheme.bodyMedium),
-                const CustomTextFormField(
+                CustomTextFormField(
                   formFieldType: FormFieldType.identity_card,
                   hintText: '',
+                  controller: _idController,
                 ),
               ],
             ),
@@ -92,24 +82,35 @@ class _SignInForm extends StatelessWidget {
               children: [
                 Text('Contraseña',
                     style: Theme.of(context).textTheme.bodyMedium),
-                const CustomTextFormField(
-                    formFieldType: FormFieldType.password, hintText: ''),
+                CustomTextFormField(
+                    formFieldType: FormFieldType.password,
+                    hintText: '',
+                    controller: _passwordController),
               ],
             ),
             Container(
               padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.tabsPage,
-                      arguments: false);
-                },
-                onLongPress: () {
-                  Navigator.pushNamed(context, AppRoutes.tabsPage,
-                      arguments: true);
-                },
-                child: const Text('Ingresar'),
-              ),
+              child: Consumer<LoginViewModel>(
+                  builder: (context, viewmodel, child){
+                    return ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          await viewmodel.signIn(
+                              id: _idController.text.trim(),
+                              password: _passwordController.text,
+                              context: context
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Por favor, completa los campos correctamente")),
+                          );
+                        }
+                      },
+                      child: const Text("Ingresar"),
+                    );
+                  }
+              )
             ),
             const Text('Recordar contraseña',
                 style: TextStyle(

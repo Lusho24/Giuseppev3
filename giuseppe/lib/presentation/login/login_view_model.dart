@@ -1,38 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:giuseppe/models/user_model.dart';
-import 'package:giuseppe/services/firebase_service/user_service/user_service.dart';
+import 'package:giuseppe/router/app_routes.dart';
+import 'package:giuseppe/services/firebase_services/firestore_database/login_service.dart';
 import 'dart:developer' as dev;
+
 
 class LoginViewModel extends ChangeNotifier {
 
-  late final UserService _userService = UserService();
+  late final LoginService _userService = LoginService();
+  bool _isLoggedIn = false;
+  bool _isAdmin = false;
 
-  Future<void> getAllUsers() async {
-    try{
-      final users = await _userService.getAllUsers();
-      if (users.isNotEmpty) {
-        String firstUserName = users.first.name;
-        dev.log("Nombre del primer usuario: $firstUserName");
-      } else {
-        dev.log("No hay usuarios disponibles.");
-      }
-    }catch(e){
-      dev.log("- ERROR EN EL VIEEW MODEL: $e");
+  Future<void> signIn({
+    required String id,
+    required String password,
+    required BuildContext context}) async {
+
+    List<bool> result = await _userService.signIn(id, password);
+    _isLoggedIn = result[0];
+    _isAdmin = result[1];
+
+
+    if (_isLoggedIn && _isAdmin) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login exitoso como ADMIN!')),
+      );
+      Navigator.pushReplacementNamed(context, AppRoutes.tabsPage, arguments: true);
+    } else if(_isLoggedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login exitoso como USUARIO!')),
+      );
+      Navigator.pushReplacementNamed(context, AppRoutes.tabsPage, arguments: false);
     }
-
-  }
-
-  Future<void> funcionTest() async {
-    dev.log("SI VALE EL VIEW MODEL");
-  }
-
-
-  Future<void> getUserById(String id) async {
-    final user = await _userService.getUserById(id);
-    if (user != null) {
-      dev.log("USUARIO: $user");
-    } else {
-      dev.log("ERROR: NO HAY ");
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al iniciar sesión!')),
+      );
     }
   }
 
