@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:giuseppe/presentation/tabs/inventory/object_form/object_form.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
-import 'package:giuseppe/router/app_routes.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
+import '../../../services/firebase_services/firestore_database/object_service.dart';
 
 class InventoryTab extends StatefulWidget {
   const InventoryTab({super.key});
@@ -22,13 +21,29 @@ class _InventoryTabState extends State<InventoryTab> {
   ];
   bool isAdmin = true;
 
-  final List<Map<String, String>> inventoryItems = [
-    {'name': 'Jarron', 'quantity': '10', 'image': 'assets/images/jarron.png'},
-    {'name': 'Jarron 2', 'quantity': '10', 'image': 'assets/images/jarron2.png'},
-    {'name': 'Lampara', 'quantity': '4', 'image': 'assets/images/lampara.png'},
-    {'name': 'Mesa', 'quantity': '4', 'image': 'assets/images/mesa.png'},
-    {'name': 'Silla', 'quantity': '16', 'image': 'assets/images/silla.png'},
-  ];
+  List<Map<String, dynamic>> inventoryItems = [];
+
+  final ObjectService _objectService = ObjectService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInventoryItems();
+  }
+
+  // Cargar los objetos desde la base de datos
+  Future<void> _loadInventoryItems() async {
+      List<Map<String, dynamic>> items = await _objectService.getAllItems();
+      setState(() {
+        inventoryItems = items.map((item) {
+          return {
+            'image': item['images'] ?? [],
+            'name': item['name'] ?? 'Unnamed',
+            'quantity': item['quantity']?.toString() ?? '0',
+          };
+        }).toList();
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,12 +174,13 @@ class _InventoryTabState extends State<InventoryTab> {
 
 
 class InventoryCard extends StatelessWidget {
-  final Map<String, String> item;
+  final Map<String, dynamic> item;
   final BuildContext context;
   const InventoryCard({super.key, required this.item, required this.context});
 
   @override
   Widget build(BuildContext context) {
+    String imageUrl = item['image']?.isNotEmpty == true ? item['image'][0] : '';
     return GestureDetector(
       onTap: () {
         modalObject();
@@ -181,8 +197,8 @@ class InventoryCard extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  Image.asset(
-                    item['image']!,
+                  Image.network(
+                    imageUrl,
                     height: 60.0,
                     width: double.infinity,
                   ),
@@ -283,7 +299,7 @@ class InventoryCard extends StatelessWidget {
   }
 
   //ventana modal de añadir item a la orden de despacho
-  void addItem(Map<String, String> item) {
+  void addItem(Map<String, dynamic> item) {
     final TextEditingController quantityController = TextEditingController(text: item['quantity']);
     final TextEditingController additionalInfoController = TextEditingController();
 
@@ -349,7 +365,7 @@ class InventoryCard extends StatelessWidget {
   }
 
   //ventana modal de editar item
-  void editItem(Map<String, String> item) {
+  void editItem(Map<String, dynamic> item) {
     final TextEditingController nameController = TextEditingController(text: item['name']);
     final TextEditingController quantityController = TextEditingController(text: item['quantity']);
 

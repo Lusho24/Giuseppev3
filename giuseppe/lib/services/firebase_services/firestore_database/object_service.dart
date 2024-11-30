@@ -65,4 +65,28 @@ class ObjectService {
       return false;
     }
   }
+
+
+  ////Inventario
+
+  Future<List<Map<String, dynamic>>> getAllItems() async {
+    try {
+      // Acceder a la colección de objetos en Firestore
+      QuerySnapshot snapshot = await _firestore.collection('objects').get();
+      List<Map<String, dynamic>> items = [];
+
+      // Convertir los documentos en una lista de mapas
+      for (var doc in snapshot.docs) {
+        items.add(doc.data() as Map<String, dynamic>);
+      }
+
+      return items;
+    } catch (e) {
+      print('Error al obtener objetos: $e');
+      return [];
+    }
+  }
+
+
+
 }
