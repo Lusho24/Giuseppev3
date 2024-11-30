@@ -9,10 +9,7 @@ class AppRoutes {
   static Map<String, WidgetBuilder> getRoutes() {
     return {
       loginPage: (BuildContext context) => const LoginPage(),
-      tabsPage: (BuildContext context) {
-        final arguments = ModalRoute.of(context)!.settings.arguments as bool?;
-        return TabsPage(isAdmin: arguments ?? false);
-      }
+      tabsPage: (BuildContext context) => const TabsPage()
     };
   }
 

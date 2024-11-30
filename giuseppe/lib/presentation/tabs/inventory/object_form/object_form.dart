@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:giuseppe/presentation/tabs/tabs_page.dart';
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
+import 'package:giuseppe/router/app_routes.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
@@ -338,10 +338,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Objeto añadido exitosamente.')),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const TabsPage(isAdmin: true)),
-        );
+        Navigator.pushReplacementNamed(context, AppRoutes.tabsPage);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al añadir el objeto.')),

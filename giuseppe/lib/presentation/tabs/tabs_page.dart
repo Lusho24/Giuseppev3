@@ -4,27 +4,28 @@ import 'package:giuseppe/presentation/tabs/inventory/object_form/object_form.dar
 import 'package:giuseppe/presentation/tabs/orders/orders_tab.dart';
 import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
-import 'package:giuseppe/presentation/tabs/users/users_tab.dart';
+import 'package:giuseppe/presentation/tabs/tabs_view_model.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 
 class TabsPage extends StatefulWidget {
-  final bool isAdmin;
-  const TabsPage({super.key, required this.isAdmin});
+  const TabsPage({super.key});
 
   @override
   State<TabsPage> createState() => _TabsPageState();
 }
 
 class _TabsPageState extends State<TabsPage> {
-  int _selectedItemIndex = 0;
+  final TabsViewModel _viewModel = TabsViewModel();
+  late final bool _isAdmin;
 
+  int _selectedItemIndex = 0;
 
   // * Opciones de tabs para admin
   late final List<Widget> _adminTabsOptions = [
     const InventoryTab(),
     const ObjectForm(),
     const DispatchOrderTab(),
-    OrdersTab(isAdmin: widget.isAdmin)
+    OrdersTab(isAdmin: _isAdmin)
   ];
 
   // Navegación para admin
@@ -55,7 +56,7 @@ class _TabsPageState extends State<TabsPage> {
   late final List<Widget> _userTabsOptions = [
     const InventoryTab(),
     const SearchObjectTab(),
-    OrdersTab(isAdmin: widget.isAdmin)
+    OrdersTab(isAdmin: _isAdmin)
   ];
 
   late final List<NavigationDestination> _userDestinations = const [
@@ -82,10 +83,23 @@ class _TabsPageState extends State<TabsPage> {
     });
   }
 
+  Future<void> _initSessionData() async {
+    Map<String, dynamic>? sessionData =  await _viewModel.fetchSessionInLocalStorage();
+    setState(() {
+      _isAdmin = sessionData!['isAdmin'];
+    });
+  }
+
+  @override
+  void initState() {
+    _initSessionData();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final tabsOptions = widget.isAdmin ? _adminTabsOptions : _userTabsOptions;
-    final destinations = widget.isAdmin ? _adminDestinations : _userDestinations;
+    final tabsOptions = _isAdmin ? _adminTabsOptions : _userTabsOptions;
+    final destinations = _isAdmin ? _adminDestinations : _userDestinations;
 
     return Scaffold(
       body: tabsOptions.elementAt(_selectedItemIndex),

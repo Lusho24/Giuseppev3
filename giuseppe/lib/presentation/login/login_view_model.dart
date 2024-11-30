@@ -21,22 +21,15 @@ class LoginViewModel extends ChangeNotifier {
     _isLoggedIn = result[0];
     _isAdmin = result[1];
 
-    if (_isLoggedIn && _isAdmin) {
+    if (_isLoggedIn) {
       await saveSessionInLocalStorage(id, _isAdmin);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login exitoso como ADMIN!')),
+        const SnackBar(content: Text("Bienvenido")),
       );
-      Navigator.pushReplacementNamed(context, AppRoutes.tabsPage, arguments: true);
-    } else if(_isLoggedIn) {
-      await saveSessionInLocalStorage(id, _isAdmin);
+      Navigator.pushReplacementNamed(context, AppRoutes.tabsPage);
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login exitoso como USUARIO!')),
-      );
-      Navigator.pushReplacementNamed(context, AppRoutes.tabsPage, arguments: false);
-    }
-    else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al iniciar sesión!')),
+        const SnackBar(content: Text(" !Error al iniciar sesión! ")),
       );
     }
   }
