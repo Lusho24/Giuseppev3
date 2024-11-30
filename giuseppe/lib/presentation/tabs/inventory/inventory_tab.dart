@@ -180,6 +180,7 @@ class _InventoryTabState extends State<InventoryTab> {
 class InventoryCard extends StatelessWidget {
   final Map<String, dynamic> item;
   final BuildContext context;
+
   const InventoryCard({super.key, required this.item, required this.context});
 
   @override
@@ -209,14 +210,20 @@ class InventoryCard extends StatelessWidget {
                   const SizedBox(height: 10.0),
                   Text(
                     item['name']!,
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleSmall,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8.0),
                   Expanded(
                     child: Text(
                       "Disponibles: ${item['quantity']!}",
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .bodySmall,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                     ),
@@ -245,7 +252,7 @@ class InventoryCard extends StatelessWidget {
                     size: 20.0,
                   ),
                   itemBuilder: (BuildContext context) =>
-                      <PopupMenuEntry<String>>[
+                  <PopupMenuEntry<String>>[
                     const PopupMenuItem<String>(
                       value: 'añadir_orden',
                       child: Text('Añadir a Orden'),
@@ -284,7 +291,7 @@ class InventoryCard extends StatelessWidget {
             return AlertDialog(
               title: const Text('Confirmar Eliminación'),
               content:
-                  Text('¿Está seguro que desea eliminar "${item['name']}"?'),
+              Text('¿Está seguro que desea eliminar "${item['name']}"?'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -307,9 +314,9 @@ class InventoryCard extends StatelessWidget {
   //ventana modal de añadir item a la orden de despacho
   void addItem(Map<String, dynamic> item) {
     final TextEditingController quantityController =
-        TextEditingController(text: item['quantity']);
+    TextEditingController(text: item['quantity']);
     final TextEditingController additionalInfoController =
-        TextEditingController();
+    TextEditingController();
 
     showModalBottomSheet(
       context: context,
@@ -339,7 +346,10 @@ class InventoryCard extends StatelessWidget {
                     const SizedBox(height: 15),
                     Text(
                       'Añadir a Orden',
-                      style: Theme.of(context).textTheme.titleSmall,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleSmall,
                     ),
                     const SizedBox(height: 10),
                     Text('Producto: ${item['name']}'),
@@ -354,7 +364,7 @@ class InventoryCard extends StatelessWidget {
                     TextField(
                       controller: additionalInfoController,
                       decoration:
-                          const InputDecoration(labelText: 'Observaciones:'),
+                      const InputDecoration(labelText: 'Observaciones:'),
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
@@ -376,9 +386,9 @@ class InventoryCard extends StatelessWidget {
   //ventana modal de editar item
   void editItem(Map<String, dynamic> item) {
     final TextEditingController nameController =
-        TextEditingController(text: item['name']);
+    TextEditingController(text: item['name']);
     final TextEditingController quantityController =
-        TextEditingController(text: item['quantity']);
+    TextEditingController(text: item['quantity']);
 
     showModalBottomSheet(
       context: context,
@@ -410,7 +420,10 @@ class InventoryCard extends StatelessWidget {
                     const SizedBox(height: 15),
                     Text(
                       'Editar ${item['name']}',
-                      style: Theme.of(context).textTheme.titleSmall,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleSmall,
                     ),
                     const SizedBox(height: 10),
                     TextField(
@@ -448,7 +461,7 @@ class InventoryCard extends StatelessWidget {
   void modalObject() {
     List<dynamic> images = item['image'] ?? []; // Lista de imágenes
     final CarouselSliderController _carouselController =
-        CarouselSliderController();
+    CarouselSliderController();
     int currentIndex = 0; // Índice de la imagen actual
 
     showModalBottomSheet(
@@ -478,7 +491,8 @@ class InventoryCard extends StatelessWidget {
                         // Carrusel de imágenes
                         CarouselSlider(
                           carouselController:
-                              _carouselController, // Usa CarouselSliderController aquí
+                          _carouselController,
+                          // Usa CarouselSliderController aquí
                           options: CarouselOptions(
                             height: 200.0,
                             enlargeCenterPage: true,
@@ -508,11 +522,11 @@ class InventoryCard extends StatelessWidget {
                                       return Center(
                                         child: CircularProgressIndicator(
                                             value: progress
-                                                        .expectedTotalBytes !=
-                                                    null
+                                                .expectedTotalBytes !=
+                                                null
                                                 ? progress
-                                                        .cumulativeBytesLoaded /
-                                                    progress.expectedTotalBytes!
+                                                .cumulativeBytesLoaded /
+                                                progress.expectedTotalBytes!
                                                 : null),
                                       );
                                     },
@@ -561,11 +575,17 @@ class InventoryCard extends StatelessWidget {
                   const SizedBox(height: 15),
                   Text(
                     item['name']!,
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleSmall,
                   ),
                   Text(
                     "Disponibles: ${item['quantity']!}",
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodySmall,
                   ),
                   const SizedBox(height: 10),
                   Text(
@@ -581,30 +601,54 @@ class InventoryCard extends StatelessWidget {
     );
   }
 
-  void _showImagePreview(
-      BuildContext context, List<dynamic> images, int initialIndex) {
+
+  void _showImagePreview(BuildContext context, List<dynamic> images, int initialIndex) {
     showDialog(
       context: context,
       builder: (context) {
         return Dialog(
-          child: PhotoViewGallery.builder(
-            itemCount: images.length,
-            builder: (BuildContext context, int index) {
-              return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(images[index]),
-                minScale: PhotoViewComputedScale.contained,
-                maxScale: PhotoViewComputedScale.covered * 2,
-              );
-            },
-            scrollPhysics: const BouncingScrollPhysics(),
-            backgroundDecoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+          backgroundColor: Colors.transparent,
+          child: Align(
+            alignment: Alignment.center, // Centra la imagen
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.6,
+                maxWidth: MediaQuery.of(context).size.width * 0.9,
+              ),
+              child: Stack(
+                children: [
+                  PhotoViewGallery.builder(
+                    itemCount: images.length,
+                    builder: (BuildContext context, int index) {
+                      return PhotoViewGalleryPageOptions(
+                        imageProvider: NetworkImage(images[index]),
+                        minScale: PhotoViewComputedScale.contained,
+                        maxScale: PhotoViewComputedScale.covered * 4,
+                      );
+                    },
+                    scrollPhysics: const BouncingScrollPhysics(),
+                    backgroundDecoration: BoxDecoration(
+                      color: AppColors.primaryColor, // Fondo negro para la imagen
+                    ),
+                    pageController: PageController(initialPage: initialIndex),
+                    onPageChanged: (index) {},
+                  ),
+                  Positioned(
+                    right: 0.0,
+                    child: IconButton(
+                      icon: Icon(Icons.close, color: AppColors.primaryVariantColor, size: 30),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Cerrar el Dialog
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-            pageController: PageController(initialPage: initialIndex),
-            onPageChanged: (index) {},
           ),
         );
       },
     );
   }
+
 }
