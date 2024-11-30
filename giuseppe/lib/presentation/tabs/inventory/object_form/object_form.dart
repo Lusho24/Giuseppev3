@@ -165,7 +165,6 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                                       fit: BoxFit.cover,
                                     ),
                                     Positioned(
-                                      top: 0,
                                       right: 0,
                                       child: GestureDetector(
                                         onTap: () => removeImage(_itemImg.indexOf(img)),
@@ -328,18 +327,6 @@ class _NewObjectFormState extends State<_NewObjectForm> {
         category: _selectedCategory ?? 'Sin categoría',
         images: [],  // Inicializar la lista de imágenes
       );
-
-      // Subir las imágenes y obtener sus URLs
-      List<String> imageUrls = [];
-      for (var img in _itemImg) {
-        String? imageUrl = await _objectService.uploadImage(img);
-        if (imageUrl != null) {
-          imageUrls.add(imageUrl);
-        }
-      }
-
-      // Asignar las URLs de las imágenes al objeto
-      object.images = imageUrls;
 
       // Guardar el objeto en Firestore
       bool success = await _objectService.saveObjectWithImages(_itemImg, object);
