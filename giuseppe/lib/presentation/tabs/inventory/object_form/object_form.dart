@@ -67,33 +67,41 @@ class _NewObjectForm extends StatefulWidget {
 
 class _NewObjectFormState extends State<_NewObjectForm> {
   final ImagePicker picker = ImagePicker();
-  final List<File> _images = [];
+  //final List<File> _images = [];
+  File? sampleImg;
 
-  Future<void> pickImagesFromGallery() async {
-    final List<XFile> pickedFiles = await picker.pickMultiImage();
+/*  Future pickImagesFromGallery() async {
+*//*    final List<XFile> pickedFiles = await picker.pickMultiImage();
     setState(() {
       _images.addAll(pickedFiles.map((file) => File(file.path)));
-    });
-    }
+    });*//*
+  }*/
 
-  //Eliminar imagen
+/*  //Eliminar imagen
   void removeImage(int index) {
     setState(() {
       _images.removeAt(index); //
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
     String? selectedCategory;
-    List<String> categories = ['Plasticos', 'Metales', 'Vidrio', 'Papel', 'Otros'];
+    List<String> categories = [
+      'Plasticos',
+      'Metales',
+      'Vidrio',
+      'Papel',
+      'Otros'
+    ];
 
     return Card(
       elevation: 0,
       color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
-        side: const BorderSide(color: AppColors.primaryVariantColor, width: 1.0),
+        side:
+            const BorderSide(color: AppColors.primaryVariantColor, width: 1.0),
       ),
       child: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -106,59 +114,17 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                   Column(
                     children: [
                       // Carrusel de imágenes
-                      _images.isNotEmpty
-                          ? SizedBox(
-                        height: 120,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _images.length,
-                          itemBuilder: (context, index) {
-                            return Stack(
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.all(8.0),
-                                  child: Image.file(
-                                    _images[index],
-                                    height: 100,
-                                    width: 100,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: () => removeImage(index),
-                                    //boton para borrar imagenes
-                                    child: Container(
-                                      width: 20,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      )
-                          : const Center(
+                      Center(
+                        child: sampleImg == null
+                            ? Text("Seleccione Imagen")
+                            : enableUpload(),
                       ),
                       SizedBox(
                         width: 160,
                         child: ElevatedButton(
                           style: ButtonStyle(),
-                          onPressed: pickImagesFromGallery,
+                          onPressed: getImage,
                           child: const Text("Añadir Imágenes"),
-
                         ),
                       )
                     ],
@@ -175,18 +141,22 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                       formFieldType: FormFieldType.name,
                       hintText: 'Ingrese nombre del item'),
                   const SizedBox(height: 15.0),
-                  Text('Cantidad', style: Theme.of(context).textTheme.bodyMedium),
+                  Text('Cantidad',
+                      style: Theme.of(context).textTheme.bodyMedium),
                   const CustomTextFormField(
                     formFieldType: FormFieldType.quantity,
                     hintText: 'Ingrese la cantidad en stock',
                   ),
                   const SizedBox(height: 15.0),
-                  Text('Detalle', style: Theme.of(context).textTheme.bodyMedium),
+                  Text('Detalle',
+                      style: Theme.of(context).textTheme.bodyMedium),
                   const CustomTextFormField(
                       formFieldType: FormFieldType.description,
-                      hintText: 'Ingrese Detalles del item (ubicación, dimensiones)'),
+                      hintText:
+                          'Ingrese Detalles del item (ubicación, dimensiones)'),
                   const SizedBox(height: 15.0),
-                  Text('Categoría', style: Theme.of(context).textTheme.bodyMedium),
+                  Text('Categoría',
+                      style: Theme.of(context).textTheme.bodyMedium),
                   const SizedBox(height: 6.0),
                   SizedBox(
                     width: double.infinity,
@@ -224,19 +194,40 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                   ),
                   const SizedBox(height: 30.0),
                   Center(
-                    child: SizedBox(
-                      width: 160,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        child: const Text("Añadir"),
-                      ),
-                    )
-                  ),
+                      child: SizedBox(
+                    width: 160,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: const Text("Añadir"),
+                    ),
+                  )),
                 ],
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future getImage() async {
+    final XFile? tempImg = await picker.pickImage(source: ImageSource.gallery);
+    if (tempImg != null) {
+      setState(() {
+        sampleImg = File(tempImg.path); // Convierte XFile a File usando el path
+      });
+    }
+  }
+
+
+  Widget enableUpload() {
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      child: Image.file(
+        sampleImg!,
+        height: 120,
+        width: 120,
+        fit: BoxFit.cover,
       ),
     );
   }

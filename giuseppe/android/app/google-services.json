@@ -7,31 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:656495872961:android:9b501048f67480af277d40",
-        "android_client_info": {
-          "package_name": "com.example.app_movil_giuseppe"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAZ2RGaBeDPeacSVeA3UGJzwgUA1RDXc_8"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:656495872961:android:db29683ac2403b6b277d40",
         "android_client_info": {
           "package_name": "com.example.giuseppe"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "656495872961-vh5rcer7ml75h9jpk438ffgc0jfndrgk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAZ2RGaBeDPeacSVeA3UGJzwgUA1RDXc_8"
@@ -39,26 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:656495872961:android:b456784eae74e001277d40",
-        "android_client_info": {
-          "package_name": "com.giuseppe.giuseppe"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAZ2RGaBeDPeacSVeA3UGJzwgUA1RDXc_8"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "656495872961-vh5rcer7ml75h9jpk438ffgc0jfndrgk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "656495872961-h9utv3hq6728j2qg0uu23thjkm8mdrfl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.giuseppe.appMovilGiuseppe"
+              }
+            }
+          ]
         }
       }
     }
