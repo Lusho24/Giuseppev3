@@ -42,19 +42,26 @@ class ObjectService {
   }
 
   /// Subir imagen y guardar datos del objeto
-  Future<bool> saveObjectWithImage(File imageFile, ObjectModel object) async {
+  Future<bool> saveObjectWithImages(List<File> imageFiles, ObjectModel object) async {
     try {
-      // Subir imagen y obtener la URL
-      String? imageUrl = await uploadImage(imageFile);
-      if (imageUrl == null) return false;
+      List<String> imageUrls = [];
+      // Subir todas las imágenes y agregar sus URLs a la lista
+      for (var imageFile in imageFiles) {
+        String? imageUrl = await uploadImage(imageFile);
+        if (imageUrl != null) {
+          imageUrls.add(imageUrl);
+        }
+      }
 
-      // Asignar la URL al modelo del objeto
-      object.image = imageUrl;
+      if (imageUrls.isEmpty) return false;
+
+      // Asignar la lista de URLs de imágenes al objeto
+      object.images = imageUrls;
 
       // Guardar el objeto en Firestore
       return await saveObject(object);
     } catch (e) {
-      dev.log("Error en saveObjectWithImage: $e");
+      dev.log("Error en saveObjectWithImages: $e");
       return false;
     }
   }

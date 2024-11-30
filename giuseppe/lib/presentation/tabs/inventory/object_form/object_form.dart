@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:giuseppe/presentation/tabs/tabs_page.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +103,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
   final _formKey = GlobalKey<FormState>();
   final ObjectService _objectService = ObjectService(); //servicio
   final ImagePicker picker = ImagePicker();
-  File? sampleImg; //imagen
+  List<File> _itemImg = []; //imagenes
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
@@ -141,16 +142,60 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                     children: [
                       // Carrusel de imágenes
                       Center(
-                        child: sampleImg == null
-                            ? const Text("Seleccione Imagen")
-                            : Image.file(sampleImg!,
-                                height: 120, width: 120, fit: BoxFit.cover),
+                        child: _itemImg.isEmpty
+                            ? const Text("Seleccione Imágenes")
+                            : CarouselSlider(
+                          options: CarouselOptions(
+                            height: 120.0,
+                            enlargeCenterPage: true,
+                            autoPlay: false,
+                            enableInfiniteScroll: false,
+                            aspectRatio: 1.0,
+                            viewportFraction: 0.4,
+                          ),
+                          items: _itemImg.map((img) {
+                            return Builder(
+                              builder: (BuildContext context) {
+                                return Stack(
+                                  children: [
+                                    Image.file(
+                                      img,
+                                      height: 120,
+                                      width: 120,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: () => removeImage(_itemImg.indexOf(img)),
+                                        child: Container(
+                                          width: 20,
+                                          height: 20,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius: BorderRadius.circular(5),
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }).toList(),
+                        ),
                       ),
                       SizedBox(
                         width: 160,
                         child: ElevatedButton(
                           style: const ButtonStyle(),
-                          onPressed: getImage,
+                          onPressed: getImages,
                           child: const Text("Añadir Imágenes"),
                         ),
                       )
@@ -235,44 +280,72 @@ class _NewObjectFormState extends State<_NewObjectForm> {
     );
   }
 
-  Future getImage() async {
-    final XFile? tempImg = await picker.pickImage(source: ImageSource.gallery);
-    if (tempImg != null) {
+  void removeImage(int index) {
+    setState(() {
+      _itemImg.removeAt(index); // Elimina la imagen del índice
+    });
+  }
+
+  Future getImages() async {
+    // Limitar a 4 imágenes
+    if (_itemImg.length >= 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Máximo 4 imágenes.')),
+      );
+      return;
+    }
+    // Seleccionar las imágenes
+    final List<XFile>? tempImgs = await picker.pickMultiImage();
+    if (tempImgs != null) {
       setState(() {
-        sampleImg = File(tempImg.path);
+        for (var img in tempImgs) {
+          if (_itemImg.length < 4) {
+            _itemImg.add(File(img.path));
+          }
+        }
       });
     }
   }
 
   Future<void> _saveObject() async {
-    if (sampleImg == null) {
+    if (_itemImg.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, seleccione una imagen.')),
+        const SnackBar(content: Text('Por favor, seleccione imágenes.')),
       );
       return;
     }
+
     // Validar los campos
     if (_formKey.currentState!.validate()) {
-      // Llamar al setLoading desde el padre
-      (context as Element)
-          .markNeedsBuild(); // Aquí necesitamos hacer que el build se actualice
       var parentState = context.findAncestorStateOfType<_ObjectFormState>();
-      parentState?.setLoading(true); // Activar el indicador de carga
+      parentState?.setLoading(true);  // Activar el indicador de carga
 
+      // Crear el objeto y asignar la lista de imágenes
       ObjectModel object = ObjectModel(
         name: _nameController.text,
         quantity: _quantityController.text,
         detail: _detailController.text,
         category: _selectedCategory ?? 'Sin categoría',
-        image: '',
+        images: [],  // Inicializar la lista de imágenes
       );
 
-      // Guardar la imagen
-      bool success =
-          await _objectService.saveObjectWithImage(sampleImg!, object);
+      // Subir las imágenes y obtener sus URLs
+      List<String> imageUrls = [];
+      for (var img in _itemImg) {
+        String? imageUrl = await _objectService.uploadImage(img);
+        if (imageUrl != null) {
+          imageUrls.add(imageUrl);
+        }
+      }
+
+      // Asignar las URLs de las imágenes al objeto
+      object.images = imageUrls;
+
+      // Guardar el objeto en Firestore
+      bool success = await _objectService.saveObjectWithImages(_itemImg, object);
 
       if (!mounted) return;
-      parentState?.setLoading(false); // Desactivar el indicador de carga
+      parentState?.setLoading(false);  // Desactivar el indicador de carga
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -280,8 +353,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => const TabsPage(isAdmin: true)),
+          MaterialPageRoute(builder: (context) => const TabsPage(isAdmin: true)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -289,11 +361,8 @@ class _NewObjectFormState extends State<_NewObjectForm> {
         );
       }
     } else {
-      // Mensaje de error
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text('Por favor, complete todos los campos correctamente.')),
+        const SnackBar(content: Text('Por favor, complete todos los campos correctamente.')),
       );
     }
   }

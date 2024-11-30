@@ -3,14 +3,14 @@ class ObjectModel {
   String quantity;
   String detail;
   String category;
-  String image;
+  List<String> images;
 
   ObjectModel({
     required this.name,
     required this.quantity,
     required this.detail,
     required this.category,
-    required this.image
+    required this.images
   });
 
   Map<String, dynamic> toJson() {
@@ -19,7 +19,7 @@ class ObjectModel {
       'quantity': quantity,
       'detail': detail,
       'category': category,
-      'image': image,
+      'images': images,
 
     };
   }
@@ -30,7 +30,7 @@ class ObjectModel {
       quantity: json['quantity'],
       detail: json['detail'],
       category: json['category'],
-      image: json['image'],
+      images: List<String>.from(json['images'] ?? []),
     );
   }
 
