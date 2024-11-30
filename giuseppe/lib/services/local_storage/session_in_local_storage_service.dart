@@ -24,4 +24,12 @@ class SessionInLocalStorageService{
     await prefs.clear();
   }
 
+  static Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
+    final bool? isAdmin = prefs.getBool('isAdmin');
+
+    return userId != null && isAdmin != null;
+  }
+
 }
