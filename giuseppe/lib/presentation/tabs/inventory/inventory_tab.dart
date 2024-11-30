@@ -36,18 +36,17 @@ class _InventoryTabState extends State<InventoryTab> {
 
   // Cargar los objetos desde la base de datos
   Future<void> _loadInventoryItems() async {
-      List<Map<String, dynamic>> items = await _objectService.getAllItems();
-      setState(() {
-        inventoryItems = items.map((item) {
-          return {
-            'image': item['images'] ?? [],
-            'name': item['name'] ?? 'Unnamed',
-            'quantity': item['quantity']?.toString() ?? '0',
-            'detail': item['detail'] ?? 'Sin detalle',
-
-          };
-        }).toList();
-      });
+    List<Map<String, dynamic>> items = await _objectService.getAllItems();
+    setState(() {
+      inventoryItems = items.map((item) {
+        return {
+          'image': item['images'] ?? [],
+          'name': item['name'] ?? 'Unnamed',
+          'quantity': item['quantity']?.toString() ?? '0',
+          'detail': item['detail'] ?? 'Sin detalle',
+        };
+      }).toList();
+    });
   }
 
   @override
@@ -118,7 +117,8 @@ class _InventoryTabState extends State<InventoryTab> {
                       );
                     }).toList(),
                     menuStyle: MenuStyle(
-                      backgroundColor: WidgetStateProperty.all(AppColors.primaryColor),
+                      backgroundColor:
+                          WidgetStateProperty.all(AppColors.primaryColor),
                     ),
                   ),
                 ),
@@ -176,7 +176,6 @@ class _InventoryTabState extends State<InventoryTab> {
     );
   }
 }
-
 
 class InventoryCard extends StatelessWidget {
   final Map<String, dynamic> item;
@@ -245,7 +244,8 @@ class InventoryCard extends StatelessWidget {
                     color: AppColors.primaryVariantColor,
                     size: 20.0,
                   ),
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
                     const PopupMenuItem<String>(
                       value: 'añadir_orden',
                       child: Text('Añadir a Orden'),
@@ -275,7 +275,7 @@ class InventoryCard extends StatelessWidget {
         addItem(item);
         break;
       case 'editar':
-        editItem(item);  // Cambiado para abrir el modal de edición
+        editItem(item); // Cambiado para abrir el modal de edición
         break;
       case 'eliminar':
         showDialog(
@@ -283,7 +283,8 @@ class InventoryCard extends StatelessWidget {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Confirmar Eliminación'),
-              content: Text('¿Está seguro que desea eliminar "${item['name']}"?'),
+              content:
+                  Text('¿Está seguro que desea eliminar "${item['name']}"?'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -305,8 +306,10 @@ class InventoryCard extends StatelessWidget {
 
   //ventana modal de añadir item a la orden de despacho
   void addItem(Map<String, dynamic> item) {
-    final TextEditingController quantityController = TextEditingController(text: item['quantity']);
-    final TextEditingController additionalInfoController = TextEditingController();
+    final TextEditingController quantityController =
+        TextEditingController(text: item['quantity']);
+    final TextEditingController additionalInfoController =
+        TextEditingController();
 
     showModalBottomSheet(
       context: context,
@@ -350,7 +353,8 @@ class InventoryCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     TextField(
                       controller: additionalInfoController,
-                      decoration: const InputDecoration(labelText: 'Observaciones:'),
+                      decoration:
+                          const InputDecoration(labelText: 'Observaciones:'),
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
@@ -371,8 +375,10 @@ class InventoryCard extends StatelessWidget {
 
   //ventana modal de editar item
   void editItem(Map<String, dynamic> item) {
-    final TextEditingController nameController = TextEditingController(text: item['name']);
-    final TextEditingController quantityController = TextEditingController(text: item['quantity']);
+    final TextEditingController nameController =
+        TextEditingController(text: item['name']);
+    final TextEditingController quantityController =
+        TextEditingController(text: item['quantity']);
 
     showModalBottomSheet(
       context: context,
@@ -441,6 +447,9 @@ class InventoryCard extends StatelessWidget {
   // * Ventana modal info
   void modalObject() {
     List<dynamic> images = item['image'] ?? []; // Lista de imágenes
+    final CarouselSliderController _carouselController =
+        CarouselSliderController();
+    int currentIndex = 0; // Índice de la imagen actual
 
     showModalBottomSheet(
       context: context,
@@ -464,43 +473,88 @@ class InventoryCard extends StatelessWidget {
                     ),
                   ),
                   if (images.isNotEmpty)
-                    CarouselSlider(
-                      options: CarouselOptions(
-                        height: 200.0,
-                        enlargeCenterPage: true,
-                        enableInfiniteScroll: false,
-                      ),
-                      items: images.map((imgUrl) {
-                        return GestureDetector(
-                          onTap: () {
-                            _showImagePreview(context, images, images.indexOf(imgUrl));
-                          },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10.0),
-                            child: Container(
-                              height: 150.0,
-                              width: double.infinity,
-                              child: Image.network(
-                                imgUrl,
-                                fit: BoxFit.contain,
-                                loadingBuilder: (context, child, progress) {
-                                  if (progress == null) return child;
-                                  return Center(
-                                    child: CircularProgressIndicator(value: progress.expectedTotalBytes != null
-                                        ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                                        : null),
-                                  );
-                                },
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Center(
-                                    child: Icon(Icons.broken_image, size: 50, color: Colors.red),
-                                  );
-                                },
+                    Stack(
+                      children: [
+                        // Carrusel de imágenes
+                        CarouselSlider(
+                          carouselController:
+                              _carouselController, // Usa CarouselSliderController aquí
+                          options: CarouselOptions(
+                            height: 200.0,
+                            enlargeCenterPage: true,
+                            enableInfiniteScroll: false,
+                            onPageChanged: (index, reason) {
+                              setModalState(() {
+                                currentIndex = index;
+                              });
+                            },
+                          ),
+                          items: images.map((imgUrl) {
+                            return GestureDetector(
+                              onTap: () {
+                                _showImagePreview(
+                                    context, images, images.indexOf(imgUrl));
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10.0),
+                                child: Container(
+                                  height: 150.0,
+                                  width: double.infinity,
+                                  child: Image.network(
+                                    imgUrl,
+                                    fit: BoxFit.contain,
+                                    loadingBuilder: (context, child, progress) {
+                                      if (progress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                            value: progress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? progress
+                                                        .cumulativeBytesLoaded /
+                                                    progress.expectedTotalBytes!
+                                                : null),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Center(
+                                        child: Icon(Icons.broken_image,
+                                            size: 50, color: Colors.red),
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
+                            );
+                          }).toList(),
+                        ),
+
+                        // Flecha izquierda
+                        if (currentIndex > 0)
+                          Positioned(
+                            left: 10,
+                            top: 80,
+                            child: IconButton(
+                              icon: const Icon(Icons.arrow_back_ios),
+                              onPressed: () {
+                                _carouselController.previousPage();
+                              },
                             ),
                           ),
-                        );
-                      }).toList(),
+
+                        // Flecha derecha
+                        if (currentIndex < images.length - 1)
+                          Positioned(
+                            right: 10,
+                            top: 80,
+                            child: IconButton(
+                              icon: const Icon(Icons.arrow_forward_ios),
+                              onPressed: () {
+                                _carouselController.nextPage();
+                              },
+                            ),
+                          ),
+                      ],
                     )
                   else
                     const Text("No hay imágenes disponibles."),
@@ -527,7 +581,8 @@ class InventoryCard extends StatelessWidget {
     );
   }
 
-  void _showImagePreview(BuildContext context, List<dynamic> images, int initialIndex) {
+  void _showImagePreview(
+      BuildContext context, List<dynamic> images, int initialIndex) {
     showDialog(
       context: context,
       builder: (context) {
@@ -543,7 +598,7 @@ class InventoryCard extends StatelessWidget {
             },
             scrollPhysics: const BouncingScrollPhysics(),
             backgroundDecoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
+              color: Theme.of(context).primaryColor,
             ),
             pageController: PageController(initialPage: initialIndex),
             onPageChanged: (index) {},
@@ -552,5 +607,4 @@ class InventoryCard extends StatelessWidget {
       },
     );
   }
-
 }
