@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:giuseppe/presentation/tabs/tabs_page.dart';
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../../models/object_model.dart';
 import '../../../../services/firebase_services/firestore_database/object_service.dart';
@@ -65,12 +67,14 @@ class _ObjectFormState extends State<ObjectForm> {
           if (_isLoading)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      AppColors.onPrimaryColor,
-                    ),
+                padding: const EdgeInsets.only(top: 40),
+                color: Colors.black.withOpacity(0.75),
+                child: Center(
+                  child: Lottie.asset(
+                    'assets/lottiefiles/loading1.json',
+                    width: 250,
+                    height: 250,
+                    repeat: true,
                   ),
                 ),
               ),
@@ -100,7 +104,6 @@ class _NewObjectFormState extends State<_NewObjectForm> {
   final ImagePicker picker = ImagePicker();
   File? sampleImg; //imagen
 
-  final TextEditingController _idController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _detailController = TextEditingController();
@@ -122,7 +125,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
         side:
-        const BorderSide(color: AppColors.primaryVariantColor, width: 1.0),
+            const BorderSide(color: AppColors.primaryVariantColor, width: 1.0),
       ),
       child: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -141,7 +144,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                         child: sampleImg == null
                             ? const Text("Seleccione Imagen")
                             : Image.file(sampleImg!,
-                            height: 120, width: 120, fit: BoxFit.cover),
+                                height: 120, width: 120, fit: BoxFit.cover),
                       ),
                       SizedBox(
                         width: 160,
@@ -154,20 +157,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                     ],
                   ),
                   const SizedBox(height: 15.0),
-                  Text('ID', style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodyMedium),
-                  CustomTextFormField(
-                    formFieldType: FormFieldType.id,
-                    hintText: 'Ingrese ID del item',
-                    controller: _idController,
-                  ),
-                  const SizedBox(height: 15.0),
-                  Text('Nombre', style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodyMedium),
+                  Text('Nombre', style: Theme.of(context).textTheme.bodyMedium),
                   CustomTextFormField(
                     formFieldType: FormFieldType.name,
                     hintText: 'Ingrese nombre del item',
@@ -175,10 +165,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                   ),
                   const SizedBox(height: 15.0),
                   Text('Cantidad',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodyMedium),
+                      style: Theme.of(context).textTheme.bodyMedium),
                   CustomTextFormField(
                     formFieldType: FormFieldType.quantity,
                     hintText: 'Ingrese la cantidad en stock',
@@ -186,21 +173,15 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                   ),
                   const SizedBox(height: 15.0),
                   Text('Detalle',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodyMedium),
+                      style: Theme.of(context).textTheme.bodyMedium),
                   CustomTextFormField(
                       formFieldType: FormFieldType.description,
                       hintText:
-                      'Ingrese Detalles del item (ubicación, dimensiones)',
+                          'Ingrese Detalles del item (ubicación, dimensiones)',
                       controller: _detailController),
                   const SizedBox(height: 15.0),
                   Text('Categoría',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodyMedium),
+                      style: Theme.of(context).textTheme.bodyMedium),
                   const SizedBox(height: 6.0),
                   SizedBox(
                     width: double.infinity,
@@ -239,12 +220,12 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                   const SizedBox(height: 30.0),
                   Center(
                       child: SizedBox(
-                        width: 160,
-                        child: ElevatedButton(
-                          onPressed: _saveObject,
-                          child: const Text("Añadir"),
-                        ),
-                      )),
+                    width: 160,
+                    child: ElevatedButton(
+                      onPressed: _saveObject,
+                      child: const Text("Añadir"),
+                    ),
+                  )),
                 ],
               ),
             ],
@@ -273,12 +254,12 @@ class _NewObjectFormState extends State<_NewObjectForm> {
     // Validar los campos
     if (_formKey.currentState!.validate()) {
       // Llamar al setLoading desde el padre
-      (context as Element).markNeedsBuild();  // Aquí necesitamos hacer que el build se actualice
+      (context as Element)
+          .markNeedsBuild(); // Aquí necesitamos hacer que el build se actualice
       var parentState = context.findAncestorStateOfType<_ObjectFormState>();
-      parentState?.setLoading(true);  // Activar el indicador de carga
+      parentState?.setLoading(true); // Activar el indicador de carga
 
       ObjectModel object = ObjectModel(
-        id: _idController.text,
         name: _nameController.text,
         quantity: _quantityController.text,
         detail: _detailController.text,
@@ -287,10 +268,11 @@ class _NewObjectFormState extends State<_NewObjectForm> {
       );
 
       // Guardar la imagen
-      bool success = await _objectService.saveObjectWithImage(sampleImg!, object);
+      bool success =
+          await _objectService.saveObjectWithImage(sampleImg!, object);
 
       if (!mounted) return;
-      parentState?.setLoading(false);  // Desactivar el indicador de carga
+      parentState?.setLoading(false); // Desactivar el indicador de carga
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -298,7 +280,8 @@ class _NewObjectFormState extends State<_NewObjectForm> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const TabsPage(isAdmin: true)),
+          MaterialPageRoute(
+              builder: (context) => const TabsPage(isAdmin: true)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -308,7 +291,9 @@ class _NewObjectFormState extends State<_NewObjectForm> {
     } else {
       // Mensaje de error
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, complete todos los campos correctamente.')),
+        const SnackBar(
+            content:
+                Text('Por favor, complete todos los campos correctamente.')),
       );
     }
   }

@@ -1,5 +1,4 @@
 class ObjectModel {
-  String id;
   String name;
   String quantity;
   String detail;
@@ -7,7 +6,6 @@ class ObjectModel {
   String image;
 
   ObjectModel({
-    required this.id,
     required this.name,
     required this.quantity,
     required this.detail,
@@ -17,7 +15,6 @@ class ObjectModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'name': name,
       'quantity': quantity,
       'detail': detail,
@@ -29,7 +26,6 @@ class ObjectModel {
 
   factory ObjectModel.fromJson(Map<String, dynamic> json) {
     return ObjectModel(
-      id: json['id'],
       name: json['name'],
       quantity: json['quantity'],
       detail: json['detail'],
