@@ -1,6 +1,9 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import '../../../services/firebase_services/firestore_database/object_service.dart';
 
 class InventoryTab extends StatefulWidget {
@@ -40,6 +43,8 @@ class _InventoryTabState extends State<InventoryTab> {
             'image': item['images'] ?? [],
             'name': item['name'] ?? 'Unnamed',
             'quantity': item['quantity']?.toString() ?? '0',
+            'detail': item['detail'] ?? 'Sin detalle',
+
           };
         }).toList();
       });
@@ -199,7 +204,7 @@ class InventoryCard extends StatelessWidget {
                 children: [
                   Image.network(
                     imageUrl,
-                    height: 60.0,
+                    height: 70.0,
                     width: double.infinity,
                   ),
                   const SizedBox(height: 10.0),
@@ -435,6 +440,8 @@ class InventoryCard extends StatelessWidget {
 
   // * Ventana modal info
   void modalObject() {
+    List<dynamic> images = item['image'] ?? []; // Lista de imágenes
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -450,39 +457,66 @@ class InventoryCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Align(
-                      alignment: Alignment.topRight,
-                      child: IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => Navigator.of(context).pop())),
-                  Row(
-                    children: [
-                      IconButton(
-                          icon: const Icon(Icons.arrow_back), onPressed: () {}),
-                      Expanded(
-                        child: Column(children: [
-                          Image.asset(
-                            item['image']!,
-                            height: 130.0,
-                          ),
-                          const SizedBox(height: 15),
-                          Text(
-                            item['name']!,
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          Text(
-                            "Disponibles: ${item['quantity']!}",
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                          Text(
-                            "Detalle quemado",
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ]),
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                  if (images.isNotEmpty)
+                    CarouselSlider(
+                      options: CarouselOptions(
+                        height: 200.0,
+                        enlargeCenterPage: true,
+                        enableInfiniteScroll: false,
                       ),
-                      IconButton(
-                          icon: const Icon(Icons.arrow_forward),
-                          onPressed: () {}),
-                    ],
+                      items: images.map((imgUrl) {
+                        return GestureDetector(
+                          onTap: () {
+                            _showImagePreview(context, images, images.indexOf(imgUrl));
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10.0),
+                            child: Container(
+                              height: 150.0,
+                              width: double.infinity,
+                              child: Image.network(
+                                imgUrl,
+                                fit: BoxFit.contain,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(value: progress.expectedTotalBytes != null
+                                        ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                        : null),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(Icons.broken_image, size: 50, color: Colors.red),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    )
+                  else
+                    const Text("No hay imágenes disponibles."),
+                  const SizedBox(height: 15),
+                  Text(
+                    item['name']!,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  Text(
+                    "Disponibles: ${item['quantity']!}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Detalle: ${item['detail']!}",
+                    style: TextStyle(color: Colors.grey),
                   ),
                 ],
               ),
@@ -492,4 +526,31 @@ class InventoryCard extends StatelessWidget {
       },
     );
   }
+
+  void _showImagePreview(BuildContext context, List<dynamic> images, int initialIndex) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: PhotoViewGallery.builder(
+            itemCount: images.length,
+            builder: (BuildContext context, int index) {
+              return PhotoViewGalleryPageOptions(
+                imageProvider: NetworkImage(images[index]),
+                minScale: PhotoViewComputedScale.contained,
+                maxScale: PhotoViewComputedScale.covered * 2,
+              );
+            },
+            scrollPhysics: const BouncingScrollPhysics(),
+            backgroundDecoration: BoxDecoration(
+              color: Theme.of(context).canvasColor,
+            ),
+            pageController: PageController(initialPage: initialIndex),
+            onPageChanged: (index) {},
+          ),
+        );
+      },
+    );
+  }
+
 }
