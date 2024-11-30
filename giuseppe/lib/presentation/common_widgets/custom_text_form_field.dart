@@ -76,12 +76,15 @@ class CustomTextFormField extends StatelessWidget {
         return TextInputType.visiblePassword;
       case FormFieldType.identity_card:
       case FormFieldType.quantity:
-        return TextInputType.number; // Caso para el identity_card y quentity
       case FormFieldType.username:
+        return TextInputType.number; // Caso para el identity_card y quentity
       case FormFieldType.name:
+      case FormFieldType.id:
+      case FormFieldType.description:
         return TextInputType.name; // Caso para el username y el name
       case FormFieldType.phone:
         return TextInputType.phone;
+
       default:
         return TextInputType.text;
     }

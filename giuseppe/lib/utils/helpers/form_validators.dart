@@ -43,23 +43,23 @@ class FormValidators {
   // *Validaciones para los formularios de Objeto
   static String? validateId({required String id}) {
     if (id.isEmpty) {
-      return 'Se requiere un id.';
+      return 'El campo no puede estar vacio.';
     }
-    return id.length >= 4 ? null : 'El id debe contener al menos 4 caracteres.';
+    return null;
   }
 
   static String? validateQuantity({required String quantity}) {
     if (quantity.isEmpty) {
-      return 'Se una cantidad.';
-    } else {
-      final intQuantity = int.tryParse(quantity);
-      if (intQuantity! < 1) {
-        return 'Se requiere al menos una unidad.';
-      }
+      return 'El campo no puede estar vacio.';
     }
-    return quantity.length >= 1 ? null : 'La cantidad debe contener al menos 1 digito.';
-  }
 
+    final intQuantity = int.tryParse(quantity);
+    if (intQuantity == null || intQuantity < 1) {
+      return 'Ingrese una cantidad válida.';
+    }
+
+    return null;
+  }
 
   // *Validaciones genericas para otros campos
   static String? validateOtherField({required String value}) {
