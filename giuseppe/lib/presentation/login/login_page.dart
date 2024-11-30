@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: 160.0,
                 ),
               ),
-              const Padding(padding: EdgeInsets.all(60.0), child: _SignInForm())
+              const Padding(padding: EdgeInsets.all(60.0), child: SignInForm())
             ],
           ),
         ),
@@ -39,8 +39,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class _SignInForm extends StatelessWidget {
-  const _SignInForm({
+class SignInForm extends StatelessWidget {
+  const SignInForm({
     super.key,
   });
 
@@ -94,20 +94,31 @@ class _SignInForm extends StatelessWidget {
               child: Consumer<LoginViewModel>(
                   builder: (context, viewmodel, child){
                     return ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          await viewmodel.signIn(
-                              id: _idController.text.trim(),
-                              password: _passwordController.text,
-                              context: context
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Por favor, completa los campos correctamente")),
-                          );
-                        }
-                      },
-                      child: const Text("Ingresar"),
+                      onPressed: viewmodel.isLoading ?
+                          (){} :
+                          () async {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              await viewmodel.signIn(
+                                  id: _idController.text.trim(),
+                                  password: _passwordController.text,
+                                  context: context
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Por favor, completa los campos correctamente")),
+                              );
+                            }
+                          },
+                      child: viewmodel.isLoading ?
+                      const SizedBox(
+                        width: 20.0,
+                        height: 20.0,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.0,
+                        ),
+                      ) :
+                      const Text("Ingresar")
                     );
                   }
               )

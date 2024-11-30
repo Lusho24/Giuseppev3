@@ -11,23 +11,27 @@ class LoginViewModel extends ChangeNotifier {
   late final SessionInLocalStorageService _localStorage = SessionInLocalStorageService();
   bool _isLoggedIn = false;
   bool _isAdmin = false;
+  bool _isLoading = false;
 
   Future<void> signIn({
     required String id,
     required String password,
     required BuildContext context}) async {
 
+    setLoading(true);
     List<bool> result = await _loginService.signIn(id, password);
     _isLoggedIn = result[0];
     _isAdmin = result[1];
 
     if (_isLoggedIn) {
       await saveSessionInLocalStorage(id, _isAdmin);
+      setLoading(false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Bienvenido")),
       );
       Navigator.pushReplacementNamed(context, AppRoutes.tabsPage);
     } else {
+      setLoading(false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text(" !Error al iniciar sesión! ")),
       );
@@ -38,5 +42,12 @@ class LoginViewModel extends ChangeNotifier {
     await _localStorage.saveSession(userId, isAdmin);
   }
 
+  void setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+
+  bool get isLoading => _isLoading;
 
 }

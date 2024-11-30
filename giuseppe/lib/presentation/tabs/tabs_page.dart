@@ -15,6 +15,7 @@ class TabsPage extends StatefulWidget {
 }
 
 class _TabsPageState extends State<TabsPage> {
+  bool _isLoading = true;
   final TabsViewModel _viewModel = TabsViewModel();
   late final bool _isAdmin;
 
@@ -87,6 +88,7 @@ class _TabsPageState extends State<TabsPage> {
     Map<String, dynamic>? sessionData =  await _viewModel.fetchSessionInLocalStorage();
     setState(() {
       _isAdmin = sessionData!['isAdmin'];
+      _isLoading = false;
     });
   }
 
@@ -98,6 +100,12 @@ class _TabsPageState extends State<TabsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final tabsOptions = _isAdmin ? _adminTabsOptions : _userTabsOptions;
     final destinations = _isAdmin ? _adminDestinations : _userDestinations;
 
