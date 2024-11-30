@@ -19,7 +19,7 @@ class ObjectModel {
     return {
       'id': id,
       'name': name,
-      'cuantity': quantity,
+      'quantity': quantity,
       'detail': detail,
       'category': category,
       'image': image,

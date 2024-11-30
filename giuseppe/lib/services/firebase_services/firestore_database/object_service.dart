@@ -32,7 +32,7 @@ class ObjectService {
   /// Guardar datos del objeto en Firestore
   Future<bool> saveObject(ObjectModel object) async {
     try {
-      await _firestore.collection("Objects").add(object.toJson());
+      await _firestore.collection("objects").add(object.toJson());
       dev.log("Objeto guardado exitosamente en Firestore");
       return true;
     } catch (e) {

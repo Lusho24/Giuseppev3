@@ -1,9 +1,5 @@
 import 'dart:io';
-import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
 import 'package:giuseppe/presentation/tabs/tabs_page.dart';
-import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
@@ -20,48 +16,75 @@ class ObjectForm extends StatefulWidget {
 }
 
 class _ObjectFormState extends State<ObjectForm> {
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          // Parte fija
-          Stack(
+          Column(
             children: [
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-                  child: const Image(
-                    image: AssetImage('assets/images/logo.png'),
-                    height: 70.0,
+              // Parte fija
+              Stack(
+                children: [
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
+                      child: const Image(
+                        image: AssetImage('assets/images/logo.png'),
+                        height: 70.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 22.0),
+                child: const Text(
+                  "AÑADIR A INVENTARIO",
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+
+              // Parte deslizante
+              const Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: _NewObjectForm(),
                   ),
                 ),
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 22.0),
-            child: const Text(
-              "AÑADIR A INVENTARIO",
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-          ),
 
-          // Parte deslizante
-          const Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: _NewObjectForm(),
+          // Fondo opaco y carga
+          if (_isLoading)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.onPrimaryColor,
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
+  }
+
+  // Método de cambio de estado
+  void setLoading(bool isLoading) {
+    setState(() {
+      _isLoading = isLoading;
+    });
   }
 }
 
@@ -81,6 +104,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _detailController = TextEditingController();
+
   String? _selectedCategory;
   List<String> categories = [
     'Plasticos',
@@ -115,15 +139,14 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                       // Carrusel de imágenes
                       Center(
                         child: sampleImg == null
-                            ? Text("Seleccione Imagen")
-                            : Image.file(sampleImg!, height: 120,
-                            width: 120,
-                            fit: BoxFit.cover),
+                            ? const Text("Seleccione Imagen")
+                            : Image.file(sampleImg!,
+                            height: 120, width: 120, fit: BoxFit.cover),
                       ),
                       SizedBox(
                         width: 160,
                         child: ElevatedButton(
-                          style: ButtonStyle(),
+                          style: const ButtonStyle(),
                           onPressed: getImage,
                           child: const Text("Añadir Imágenes"),
                         ),
@@ -139,25 +162,27 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                     formFieldType: FormFieldType.id,
                     hintText: 'Ingrese ID del item',
                     controller: _idController,
-
                   ),
                   const SizedBox(height: 15.0),
                   Text('Nombre', style: Theme
                       .of(context)
                       .textTheme
                       .bodyMedium),
-                  const CustomTextFormField(
-                      formFieldType: FormFieldType.name,
-                      hintText: 'Ingrese nombre del item'),
+                  CustomTextFormField(
+                    formFieldType: FormFieldType.name,
+                    hintText: 'Ingrese nombre del item',
+                    controller: _nameController,
+                  ),
                   const SizedBox(height: 15.0),
                   Text('Cantidad',
                       style: Theme
                           .of(context)
                           .textTheme
                           .bodyMedium),
-                  const CustomTextFormField(
+                  CustomTextFormField(
                     formFieldType: FormFieldType.quantity,
                     hintText: 'Ingrese la cantidad en stock',
+                    controller: _quantityController,
                   ),
                   const SizedBox(height: 15.0),
                   Text('Detalle',
@@ -165,10 +190,11 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                           .of(context)
                           .textTheme
                           .bodyMedium),
-                  const CustomTextFormField(
+                  CustomTextFormField(
                       formFieldType: FormFieldType.description,
                       hintText:
-                      'Ingrese Detalles del item (ubicación, dimensiones)'),
+                      'Ingrese Detalles del item (ubicación, dimensiones)',
+                      controller: _detailController),
                   const SizedBox(height: 15.0),
                   Text('Categoría',
                       style: Theme
@@ -237,17 +263,20 @@ class _NewObjectFormState extends State<_NewObjectForm> {
     }
   }
 
-
   Future<void> _saveObject() async {
-
     if (sampleImg == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor, seleccione una imagen.')),
+        const SnackBar(content: Text('Por favor, seleccione una imagen.')),
       );
       return;
     }
-    //validar los campos
+    // Validar los campos
     if (_formKey.currentState!.validate()) {
+      // Llamar al setLoading desde el padre
+      (context as Element).markNeedsBuild();  // Aquí necesitamos hacer que el build se actualice
+      var parentState = context.findAncestorStateOfType<_ObjectFormState>();
+      parentState?.setLoading(true);  // Activar el indicador de carga
+
       ObjectModel object = ObjectModel(
         id: _idController.text,
         name: _nameController.text,
@@ -257,27 +286,29 @@ class _NewObjectFormState extends State<_NewObjectForm> {
         image: '',
       );
 
-      //Guardar la imagen
-      bool success = await _objectService.saveObjectWithImage(
-          sampleImg!, object);
+      // Guardar la imagen
+      bool success = await _objectService.saveObjectWithImage(sampleImg!, object);
+
+      if (!mounted) return;
+      parentState?.setLoading(false);  // Desactivar el indicador de carga
+
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Objeto añadido exitosamente.')),
+          const SnackBar(content: Text('Objeto añadido exitosamente.')),
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => InventoryTab()),
+          MaterialPageRoute(builder: (context) => const TabsPage(isAdmin: true)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al añadir el objeto.')),
+          const SnackBar(content: Text('Error al añadir el objeto.')),
         );
       }
     } else {
       // Mensaje de error
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(
-            'Por favor, complete todos los campos correctamente.')),
+        const SnackBar(content: Text('Por favor, complete todos los campos correctamente.')),
       );
     }
   }
