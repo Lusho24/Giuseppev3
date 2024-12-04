@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
+import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 
@@ -28,9 +29,21 @@ class _EditObjectFormState extends State<EditObjectForm> {
     return Scaffold(
       body: Stack(
         children: [
+          // Flecha para retroceder
+          Positioned(
+            top: 40, // Ajusta la posición vertical
+            left: 10, // Ajusta la posición horizontal
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: AppColors.onPrimaryColor, size: 30),
+              onPressed: () {
+                Navigator.of(context).pop(); // Retrocede a la página anterior
+              },
+            ),
+          ),
           Column(
             children: [
-              // Cabecera
+
+              // Parte fija
               Container(
                 padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
                 child: const Image(
@@ -46,7 +59,7 @@ class _EditObjectFormState extends State<EditObjectForm> {
                 ),
               ),
 
-              // Formulario deslizante
+              // Parte deslizante
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
