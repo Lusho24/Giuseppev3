@@ -1,24 +1,22 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:giuseppe/presentation/tabs/tabs_page.dart';
 import 'package:flutter/material.dart';
+import 'package:giuseppe/models/object_model.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/router/app_routes.dart';
+import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../../../models/object_model.dart';
-import '../../../../services/firebase_services/firestore_database/object_service.dart';
-
-class ObjectForm extends StatefulWidget {
-  const ObjectForm({super.key});
+class EditObjectForm extends StatefulWidget {
+  const EditObjectForm({super.key});
 
   @override
-  State<ObjectForm> createState() => _ObjectFormState();
+  State<EditObjectForm> createState() => _EditObjectFormState();
 }
 
-class _ObjectFormState extends State<ObjectForm> {
+class _EditObjectFormState extends State<EditObjectForm> {
   bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
@@ -333,7 +331,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
 
     // Validar los campos
     if (_formKey.currentState!.validate()) {
-      var parentState = context.findAncestorStateOfType<_ObjectFormState>();
+      var parentState = context.findAncestorStateOfType<_EditObjectFormState>();
       parentState?.setLoading(true);  // Activar el indicador de carga
 
       // Crear el objeto y asignar la lista de imágenes

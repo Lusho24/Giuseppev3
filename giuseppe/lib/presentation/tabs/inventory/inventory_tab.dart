@@ -1,10 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:giuseppe/presentation/tabs/inventory/object_form/edit_object_form.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
+import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
+import 'package:giuseppe/services/local_storage/session_in_local_storage_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import '../../../services/firebase_services/firestore_database/object_service.dart';
 
 class InventoryTab extends StatefulWidget {
   const InventoryTab({super.key});
@@ -27,19 +29,21 @@ class _InventoryTabState extends State<InventoryTab> {
     'Vajilla', //ia
     'Otros',
   ];
-  bool isAdmin = true;
+  bool isAdmin = false;
 
   List<Map<String, dynamic>> inventoryItems = [];
 
   final ObjectService _objectService = ObjectService();
+  final SessionInLocalStorageService _localStorage = SessionInLocalStorageService();
 
   @override
   void initState() {
     super.initState();
     _loadInventoryItems();
+    _loadUserSession();
   }
 
-  // Cargar los objetos desde la base de datos
+  // Funcion para cargar los objetos desde la bdd
   Future<void> _loadInventoryItems() async {
     List<Map<String, dynamic>> items = await _objectService.getAllItems();
     setState(() {
@@ -53,6 +57,19 @@ class _InventoryTabState extends State<InventoryTab> {
         };
       }).toList();
     });
+  }
+
+  // Función para cargar si es admin o no
+  Future<void> _loadUserSession() async {
+    try {
+      final sessionData = await _localStorage.fetchSession();
+      if (sessionData != null && sessionData['isAdmin'] != null) {
+        setState(() {
+          isAdmin = sessionData['isAdmin'] == true;
+        });
+      }
+    } catch (e) {
+    }
   }
 
   // Función para eliminar un objeto
@@ -183,6 +200,8 @@ class _InventoryTabState extends State<InventoryTab> {
             indent: 20.0,
             endIndent: 20.0,
           ),
+
+
           // Parte desplazable
           Expanded(
             child: Container(
@@ -277,6 +296,8 @@ class InventoryCard extends StatelessWidget {
                 ],
               ),
             ),
+
+
             // Icono de mas opciones
             Positioned(
               top: 4,
@@ -328,48 +349,55 @@ class InventoryCard extends StatelessWidget {
         addItem(item);
         break;
       case 'editar':
-        editItem(item); // Cambiado para abrir el modal de edición
+        EditObjectForm;
         break;
       case 'eliminar':
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              actionsAlignment: MainAxisAlignment.center,
-              backgroundColor: AppColors.primaryColor,
-              title: Center(
-                child: const Text('Eliminar Item'),
-              ),
-              content: Text('¿Está seguro que desea eliminar el item "${item['name']}"?, Esta acción es irreversible.',
-                textAlign: TextAlign.justify, ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.onPrimaryColor, // Color del texto (letra)
-                  ),
-                  child: const Text('Cancelar'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    onDelete();
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.errorColor,
-                  ),
-                  child: const Text('Eliminar'),
-                ),
-              ],
-            );
-          },
-        );
+        _DeleteDialog(item);
         break;
     }
   }
 
+  // Modal de eliminacion
+  void _DeleteDialog(Map<String, dynamic> item) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          actionsAlignment: MainAxisAlignment.center,
+          backgroundColor: AppColors.primaryColor,
+          title: Center(
+            child: const Text('Eliminar Item'),
+          ),
+          content: Text(
+            '¿Está seguro que desea eliminar el item "${item['name']}"?, Esta acción es irreversible.',
+            textAlign: TextAlign.justify,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.onPrimaryColor, // Color del texto (letra)
+              ),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                onDelete(); // Llama a la función de eliminar
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.errorColor,
+              ),
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  //ventana modal de añadir item a la orden de despacho
+
+  //Modal de añadir item a la orden de despacho
   void addItem(Map<String, dynamic> item) {
     final TextEditingController quantityController =
     TextEditingController(text: item['quantity']);
@@ -440,81 +468,6 @@ class InventoryCard extends StatelessWidget {
       },
     );
   }
-
-  //ventana modal de editar item
-  void editItem(Map<String, dynamic> item) {
-    final TextEditingController nameController =
-    TextEditingController(text: item['name']);
-    final TextEditingController quantityController =
-    TextEditingController(text: item['quantity']);
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 15.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Image.asset(
-                      item['image']!,
-                      height: 130.0,
-                    ),
-                    const SizedBox(height: 15),
-                    Text(
-                      'Editar ${item['name']}',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleSmall,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Nombre'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: quantityController,
-                      decoration: const InputDecoration(labelText: 'Cantidad'),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const TextField(
-                      decoration: InputDecoration(labelText: 'Detalle'),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('Guardar'),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
 
 
   // * Ventana modal info

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/tabs/dispatch_order/dispatch_order_tab.dart';
-import 'package:giuseppe/presentation/tabs/inventory/object_form/object_form.dart';
+import 'package:giuseppe/presentation/tabs/inventory/object_form/add_object_form.dart';
 import 'package:giuseppe/presentation/tabs/orders/orders_tab.dart';
 import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
@@ -24,7 +24,7 @@ class _TabsPageState extends State<TabsPage> {
   // * Opciones de tabs para admin
   late final List<Widget> _adminTabsOptions = [
     const InventoryTab(),
-    const ObjectForm(),
+    const AddObjectForm(),
     const DispatchOrderTab(),
     OrdersTab(isAdmin: _isAdmin)
   ];
