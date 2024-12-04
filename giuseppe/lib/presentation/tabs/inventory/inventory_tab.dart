@@ -311,42 +311,31 @@ class InventoryCard extends StatelessWidget {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
+              actionsAlignment: MainAxisAlignment.center,
               backgroundColor: AppColors.primaryColor,
-              title: const Text('Confirmar Eliminación'),
-              content: Text('¿Está seguro que desea eliminar "${item['name']}"?'),
+              title: Center(
+                child: const Text('Eliminar Item'),
+              ),
+              content: Text('¿Está seguro que desea eliminar el item "${item['name']}"?, Esta acción es irreversible.',
+                textAlign: TextAlign.justify, ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.onPrimaryColor, // Color del texto (letra)
+                  ),
                   child: const Text('Cancelar'),
                 ),
                 TextButton(
                   onPressed: () async {
                     Navigator.of(context).pop();
-                    // Validar datos antes de proceder
+
+                    // Obtén los datos directamente del objeto 'item'
                     final String? itemId = item['id'] as String?;
-                    final List<String>? itemImages =
-                    (item['image'] as List?)?.cast<String>();
-
-                    if (itemId == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Error: El objeto no tiene un ID válido'),
-                        ),
-                      );
-                      return;
-                    }
-
-                    if (itemImages == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Error: Las imágenes no son válidas'),
-                        ),
-                      );
-                      return;
-                    }
+                    final List<String>? itemImages = (item['image'] as List?)?.cast<String>();
 
                     // Intentar eliminar el objeto
-                    bool success = await objectService.deleteObject(itemId, itemImages);
+                    bool success = await objectService.deleteObject(itemId!, itemImages!);
 
                     if (success) {
                       onDelete(); // Llama a la función de actualización
@@ -363,6 +352,9 @@ class InventoryCard extends StatelessWidget {
                       );
                     }
                   },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.errorColor, // Color del texto (letra)
+                  ),
                   child: const Text('Eliminar'),
                 ),
               ],
