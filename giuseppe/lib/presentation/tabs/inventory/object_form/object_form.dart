@@ -111,11 +111,16 @@ class _NewObjectFormState extends State<_NewObjectForm> {
 
   String? _selectedCategory;
   List<String> categories = [
-    'Plasticos',
-    'Metales',
-    'Vidrio',
-    'Papel',
-    'Otros'
+    'Accesorios', //ia
+    'Auxiliares',
+    'Bases', //ia
+    'Candelabros', //ia
+    'Electrodomésticos',
+    'Herramientas',
+    'Lamparas', //ia
+    'Mobiliario', //ia
+    'Vajilla', //ia
+    'Otros',
   ];
 
   @override

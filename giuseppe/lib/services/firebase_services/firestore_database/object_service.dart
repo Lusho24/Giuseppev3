@@ -77,7 +77,9 @@ class ObjectService {
 
       // Convertir los documentos en una lista de mapas
       for (var doc in snapshot.docs) {
-        items.add(doc.data() as Map<String, dynamic>);
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        data['id'] = doc.id;
+        items.add(data);
       }
 
       return items;
@@ -87,6 +89,25 @@ class ObjectService {
     }
   }
 
+  /// Eliminar objeto y sus imágenes asociadas
+  Future<bool> deleteObject(String documentId, List<String> imageUrls) async {
+    try {
+      // Eliminar las imágenes del almacenamiento de Firebase
+      for (var imageUrl in imageUrls) {
+        Reference ref = _storage.refFromURL(imageUrl);
+        await ref.delete();
+        dev.log("Imagen eliminada: $imageUrl");
+      }
+
+      // Eliminar el documento de Firestore
+      await _firestore.collection('objects').doc(documentId).delete();
+      dev.log("Objeto eliminado exitosamente: $documentId");
+      return true;
+    } catch (e) {
+      dev.log("Error al eliminar el objeto: $e");
+      return false;
+    }
+  }
 
 
 }

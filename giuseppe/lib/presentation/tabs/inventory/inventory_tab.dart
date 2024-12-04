@@ -16,11 +16,16 @@ class InventoryTab extends StatefulWidget {
 class _InventoryTabState extends State<InventoryTab> {
   String? _selectedCategory;
   List<String> _categories = [
-    'Plasticos',
-    'Metales',
-    'Vidrio',
-    'Papel',
-    'Otros'
+    'Accesorios', //ia
+    'Auxiliares',
+    'Bases', //ia
+    'Candelabros', //ia
+    'Electrodomésticos',
+    'Herramientas',
+    'Lamparas', //ia
+    'Mobiliario', //ia
+    'Vajilla', //ia
+    'Otros',
   ];
   bool isAdmin = true;
 
@@ -40,6 +45,7 @@ class _InventoryTabState extends State<InventoryTab> {
     setState(() {
       inventoryItems = items.map((item) {
         return {
+          'id': item['id'],
           'image': item['images'] ?? [],
           'name': item['name'] ?? 'Unnamed',
           'quantity': item['quantity']?.toString() ?? '0',
@@ -117,8 +123,8 @@ class _InventoryTabState extends State<InventoryTab> {
                       );
                     }).toList(),
                     menuStyle: MenuStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(AppColors.primaryColor),
+                      backgroundColor: WidgetStateProperty.all(AppColors.primaryColor),
+                      maximumSize: WidgetStateProperty.all(Size.fromHeight(350.0)),
                     ),
                   ),
                 ),
@@ -166,7 +172,15 @@ class _InventoryTabState extends State<InventoryTab> {
                 itemCount: inventoryItems.length,
                 itemBuilder: (context, index) {
                   return InventoryCard(
-                      item: inventoryItems[index], context: context);
+                    item: inventoryItems[index],
+                    objectService: _objectService, // Pasa el servicio
+                    context: context,
+                    onDelete: () {
+                      setState(() {
+                        inventoryItems.removeAt(index); // Actualiza la lista
+                      });
+                    },
+                  );
                 },
               ),
             ),
@@ -180,8 +194,16 @@ class _InventoryTabState extends State<InventoryTab> {
 class InventoryCard extends StatelessWidget {
   final Map<String, dynamic> item;
   final BuildContext context;
+  final ObjectService objectService;
+  final Function onDelete;
 
-  const InventoryCard({super.key, required this.item, required this.context});
+  const InventoryCard({
+    super.key,
+    required this.item,
+    required this.objectService,
+    required this.onDelete,
+    required this.context,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -238,11 +260,11 @@ class InventoryCard extends StatelessWidget {
               child: Theme(
                 data: Theme.of(context).copyWith(
                   popupMenuTheme: const PopupMenuThemeData(
-                    color: AppColors.primaryColor, // Fondo del menú
+                    color: AppColors.primaryColor, 
                   ),
                 ),
                 child: PopupMenuButton<String>(
-                  offset: const Offset(0, 40), // Ajustar la posición del menú
+                  offset: const Offset(0, 40),
                   onSelected: (String value) {
                     handleMenuOption(value);
                   },
@@ -290,16 +312,56 @@ class InventoryCard extends StatelessWidget {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Confirmar Eliminación'),
-              content:
-              Text('¿Está seguro que desea eliminar "${item['name']}"?'),
+              content: Text('¿Está seguro que desea eliminar "${item['name']}"?'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Cancelar'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
+                  onPressed: () async {
+                    Navigator.of(context).pop(); // Cerrar el diálogo
+
+                    // Validar datos antes de proceder
+                    final String? itemId = item['id'] as String?;
+                    final List<String>? itemImages =
+                    (item['image'] as List?)?.cast<String>();
+
+                    if (itemId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Error: El objeto no tiene un ID válido'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (itemImages == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Error: Las imágenes no son válidas'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Intentar eliminar el objeto
+                    bool success = await objectService.deleteObject(itemId, itemImages);
+
+                    if (success) {
+                      onDelete(); // Llama a la función de actualización
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Objeto eliminado exitosamente'),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Error al eliminar el objeto'),
+                        ),
+                      );
+                    }
                   },
                   child: const Text('Eliminar'),
                 ),
@@ -310,6 +372,7 @@ class InventoryCard extends StatelessWidget {
         break;
     }
   }
+
 
   //ventana modal de añadir item a la orden de despacho
   void addItem(Map<String, dynamic> item) {
