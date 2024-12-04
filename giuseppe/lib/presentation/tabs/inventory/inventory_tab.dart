@@ -40,7 +40,6 @@ class _InventoryTabState extends State<InventoryTab> {
   void initState() {
     super.initState();
     _loadInventoryItems();
-    _loadUserSession();
   }
 
   // Funcion para cargar los objetos desde la bdd
@@ -57,19 +56,6 @@ class _InventoryTabState extends State<InventoryTab> {
         };
       }).toList();
     });
-  }
-
-  // Función para cargar si es admin o no
-  Future<void> _loadUserSession() async {
-    try {
-      final sessionData = await _localStorage.fetchSession();
-      if (sessionData != null && sessionData['isAdmin'] != null) {
-        setState(() {
-          isAdmin = sessionData['isAdmin'] == true;
-        });
-      }
-    } catch (e) {
-    }
   }
 
   // Función para eliminar un objeto
@@ -172,25 +158,33 @@ class _InventoryTabState extends State<InventoryTab> {
                   ),
                 ),
                 const SizedBox(width: 10.0),
-                if (isAdmin)
-                  SizedBox(
-                    width: 50,
-                    height: 55,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SearchObjectTab()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: const Icon(Icons.camera_alt,
-                          size: 16, color: AppColors.primaryColor),
-                    ),
-                  ),
+                // Verificacion si es admin o no
+                FutureBuilder<bool>(
+                  future: _localStorage.fetchSession().then((sessionData) => sessionData?['isAdmin'] ?? false),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data == true) {
+                      return SizedBox(
+                        width: 50,
+                        height: 55,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SearchObjectTab()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: const Icon(Icons.camera_alt,
+                              size: 16, color: AppColors.primaryColor),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           ),
@@ -349,7 +343,7 @@ class InventoryCard extends StatelessWidget {
         addItem(item);
         break;
       case 'editar':
-        EditObjectForm;
+        Navigator.push(context, EditObjectForm as Route<Object?>);
         break;
       case 'eliminar':
         _DeleteDialog(item);
