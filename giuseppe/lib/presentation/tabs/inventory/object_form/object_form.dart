@@ -252,11 +252,20 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                           ),
                         ),
                       ),
-                      hint: const Text('Seleccione una categoría'),
+                      hint: const Text('Seleccione una categoría',),
+                      style: const TextStyle(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w400,
+                      ),
                       items: categories.map((String category) {
                         return DropdownMenuItem<String>(
                           value: category,
-                          child: Text(category),
+                          child: Text(
+                            category,
+                            style: const TextStyle(color: Colors.black,
+                                fontSize: 14.0,
+                            fontWeight: FontWeight.w400),
+                          ),
                         );
                       }).toList(),
                       onChanged: (String? value) {
@@ -264,8 +273,11 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                           _selectedCategory = value;
                         });
                       },
+                      menuMaxHeight: 170.0,
+                      dropdownColor: AppColors.primaryColor,
                     ),
                   ),
+
                   const SizedBox(height: 30.0),
                   Center(
                       child: SizedBox(
