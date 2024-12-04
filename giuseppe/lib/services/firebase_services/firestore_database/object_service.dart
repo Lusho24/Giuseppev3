@@ -58,7 +58,7 @@ class ObjectService {
     }
   }
 
-  ////Recuperar items
+  /// Recuperar items
   Future<List<Map<String, dynamic>>> getAllItems() async {
     try {
       QuerySnapshot snapshot = await _firestore.collection('objects').get();

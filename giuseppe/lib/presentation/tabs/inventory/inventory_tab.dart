@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:giuseppe/models/object_model.dart';
 import 'package:giuseppe/presentation/tabs/inventory/object_form/edit_object_form.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
@@ -158,6 +159,8 @@ class _InventoryTabState extends State<InventoryTab> {
                   ),
                 ),
                 const SizedBox(width: 10.0),
+
+
                 // Verificacion si es admin o no
                 FutureBuilder<bool>(
                   future: _localStorage.fetchSession().then((sessionData) => sessionData?['isAdmin'] ?? false),
@@ -343,13 +346,22 @@ class InventoryCard extends StatelessWidget {
         addItem(item);
         break;
       case 'editar':
-        Navigator.push(context, EditObjectForm as Route<Object?>);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditObjectForm(
+              item: item,
+              objectService: objectService,
+            ),
+          ),
+        );
         break;
       case 'eliminar':
         _DeleteDialog(item);
         break;
     }
   }
+
 
   // Modal de eliminacion
   void _DeleteDialog(Map<String, dynamic> item) {
@@ -613,6 +625,7 @@ class InventoryCard extends StatelessWidget {
   }
 
 
+  //visualizacion de la imagen en grande
   void _showImagePreview(BuildContext context, List<dynamic> images, int initialIndex) {
     showDialog(
       context: context,
@@ -620,7 +633,7 @@ class InventoryCard extends StatelessWidget {
         return Dialog(
           backgroundColor: Colors.transparent,
           child: Align(
-            alignment: Alignment.center, // Centra la imagen
+            alignment: Alignment.center,
             child: Container(
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.6,
@@ -639,7 +652,7 @@ class InventoryCard extends StatelessWidget {
                     },
                     scrollPhysics: const BouncingScrollPhysics(),
                     backgroundDecoration: BoxDecoration(
-                      color: AppColors.primaryColor, // Fondo negro para la imagen
+                      color: AppColors.primaryColor,
                     ),
                     pageController: PageController(initialPage: initialIndex),
                     onPageChanged: (index) {},
