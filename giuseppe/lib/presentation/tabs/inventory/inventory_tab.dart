@@ -55,6 +55,32 @@ class _InventoryTabState extends State<InventoryTab> {
     });
   }
 
+  // Función para eliminar un objeto
+  Future<void> _deleteItem(Map<String, dynamic> item, int index) async {
+    List<String> images = List<String>.from(item['image'] ?? []);
+
+    bool success = await _objectService.deleteObject(item['id'], images);
+
+    if (mounted) {
+      if (success) {
+        setState(() {
+          inventoryItems.removeAt(index); //refresh
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Objeto eliminado exitosamente'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al eliminar el objeto'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,12 +199,10 @@ class _InventoryTabState extends State<InventoryTab> {
                 itemBuilder: (context, index) {
                   return InventoryCard(
                     item: inventoryItems[index],
-                    objectService: _objectService, // Pasa el servicio
+                    objectService: _objectService,
                     context: context,
                     onDelete: () {
-                      setState(() {
-                        inventoryItems.removeAt(index); // Actualiza la lista
-                      });
+                      _deleteItem(inventoryItems[index], index);
                     },
                   );
                 },
@@ -329,31 +353,10 @@ class InventoryCard extends StatelessWidget {
                 TextButton(
                   onPressed: () async {
                     Navigator.of(context).pop();
-
-                    // Obtén los datos directamente del objeto 'item'
-                    final String? itemId = item['id'] as String?;
-                    final List<String>? itemImages = (item['image'] as List?)?.cast<String>();
-
-                    // Intentar eliminar el objeto
-                    bool success = await objectService.deleteObject(itemId!, itemImages!);
-
-                    if (success) {
-                      onDelete(); // Llama a la función de actualización
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Objeto eliminado exitosamente'),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Error al eliminar el objeto'),
-                        ),
-                      );
-                    }
+                    onDelete();
                   },
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.errorColor, // Color del texto (letra)
+                    foregroundColor: AppColors.errorColor,
                   ),
                   child: const Text('Eliminar'),
                 ),
@@ -699,7 +702,7 @@ class InventoryCard extends StatelessWidget {
                     child: IconButton(
                       icon: Icon(Icons.close, color: AppColors.primaryVariantColor, size: 30),
                       onPressed: () {
-                        Navigator.of(context).pop(); // Cerrar el Dialog
+                        Navigator.of(context).pop();
                       },
                     ),
                   ),

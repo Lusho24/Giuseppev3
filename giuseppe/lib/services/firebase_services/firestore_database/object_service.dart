@@ -2,13 +2,13 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:giuseppe/models/object_model.dart';
-import 'dart:developer' as dev;
+//import 'dart:developer' as dev;
 
 class ObjectService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  /// Subir la imagen al almacenamiento y obtener su URL
+  /// Subir la imagen al Storage y obtener su URL
   Future<String?> uploadImage(File imageFile) async {
     try {
       // Generar un nombre único para la imagen
@@ -21,93 +21,74 @@ class ObjectService {
 
       // Retornar la URL de la imagen
       String downloadUrl = await snapshot.ref.getDownloadURL();
-      dev.log("Imagen subida exitosamente: $downloadUrl");
       return downloadUrl;
     } catch (e) {
-      dev.log("Error al subir la imagen: $e");
       return null;
     }
   }
 
-  /// Guardar datos del objeto en Firestore
+  /// Guardar datos del item
   Future<bool> saveObject(ObjectModel object) async {
     try {
       await _firestore.collection("objects").add(object.toJson());
-      dev.log("Objeto guardado exitosamente en Firestore");
       return true;
     } catch (e) {
-      dev.log("Error al guardar el objeto: $e");
       return false;
     }
   }
 
-  /// Subir imagen y guardar datos del objeto
+  /// Guardar Item
   Future<bool> saveObjectWithImages(List<File> imageFiles, ObjectModel object) async {
     try {
       List<String> imageUrls = [];
-      // Subir todas las imágenes y agregar sus URLs a la lista
+      // Subir imagenes y agregar a lista
       for (var imageFile in imageFiles) {
         String? imageUrl = await uploadImage(imageFile);
         if (imageUrl != null) {
           imageUrls.add(imageUrl);
         }
       }
-
       if (imageUrls.isEmpty) return false;
-
-      // Asignar la lista de URLs de imágenes al objeto
+      // Asignar listas al item
       object.images = imageUrls;
-
-      // Guardar el objeto en Firestore
+      // Guardar el item
       return await saveObject(object);
     } catch (e) {
-      dev.log("Error en saveObjectWithImages: $e");
       return false;
     }
   }
 
-
-  ////Inventario
-
+  ////Recuperar items
   Future<List<Map<String, dynamic>>> getAllItems() async {
     try {
-      // Acceder a la colección de objetos en Firestore
       QuerySnapshot snapshot = await _firestore.collection('objects').get();
       List<Map<String, dynamic>> items = [];
-
-      // Convertir los documentos en una lista de mapas
+      // Mapeo
       for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id;
         items.add(data);
       }
-
       return items;
     } catch (e) {
-      print('Error al obtener objetos: $e');
       return [];
     }
   }
 
-  /// Eliminar objeto y sus imágenes asociadas
+  /// Eliminar documento e imagenes
   Future<bool> deleteObject(String documentId, List<String> imageUrls) async {
     try {
-      // Eliminar las imágenes del almacenamiento de Firebase
+      // Eliminar Imagenes
       for (var imageUrl in imageUrls) {
         Reference ref = _storage.refFromURL(imageUrl);
         await ref.delete();
-        dev.log("Imagen eliminada: $imageUrl");
       }
-
-      // Eliminar el documento de Firestore
+      // Eliminar el documentos
       await _firestore.collection('objects').doc(documentId).delete();
-      dev.log("Objeto eliminado exitosamente: $documentId");
       return true;
     } catch (e) {
-      dev.log("Error al eliminar el objeto: $e");
       return false;
     }
   }
-
 
 }
