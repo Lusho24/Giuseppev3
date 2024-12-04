@@ -311,6 +311,7 @@ class InventoryCard extends StatelessWidget {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
+              backgroundColor: AppColors.primaryColor,
               title: const Text('Confirmar Eliminación'),
               content: Text('¿Está seguro que desea eliminar "${item['name']}"?'),
               actions: [
@@ -320,8 +321,7 @@ class InventoryCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () async {
-                    Navigator.of(context).pop(); // Cerrar el diálogo
-
+                    Navigator.of(context).pop();
                     // Validar datos antes de proceder
                     final String? itemId = item['id'] as String?;
                     final List<String>? itemImages =
@@ -520,14 +520,17 @@ class InventoryCard extends StatelessWidget {
     );
   }
 
+
+
   // * Ventana modal info
   void modalObject() {
-    List<dynamic> images = item['image'] ?? []; // Lista de imágenes
+    List<dynamic> images = item['image'] ?? [];
     final CarouselSliderController _carouselController =
     CarouselSliderController();
-    int currentIndex = 0; // Índice de la imagen actual
+    int currentIndex = 0;
 
     showModalBottomSheet(
+      backgroundColor: AppColors.primaryColor,
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -638,22 +641,25 @@ class InventoryCard extends StatelessWidget {
                   const SizedBox(height: 15),
                   Text(
                     item['name']!,
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .titleSmall,
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w400,
+
+                    ),
                   ),
                   Text(
                     "Disponibles: ${item['quantity']!}",
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodySmall,
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w300,
+                    ),
                   ),
-                  const SizedBox(height: 10),
                   Text(
                     "Detalle: ${item['detail']!}",
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w300,
+                    ),
                   ),
                 ],
               ),

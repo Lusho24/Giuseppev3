@@ -11,7 +11,7 @@ class AppColors {
   static const Color errorColor = Color.fromRGBO(255, 0, 0, 1.0);
   static const Color onPrimaryColor = Color.fromRGBO(0, 0, 0, 1.0);
   static const Color onSecondaryColor = Color.fromRGBO(240, 240, 240, 1.0); //tab
-  static const Color onBackgroundColor = Color.fromRGBO(255, 255, 255, 1.0);
+  static const Color onBackgroundColor = Color.fromRGBO(239, 239, 239, 1);
   static const Color onSurfaceColor = Color.fromRGBO(0, 0, 0, 1.0);
   static const Color onErrorColor = Color.fromRGBO(25, 0, 255, 1.0);
 
