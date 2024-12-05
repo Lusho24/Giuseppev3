@@ -238,7 +238,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                             int index = entry.key;
                             String url = entry.value;
                             return GestureDetector(
-                              onTap: () => _showDeleteOption(context, index, false),
+                              onTap: () => _showDeleteOption(context, index, true),
                               child: Image.network(
                                 url,
                                 height: 120,
