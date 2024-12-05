@@ -210,10 +210,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                             if (_currentImageIndex > 0)
                               Positioned(
                                 left: 10,
-                                top: 20,
-                                child: Container(
-                                  width: 50,
-                                  height: 70,
+                                top: 50,
                                   child: GestureDetector(
                                     onTap: () {
                                       _carouselController.previousPage(
@@ -227,17 +224,13 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                                       size: 20,
                                     ),
                                   ),
-                                ),
                               ),
 
                             // Flecha derecha
                             if (_currentImageIndex < _itemImg.length - 1)
                               Positioned(
                                 right: 10,
-                                top: 20,
-                                child: Container(
-                                  width: 50,
-                                  height: 70,
+                                top: 50,
                                   child: GestureDetector(
                                     onTap: () {
                                       _carouselController.nextPage(
@@ -251,7 +244,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                                       size: 20,
                                     ),
                                   ),
-                                ),
+
                               ),
                           ],
                         ),
