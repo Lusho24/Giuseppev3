@@ -146,7 +146,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                 children: [
                   Column(
                     children: [
-                      // Carrusel de imágenes con las flechas posicionadas sobre él
+                      // Carrusel
                       Center(
                         child: _itemImg.isEmpty
                             ? const Text("Seleccione Imágenes")

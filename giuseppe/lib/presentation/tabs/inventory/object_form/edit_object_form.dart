@@ -29,14 +29,15 @@ class _EditObjectFormState extends State<EditObjectForm> {
     return Scaffold(
       body: Stack(
         children: [
+
           // Flecha para retroceder
           Positioned(
-            top: 40, // Ajusta la posición vertical
-            left: 10, // Ajusta la posición horizontal
+            top: 40,
+            left: 10,
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: AppColors.onPrimaryColor, size: 30),
               onPressed: () {
-                Navigator.of(context).pop(); // Retrocede a la página anterior
+                Navigator.of(context).pop();
               },
             ),
           ),
@@ -123,6 +124,8 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
   late TextEditingController _nameController;
   late TextEditingController _quantityController;
   late TextEditingController _detailController;
+  int _currentImageIndex = 0;
+  final CarouselSliderController _carouselController = CarouselSliderController();
 
   List<String> _remoteImages = [];
   List<File> _localImages = [];
@@ -210,103 +213,100 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 // Carrusel de imágenes
                 Center(
                   child: (_remoteImages.isEmpty && _localImages.isEmpty)
                       ? const Text("Seleccione Imágenes")
-                      : CarouselSlider(
-                    options: CarouselOptions(
-                      height: 120.0,
-                      enlargeCenterPage: true,
-                      autoPlay: false,
-                      enableInfiniteScroll: false,
-                      aspectRatio: 1.0,
-                      viewportFraction: 0.7,
-                    ),
-                    items: [
-
-                      //Imagenes remotas
-                      ..._remoteImages.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        String url = entry.value;
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Stack(
-                              children: [
-                                Image.network(
-                                  url,
-                                  height: 120,
-                                  width: 120,
-                                  fit: BoxFit.contain,
-                                ),
-                                Positioned(
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: () =>
-                                        _removeImage(index, true),
-                                    child: Container(
-                                      width: 20,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius:
-                                        BorderRadius.circular(5),
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
+                      : Stack(
+                    children: [
+                      CarouselSlider(
+                        carouselController: _carouselController,
+                        options: CarouselOptions(
+                          height: 120.0,
+                          enlargeCenterPage: true,
+                          autoPlay: false,
+                          enableInfiniteScroll: false,
+                          aspectRatio: 1.0,
+                          viewportFraction: 0.7,
+                          onPageChanged: (index, reason) {
+                            setState(() {
+                              _currentImageIndex = index;
+                            });
                           },
-                        );
-                      }).toList(),
-
-                      //Imagenes locales
-                      ..._localImages.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        File file = entry.value;
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Stack(
-                              children: [
-                                Image.file(
-                                  file,
-                                  height: 120,
-                                  width: 120,
-                                  fit: BoxFit.contain,
-                                ),
-                                Positioned(
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: () =>
-                                        _removeImage(index, false),
-                                    child: Container(
-                                      width: 20,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius:
-                                        BorderRadius.circular(5),
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                        ),
+                        items: [
+                          // Imágenes remotas
+                          ..._remoteImages.asMap().entries.map((entry) {
+                            int index = entry.key;
+                            String url = entry.value;
+                            return GestureDetector(
+                              onTap: () => _showDeleteOption(context, index, false),
+                              child: Image.network(
+                                url,
+                                height: 120,
+                                width: 120,
+                                fit: BoxFit.contain,
+                              ),
                             );
-                          },
-                        );
-                      }).toList(),
+                          }).toList(),
+                          // Imágenes locales
+                          ..._localImages.asMap().entries.map((entry) {
+                            int index = entry.key; // Definimos 'index' aquí
+                            File file = entry.value;
+                            return GestureDetector(
+                              onTap: () => _showDeleteOption(context, index, false),
+                              child: Image.file(
+                                file,
+                                height: 120,
+                                width: 120,
+                                fit: BoxFit.contain,
+                              ),
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                      // Flecha izquierda
+                      if (_currentImageIndex > 0)
+                        Positioned(
+                          left: 10,
+                          top: 50,
+                          child: GestureDetector(
+                            onTap: () {
+                              _carouselController.previousPage(
+                                duration:
+                                const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                              child: const Icon(
+                                Icons.arrow_back_ios,
+                                color: AppColors.onPrimaryColor,
+                                size: 20,
+                              ),
+
+                          ),
+                        ),
+                      // Flecha derecha
+                      if (_currentImageIndex <
+                          (_remoteImages.length + _localImages.length - 1))
+                        Positioned(
+                          right: 10,
+                          top: 50,
+                          child: GestureDetector(
+                            onTap: () {
+                              _carouselController.nextPage(
+                                duration:
+                                const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                              child: const Icon(
+                                Icons.arrow_forward_ios,
+                                color: AppColors.onPrimaryColor,
+                                size: 20,
+                              ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -381,7 +381,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                         ),
                       ),
                     ),
-                    hint: const Text('Seleccione una categoría',),
+                    hint: const Text('Seleccione una categoría'),
                     style: const TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.w400,
@@ -391,9 +391,11 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                         value: category,
                         child: Text(
                           category,
-                          style: const TextStyle(color: Colors.black,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w400),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       );
                     }).toList(),
@@ -413,6 +415,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState?.validate() == true) {
+                          // Guardar lógica
                         }
                       },
                       child: const Text("Guardar"),
@@ -426,4 +429,55 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
       ),
     );
   }
+
+
+// Función para mostrar la opción de eliminar
+  void _showDeleteOption(BuildContext context, int index, bool isRemote) {
+    showModalBottomSheet(
+      backgroundColor: AppColors.primaryColor,
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                '¿Desea eliminar esta imagen?',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancelar'),
+                  ),
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    onPressed: () {
+                      _removeImage(index, isRemote);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Eliminar'),
+                  ),
+
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 }
