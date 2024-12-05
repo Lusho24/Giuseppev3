@@ -103,7 +103,6 @@ class _NewObjectFormState extends State<_NewObjectForm> {
   final ObjectService _objectService = ObjectService(); //servicio
   final ImagePicker picker = ImagePicker();
   List<File> _itemImg = []; //imagenes
-  final CarouselSliderController _carouselController = CarouselSliderController();
   int _currentImageIndex = 0;
 
 
@@ -153,7 +152,6 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                             : Stack(
                           children: [
                             CarouselSlider(
-                              carouselController: _carouselController,
                               options: CarouselOptions(
                                 height: 120.0,
                                 enlargeCenterPage: true,
@@ -239,12 +237,6 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                                 left: 10,
                                 top: 50,
                                   child: GestureDetector(
-                                    onTap: () {
-                                      _carouselController.previousPage(
-                                        duration: const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    },
                                     child: const Icon(
                                       Icons.arrow_back_ios,
                                       color: AppColors.onPrimaryColor,
@@ -259,12 +251,6 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                                 right: 10,
                                 top: 50,
                                   child: GestureDetector(
-                                    onTap: () {
-                                      _carouselController.nextPage(
-                                        duration: const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    },
                                     child: const Icon(
                                       Icons.arrow_forward_ios,
                                       color: AppColors.onPrimaryColor,
