@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:giuseppe/models/object_model.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,18 +25,24 @@ class EditObjectForm extends StatefulWidget {
 class _EditObjectFormState extends State<EditObjectForm> {
   bool _isLoading = false;
 
+  void setLoading(bool isLoading) {
+    setState(() {
+      _isLoading = isLoading;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-
           // Flecha para retroceder
           Positioned(
             top: 40,
             left: 10,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppColors.onPrimaryColor, size: 30),
+              icon: const Icon(Icons.arrow_back,
+                  color: AppColors.onPrimaryColor, size: 30),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -43,7 +50,6 @@ class _EditObjectFormState extends State<EditObjectForm> {
           ),
           Column(
             children: [
-
               // Parte fija
               Container(
                 padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
@@ -66,13 +72,14 @@ class _EditObjectFormState extends State<EditObjectForm> {
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: _EditObjectFormBody(
-                        item: widget.item, objectService: widget.objectService),
+                        item: widget.item,
+                        objectService: widget.objectService,
+                        setLoading: setLoading),
                   ),
                 ),
               ),
             ],
           ),
-
 
           // Fondo opaco y animación de carga
           if (_isLoading)
@@ -94,29 +101,23 @@ class _EditObjectFormState extends State<EditObjectForm> {
       ),
     );
   }
-  void setLoading(bool isLoading) {
-    setState(() {
-      _isLoading = isLoading;
-    });
-  }
-
 }
 
 class _EditObjectFormBody extends StatefulWidget {
   final Map<String, dynamic> item;
   final ObjectService objectService;
-
+  final Function(bool) setLoading;
 
   const _EditObjectFormBody({
     Key? key,
     required this.item,
     required this.objectService,
+    required this.setLoading,
   }) : super(key: key);
 
   @override
   State<_EditObjectFormBody> createState() => _EditObjectFormBodyState();
 }
-
 
 class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
   final _formKey = GlobalKey<FormState>();
@@ -139,13 +140,17 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
 
   void _initializeFormFields() {
     _nameController = TextEditingController(text: widget.item['name'] ?? '');
-    _quantityController = TextEditingController(text: widget.item['quantity'] ?? '');
-    _detailController = TextEditingController(text: widget.item['detail'] ?? '');
+    _quantityController =
+        TextEditingController(text: widget.item['quantity'] ?? '');
+    _detailController =
+        TextEditingController(text: widget.item['detail'] ?? '');
     _remoteImages = List<String>.from(widget.item['image'] ?? []);
-    _selectedCategory = widget.item['category'] ?? _categories[0];
+    String category = widget.item['category'] ?? '';
+    _selectedCategory =
+        _categories.contains(category) ? category : _categories[0];
   }
 
-  List<String> _categories = [
+  final List<String> _categories = [
     'Accesorios', //ia
     'Auxiliares',
     'Bases', //ia
@@ -157,7 +162,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
     'Vajilla', //ia
     'Otros',
   ];
-
 
   Future getImages() async {
     if (_localImages.length + _remoteImages.length >= 4) {
@@ -190,6 +194,52 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
     });
   }
 
+  Future<void> _saveObject() async {
+    // Verificar si las imágenes están vacías
+    if (_localImages.isEmpty && _remoteImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debe seleccionar al menos una imagen.')),
+      );
+      return;
+    }
+
+    if (_formKey.currentState?.validate() == true) {
+      widget.setLoading(true); // Activar el indicador de carga
+
+      String objectId = widget.item['id']; // Usar el ID existente del objeto
+
+      // Crear un ObjectModel con los datos actualizados del formulario
+      ObjectModel updatedObject = ObjectModel(
+        name: _nameController.text,
+        quantity: _quantityController.text,
+        detail: _detailController.text,
+        category: _selectedCategory!,
+        images: _remoteImages, // Imágenes remotas actuales
+      );
+
+      // Actualizar el objeto en Firestore
+      bool success = await widget.objectService.updateObjectWithImages(
+        objectId,           // ID del documento
+        updatedObject,      // Datos actualizados
+        _imagesToRemove,    // Imágenes a eliminar
+        _localImages,       // Nuevas imágenes locales
+      );
+
+      // Manejo de errores o éxito
+      if (success) {
+        Navigator.of(context).pop(true); // Notificar que la página anterior debe actualizarse
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al actualizar el item.')),
+        );
+      }
+
+      widget.setLoading(false); // Desactivar el indicador de carga
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -217,88 +267,93 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                   child: (_remoteImages.isEmpty && _localImages.isEmpty)
                       ? const Text("Seleccione Imágenes")
                       : Stack(
-                    children: [
-                      CarouselSlider(
-                        options: CarouselOptions(
-                          height: 120.0,
-                          enlargeCenterPage: true,
-                          autoPlay: false,
-                          enableInfiniteScroll: false,
-                          aspectRatio: 1.0,
-                          viewportFraction: 0.7,
-                          onPageChanged: (index, reason) {
-                            setState(() {
-                              _currentImageIndex = index;
-                            });
-                          },
-                        ),
-                        items: [
-                          // Imágenes remotas
-                          ..._remoteImages.asMap().entries.map((entry) {
-                            int index = entry.key;
-                            String url = entry.value;
-                            return GestureDetector(
-                              onTap: () => _showDeleteOption(context, index, true),
-                              child: Image.network(
-                                url,
-                                height: 120,
-                                width: 120,
-                                fit: BoxFit.contain,
-                                loadingBuilder: (context, child, progress) {
-                                  if (progress == null) return child;
-                                  return const Center(child: CircularProgressIndicator());
+                          children: [
+                            CarouselSlider(
+                              options: CarouselOptions(
+                                height: 120.0,
+                                enlargeCenterPage: true,
+                                autoPlay: false,
+                                enableInfiniteScroll: false,
+                                aspectRatio: 1.0,
+                                viewportFraction: 0.7,
+                                onPageChanged: (index, reason) {
+                                  setState(() {
+                                    _currentImageIndex = index;
+                                  });
                                 },
                               ),
-                            );
-                          }).toList(),
-                          // Imágenes locales
-                          ..._localImages.asMap().entries.map((entry) {
-                            int index = entry.key; // Definimos 'index' aquí
-                            File file = entry.value;
-                            return GestureDetector(
-                              onTap: () => _showDeleteOption(context, index, false),
-                              child: Image.file(
-                                file,
-                                height: 120,
-                                width: 120,
-                                fit: BoxFit.contain,
+                              items: [
+                                // Imágenes remotas
+                                ..._remoteImages.asMap().entries.map((entry) {
+                                  int index = entry.key;
+                                  String url = entry.value;
+                                  return GestureDetector(
+                                    onTap: () =>
+                                        _showDeleteOption(context, index, true),
+                                    child: Image.network(
+                                      url,
+                                      height: 120,
+                                      width: 120,
+                                      fit: BoxFit.contain,
+                                      loadingBuilder:
+                                          (context, child, progress) {
+                                        if (progress == null) return child;
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      },
+                                    ),
+                                  );
+                                }).toList(),
+                                // Imágenes locales
+                                ..._localImages.asMap().entries.map((entry) {
+                                  int index =
+                                      entry.key; // Definimos 'index' aquí
+                                  File file = entry.value;
+                                  return GestureDetector(
+                                    onTap: () => _showDeleteOption(
+                                        context, index, false),
+                                    child: Image.file(
+                                      file,
+                                      height: 120,
+                                      width: 120,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                            // Flecha izquierda
+                            if (_currentImageIndex > 0)
+                              Positioned(
+                                left: 10,
+                                top: 50,
+                                child: GestureDetector(
+                                  onTap: () {},
+                                  child: const Icon(
+                                    Icons.arrow_back_ios,
+                                    color: AppColors.onPrimaryColor,
+                                    size: 20,
+                                  ),
+                                ),
                               ),
-                            );
-                          }).toList(),
-                        ],
-                      ),
-                      // Flecha izquierda
-                      if (_currentImageIndex > 0)
-                        Positioned(
-                          left: 10,
-                          top: 50,
-                          child: GestureDetector(
-                            onTap: () {
-                            },
-                              child: const Icon(
-                                Icons.arrow_back_ios,
-                                color: AppColors.onPrimaryColor,
-                                size: 20,
+                            // Flecha derecha
+                            if (_currentImageIndex <
+                                (_remoteImages.length +
+                                    _localImages.length -
+                                    1))
+                              Positioned(
+                                right: 10,
+                                top: 50,
+                                child: GestureDetector(
+                                  child: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: AppColors.onPrimaryColor,
+                                    size: 20,
+                                  ),
+                                ),
                               ),
-
-                          ),
+                          ],
                         ),
-                      // Flecha derecha
-                      if (_currentImageIndex <
-                          (_remoteImages.length + _localImages.length - 1))
-                        Positioned(
-                          right: 10,
-                          top: 50,
-                          child: GestureDetector(
-                              child: const Icon(
-                                Icons.arrow_forward_ios,
-                                color: AppColors.onPrimaryColor,
-                                size: 20,
-                              ),
-                          ),
-                        ),
-                    ],
-                  ),
                 ),
                 const SizedBox(height: 15.0),
                 Center(
@@ -322,7 +377,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                     hintText: 'Ingrese nombre del item',
                   ),
                   validator: (value) =>
-                  value?.isEmpty == true ? 'Campo requerido' : null,
+                      value?.isEmpty == true ? 'Campo requerido' : null,
                 ),
                 const SizedBox(height: 15.0),
                 Text('Cantidad', style: Theme.of(context).textTheme.bodyMedium),
@@ -335,7 +390,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                     hintText: 'Ingrese la cantidad en stock',
                   ),
                   validator: (value) =>
-                  value?.isEmpty == true ? 'Campo requerido' : null,
+                      value?.isEmpty == true ? 'Campo requerido' : null,
                 ),
                 const SizedBox(height: 15.0),
                 Text('Detalle', style: Theme.of(context).textTheme.bodyMedium),
@@ -349,7 +404,8 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                   ),
                 ),
                 const SizedBox(height: 15.0),
-                Text('Categoría', style: Theme.of(context).textTheme.bodyMedium),
+                Text('Categoría',
+                    style: Theme.of(context).textTheme.bodyMedium),
                 const SizedBox(height: 6.0),
                 SizedBox(
                   width: double.infinity,
@@ -403,11 +459,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                   child: SizedBox(
                     width: 160,
                     child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState?.validate() == true) {
-                          // Guardar lógica
-                        }
-                      },
+                      onPressed: _saveObject,
                       child: const Text("Guardar"),
                     ),
                   ),
@@ -419,7 +471,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
       ),
     );
   }
-
 
 // Función para mostrar la opción de eliminar
   void _showDeleteOption(BuildContext context, int index, bool isRemote) {
@@ -449,7 +500,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                     },
                     child: const Text('Cancelar'),
                   ),
-
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
@@ -460,7 +510,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                     },
                     child: const Text('Eliminar'),
                   ),
-
                 ],
               ),
             ],
@@ -469,5 +518,4 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
       },
     );
   }
-
 }

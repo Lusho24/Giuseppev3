@@ -1,6 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:giuseppe/models/object_model.dart';
 import 'package:giuseppe/presentation/tabs/inventory/object_form/edit_object_form.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
@@ -18,7 +17,7 @@ class InventoryTab extends StatefulWidget {
 
 class _InventoryTabState extends State<InventoryTab> {
   String? _selectedCategory;
-  List<String> _categories = [
+  final List<String> _categories = [
     'Accesorios', //ia
     'Auxiliares',
     'Bases', //ia
@@ -54,6 +53,7 @@ class _InventoryTabState extends State<InventoryTab> {
           'name': item['name'] ?? 'Unnamed',
           'quantity': item['quantity']?.toString() ?? '0',
           'detail': item['detail'] ?? 'Sin detalle',
+          'category': item['category'] ?? '',
         };
       }).toList();
     });

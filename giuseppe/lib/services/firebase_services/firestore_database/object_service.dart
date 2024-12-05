@@ -91,4 +91,36 @@ class ObjectService {
     }
   }
 
+  // Método para actualizar un objeto existente en Firestore
+  Future<bool> updateObjectWithImages(String objectId, ObjectModel object, List<String> imagesToRemove, List<File> newImages) async {
+    try {
+      // Eliminar imágenes de Firebase Storage
+      if (imagesToRemove.isNotEmpty) {
+        for (var imageUrl in imagesToRemove) {
+          Reference ref = _storage.refFromURL(imageUrl);
+          await ref.delete();
+        }
+      }
+
+      // Subir las nuevas imágenes
+      List<String> newImageUrls = [];
+      for (var imageFile in newImages) {
+        String? imageUrl = await uploadImage(imageFile);
+        if (imageUrl != null) {
+          newImageUrls.add(imageUrl);
+        }
+      }
+
+      // Agregar las URLs nuevas al objeto
+      object.images.addAll(newImageUrls);
+
+      // Actualizar el objeto en Firestore
+      await _firestore.collection("objects").doc(objectId).update(object.toJson());
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+
 }

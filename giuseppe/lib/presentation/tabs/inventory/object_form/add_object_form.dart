@@ -194,7 +194,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                                                     children: [
                                                       ElevatedButton(
                                                         onPressed: () {
-                                                          // Cerrar la opción flotante sin eliminar
+                                                          // Cerrar flotante
                                                           Navigator.of(context).pop();
                                                         },
                                                         child: const Text('Cancelar'),
@@ -204,7 +204,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                                                           backgroundColor: AppColors.errorColor,
                                                         ),
                                                         onPressed: () {
-                                                          // Eliminar la imagen y cerrar la opción flotante
+                                                          // Eliminar la imagen
                                                           removeImage(_itemImg.indexOf(img));
                                                           Navigator.of(context).pop();
                                                         },
