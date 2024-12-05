@@ -125,7 +125,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
   late TextEditingController _quantityController;
   late TextEditingController _detailController;
   int _currentImageIndex = 0;
-  final CarouselSliderController _carouselController = CarouselSliderController();
 
   List<String> _remoteImages = [];
   List<File> _localImages = [];
@@ -220,7 +219,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                       : Stack(
                     children: [
                       CarouselSlider(
-                        carouselController: _carouselController,
                         options: CarouselOptions(
                           height: 120.0,
                           enlargeCenterPage: true,
@@ -246,6 +244,10 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                                 height: 120,
                                 width: 120,
                                 fit: BoxFit.contain,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return const Center(child: CircularProgressIndicator());
+                                },
                               ),
                             );
                           }).toList(),
@@ -272,11 +274,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                           top: 50,
                           child: GestureDetector(
                             onTap: () {
-                              _carouselController.previousPage(
-                                duration:
-                                const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
                             },
                               child: const Icon(
                                 Icons.arrow_back_ios,
@@ -293,13 +290,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                           right: 10,
                           top: 50,
                           child: GestureDetector(
-                            onTap: () {
-                              _carouselController.nextPage(
-                                duration:
-                                const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
                               child: const Icon(
                                 Icons.arrow_forward_ios,
                                 color: AppColors.onPrimaryColor,
