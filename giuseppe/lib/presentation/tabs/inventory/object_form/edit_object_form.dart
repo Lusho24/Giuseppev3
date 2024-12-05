@@ -204,37 +204,35 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
     }
 
     if (_formKey.currentState?.validate() == true) {
-      widget.setLoading(true); // Activar el indicador de carga
+      widget.setLoading(true);
 
-      String objectId = widget.item['id']; // Usar el ID existente del objeto
+      String objectId = widget.item['id'];
 
-      // Crear un ObjectModel con los datos actualizados del formulario
+      // Crear un ObjectModel
       ObjectModel updatedObject = ObjectModel(
         name: _nameController.text,
         quantity: _quantityController.text,
         detail: _detailController.text,
         category: _selectedCategory!,
-        images: _remoteImages, // Imágenes remotas actuales
+        images: _remoteImages,
       );
 
-      // Actualizar el objeto en Firestore
+      // Actualizar objeto
       bool success = await widget.objectService.updateObjectWithImages(
-        objectId,           // ID del documento
-        updatedObject,      // Datos actualizados
-        _imagesToRemove,    // Imágenes a eliminar
-        _localImages,       // Nuevas imágenes locales
+        objectId,
+        updatedObject,
+        _imagesToRemove,
+        _localImages,
       );
 
-      // Manejo de errores o éxito
       if (success) {
-        Navigator.of(context).pop(true); // Notificar que la página anterior debe actualizarse
+        Navigator.of(context).pop(true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al actualizar el item.')),
         );
       }
-
-      widget.setLoading(false); // Desactivar el indicador de carga
+      widget.setLoading(false);
     }
   }
 

@@ -91,10 +91,10 @@ class ObjectService {
     }
   }
 
-  // Método para actualizar un objeto existente en Firestore
+  // Actualizar un objeto existente en Firestore
   Future<bool> updateObjectWithImages(String objectId, ObjectModel object, List<String> imagesToRemove, List<File> newImages) async {
     try {
-      // Eliminar imágenes de Firebase Storage
+      // Eliminar imágenes del Storage
       if (imagesToRemove.isNotEmpty) {
         for (var imageUrl in imagesToRemove) {
           Reference ref = _storage.refFromURL(imageUrl);
