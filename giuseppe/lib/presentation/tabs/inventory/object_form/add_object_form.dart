@@ -170,40 +170,67 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                               items: _itemImg.map((img) {
                                 return Builder(
                                   builder: (BuildContext context) {
-                                    return Stack(
-                                      children: [
-                                        Image.file(
-                                          img,
-                                          height: 120,
-                                          width: 120,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        // Botón "X" para eliminar imagen
-                                        Positioned(
-                                          right: 0,
-                                          top: 0,
-                                          child: GestureDetector(
-                                            onTap: () => removeImage(_itemImg.indexOf(img)),
-                                            child: Container(
-                                              width: 20,
-                                              height: 20,
-                                              decoration: BoxDecoration(
-                                                color: Colors.black,
-                                                borderRadius: BorderRadius.circular(5),
-                                              ),
-                                              child: const Icon(
-                                                Icons.close,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                            ),
+                                    return GestureDetector(
+                                      onTap: () {
+
+                                        // Opciones para eliminar al pulsar imagen
+                                        showModalBottomSheet(
+                                          backgroundColor: AppColors.primaryColor,
+                                          context: context,
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
                                           ),
-                                        ),
-                                      ],
+                                          builder: (BuildContext context) {
+                                            return Container(
+                                              padding: const EdgeInsets.all(20.0),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Text(
+                                                    '¿Desea eliminar esta imagen?',
+                                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                                  ),
+                                                  const SizedBox(height: 20.0),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                    children: [
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          // Cerrar la opción flotante sin eliminar
+                                                          Navigator.of(context).pop();
+                                                        },
+                                                        child: const Text('Cancelar'),
+                                                      ),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor: AppColors.errorColor,
+                                                        ),
+                                                        onPressed: () {
+                                                          // Eliminar la imagen y cerrar la opción flotante
+                                                          removeImage(_itemImg.indexOf(img));
+                                                          Navigator.of(context).pop();
+                                                        },
+                                                        child: const Text('Eliminar'),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: Image.file(
+                                        img,
+                                        height: 120,
+                                        width: 120,
+                                        fit: BoxFit.cover,
+                                      ),
                                     );
                                   },
                                 );
                               }).toList(),
+
                             ),
 
                             // Flecha izquierda
