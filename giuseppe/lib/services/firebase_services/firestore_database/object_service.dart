@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:giuseppe/models/object_model.dart';
-//import 'dart:developer' as dev;
 
 class ObjectService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -11,15 +10,11 @@ class ObjectService {
   /// Subir la imagen al Storage y obtener su URL
   Future<String?> uploadImage(File imageFile) async {
     try {
-      // Generar un nombre único para la imagen
+      // Generar un nombre para la imagen
       String timeKey = DateTime.now().millisecondsSinceEpoch.toString();
       Reference ref = _storage.ref().child("Object Images/$timeKey.jpg");
-
-      // Subir la imagen
       UploadTask uploadTask = ref.putFile(imageFile);
       TaskSnapshot snapshot = await uploadTask;
-
-      // Retornar la URL de la imagen
       String downloadUrl = await snapshot.ref.getDownloadURL();
       return downloadUrl;
     } catch (e) {
@@ -41,7 +36,6 @@ class ObjectService {
   Future<bool> saveObjectWithImages(List<File> imageFiles, ObjectModel object) async {
     try {
       List<String> imageUrls = [];
-      // Subir imagenes y agregar a lista
       for (var imageFile in imageFiles) {
         String? imageUrl = await uploadImage(imageFile);
         if (imageUrl != null) {
@@ -49,9 +43,7 @@ class ObjectService {
         }
       }
       if (imageUrls.isEmpty) return false;
-      // Asignar listas al item
       object.images = imageUrls;
-      // Guardar el item
       return await saveObject(object);
     } catch (e) {
       return false;
@@ -63,7 +55,6 @@ class ObjectService {
     try {
       QuerySnapshot snapshot = await _firestore.collection('objects').get();
       List<Map<String, dynamic>> items = [];
-      // Mapeo
       for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id;
@@ -78,12 +69,10 @@ class ObjectService {
   /// Eliminar documento e imagenes
   Future<bool> deleteObject(String documentId, List<String> imageUrls) async {
     try {
-      // Eliminar Imagenes
       for (var imageUrl in imageUrls) {
         Reference ref = _storage.refFromURL(imageUrl);
         await ref.delete();
       }
-      // Eliminar el documentos
       await _firestore.collection('objects').doc(documentId).delete();
       return true;
     } catch (e) {
@@ -91,18 +80,15 @@ class ObjectService {
     }
   }
 
-  // Actualizar un objeto existente en Firestore
+  /// Actualizar un objeto existente en Firestore
   Future<bool> updateObjectWithImages(String objectId, ObjectModel object, List<String> imagesToRemove, List<File> newImages) async {
     try {
-      // Eliminar imágenes del Storage
       if (imagesToRemove.isNotEmpty) {
         for (var imageUrl in imagesToRemove) {
           Reference ref = _storage.refFromURL(imageUrl);
           await ref.delete();
         }
       }
-
-      // Subir las nuevas imágenes
       List<String> newImageUrls = [];
       for (var imageFile in newImages) {
         String? imageUrl = await uploadImage(imageFile);
@@ -110,11 +96,7 @@ class ObjectService {
           newImageUrls.add(imageUrl);
         }
       }
-
-      // Agregar las URLs nuevas al objeto
       object.images.addAll(newImageUrls);
-
-      // Actualizar el objeto en Firestore
       await _firestore.collection("objects").doc(objectId).update(object.toJson());
       return true;
     } catch (e) {

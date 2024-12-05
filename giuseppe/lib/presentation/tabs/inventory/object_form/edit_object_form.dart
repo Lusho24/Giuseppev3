@@ -227,6 +227,10 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
 
       if (success) {
         Navigator.of(context).pop(true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Modificación Exitosa.')),
+        );
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al actualizar el item.')),

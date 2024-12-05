@@ -144,6 +144,10 @@ class _InventoryTabState extends State<InventoryTab> {
                     onSelected: (String? value) {
                       setState(() {
                         _selectedCategory = value;
+                        inventoryItems = inventoryItems.where((item) {
+                          if (_selectedCategory == null || _selectedCategory!.isEmpty) return true;
+                          return item['category'] == _selectedCategory;
+                        }).toList();
                       });
                     },
                     dropdownMenuEntries: _categories.map((String category) {
@@ -302,7 +306,7 @@ class InventoryCard extends StatelessWidget {
               child: Theme(
                 data: Theme.of(context).copyWith(
                   popupMenuTheme: const PopupMenuThemeData(
-                    color: AppColors.primaryColor, 
+                    color: AppColors.primaryColor,
                   ),
                 ),
                 child: PopupMenuButton<String>(
@@ -346,15 +350,7 @@ class InventoryCard extends StatelessWidget {
         addItem(item);
         break;
       case 'editar':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EditObjectForm(
-              item: item,
-              objectService: objectService,
-            ),
-          ),
-        );
+        _navigateAndReloadItems(item);
         break;
       case 'eliminar':
         _DeleteDialog(item);
@@ -362,6 +358,27 @@ class InventoryCard extends StatelessWidget {
     }
   }
 
+  //Funcion editar items
+  void _navigateAndReloadItems(Map<String, dynamic> item) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditObjectForm(
+          item: item,
+          objectService: objectService,
+        ),
+      ),
+    ).then((shouldReload) {
+      if (shouldReload == true) {
+        if (context.mounted) {
+          final state = context.findAncestorStateOfType<_InventoryTabState>();
+          if (state != null) {
+            state._loadInventoryItems();
+          }
+        }
+      }
+    });
+  }
 
   // Modal de eliminacion
   void _DeleteDialog(Map<String, dynamic> item) {
