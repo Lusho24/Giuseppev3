@@ -103,6 +103,9 @@ class _NewObjectFormState extends State<_NewObjectForm> {
   final ObjectService _objectService = ObjectService(); //servicio
   final ImagePicker picker = ImagePicker();
   List<File> _itemImg = []; //imagenes
+  final CarouselSliderController _carouselController = CarouselSliderController();
+  int _currentImageIndex = 0;
+
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
@@ -129,8 +132,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
       color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
-        side:
-            const BorderSide(color: AppColors.primaryVariantColor, width: 1.0),
+        side: const BorderSide(color: AppColors.primaryVariantColor, width: 1.0),
       ),
       child: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -144,54 +146,114 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                 children: [
                   Column(
                     children: [
-                      // Carrusel de imágenes
+                      // Carrusel de imágenes con las flechas posicionadas sobre él
                       Center(
                         child: _itemImg.isEmpty
                             ? const Text("Seleccione Imágenes")
-                            : CarouselSlider(
-                          options: CarouselOptions(
-                            height: 120.0,
-                            enlargeCenterPage: true,
-                            autoPlay: false,
-                            enableInfiniteScroll: false,
-                            aspectRatio: 1.0,
-                            viewportFraction: 0.4,
-                          ),
-                          items: _itemImg.map((img) {
-                            return Builder(
-                              builder: (BuildContext context) {
-                                return Stack(
-                                  children: [
-                                    Image.file(
-                                      img,
-                                      height: 120,
-                                      width: 120,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      child: GestureDetector(
-                                        onTap: () => removeImage(_itemImg.indexOf(img)),
-                                        child: Container(
-                                          width: 20,
-                                          height: 20,
-                                          decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius: BorderRadius.circular(5),
-                                          ),
-                                          child: const Icon(
-                                            Icons.close,
-                                            color: Colors.white,
-                                            size: 20,
+                            : Stack(
+                          children: [
+                            CarouselSlider(
+                              carouselController: _carouselController,
+                              options: CarouselOptions(
+                                height: 120.0,
+                                enlargeCenterPage: true,
+                                autoPlay: false,
+                                enableInfiniteScroll: false,
+                                aspectRatio: 1.0,
+                                viewportFraction: 0.7,
+                                onPageChanged: (index, reason) {
+                                  setState(() {
+                                    _currentImageIndex = index;
+                                  });
+                                },
+                              ),
+                              items: _itemImg.map((img) {
+                                return Builder(
+                                  builder: (BuildContext context) {
+                                    return Stack(
+                                      children: [
+                                        Image.file(
+                                          img,
+                                          height: 120,
+                                          width: 120,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        // Botón "X" para eliminar imagen
+                                        Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: GestureDetector(
+                                            onTap: () => removeImage(_itemImg.indexOf(img)),
+                                            child: Container(
+                                              width: 20,
+                                              height: 20,
+                                              decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius: BorderRadius.circular(5),
+                                              ),
+                                              child: const Icon(
+                                                Icons.close,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  ],
+                                      ],
+                                    );
+                                  },
                                 );
-                              },
-                            );
-                          }).toList(),
+                              }).toList(),
+                            ),
+
+                            // Flecha izquierda
+                            if (_currentImageIndex > 0)
+                              Positioned(
+                                left: 10,
+                                top: 20,
+                                child: Container(
+                                  width: 50,
+                                  height: 70,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _carouselController.previousPage(
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    },
+                                    child: const Icon(
+                                      Icons.arrow_back_ios,
+                                      color: AppColors.onPrimaryColor,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                            // Flecha derecha
+                            if (_currentImageIndex < _itemImg.length - 1)
+                              Positioned(
+                                right: 10,
+                                top: 20,
+                                child: Container(
+                                  width: 50,
+                                  height: 70,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _carouselController.nextPage(
+                                        duration: const Duration(milliseconds: 300),
+                                        curve: Curves.easeInOut,
+                                      );
+                                    },
+                                    child: const Icon(
+                                      Icons.arrow_forward_ios,
+                                      color: AppColors.onPrimaryColor,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -212,24 +274,20 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                     controller: _nameController,
                   ),
                   const SizedBox(height: 15.0),
-                  Text('Cantidad',
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  Text('Cantidad', style: Theme.of(context).textTheme.bodyMedium),
                   CustomTextFormField(
                     formFieldType: FormFieldType.quantity,
                     hintText: 'Ingrese la cantidad en stock',
                     controller: _quantityController,
                   ),
                   const SizedBox(height: 15.0),
-                  Text('Detalle',
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  Text('Detalle', style: Theme.of(context).textTheme.bodyMedium),
                   CustomTextFormField(
                       formFieldType: FormFieldType.description,
-                      hintText:
-                          'Ingrese Detalles del item (ubicación, dimensiones)',
+                      hintText: 'Ingrese Detalles del item (ubicación, dimensiones)',
                       controller: _detailController),
                   const SizedBox(height: 15.0),
-                  Text('Categoría',
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  Text('Categoría', style: Theme.of(context).textTheme.bodyMedium),
                   const SizedBox(height: 6.0),
                   SizedBox(
                     width: double.infinity,
@@ -251,7 +309,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                           ),
                         ),
                       ),
-                      hint: const Text('Seleccione una categoría',),
+                      hint: const Text('Seleccione una categoría'),
                       style: const TextStyle(
                         fontSize: 14.0,
                         fontWeight: FontWeight.w400,
@@ -261,9 +319,11 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                           value: category,
                           child: Text(
                             category,
-                            style: const TextStyle(color: Colors.black,
-                                fontSize: 14.0,
-                            fontWeight: FontWeight.w400),
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         );
                       }).toList(),
@@ -276,16 +336,16 @@ class _NewObjectFormState extends State<_NewObjectForm> {
                       dropdownColor: AppColors.primaryColor,
                     ),
                   ),
-
                   const SizedBox(height: 30.0),
                   Center(
-                      child: SizedBox(
-                    width: 160,
-                    child: ElevatedButton(
-                      onPressed: _saveObject,
-                      child: const Text("Añadir"),
+                    child: SizedBox(
+                      width: 160,
+                      child: ElevatedButton(
+                        onPressed: _saveObject,
+                        child: const Text("Añadir"),
+                      ),
                     ),
-                  )),
+                  ),
                 ],
               ),
             ],
@@ -294,6 +354,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
       ),
     );
   }
+
 
   void removeImage(int index) {
     setState(() {

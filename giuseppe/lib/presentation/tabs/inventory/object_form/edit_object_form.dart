@@ -120,7 +120,6 @@ class _EditObjectFormBody extends StatefulWidget {
 class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker picker = ImagePicker();
-  List<File> _itemImg = []; //imagenes
   late TextEditingController _nameController;
   late TextEditingController _quantityController;
   late TextEditingController _detailController;
@@ -141,7 +140,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
     _quantityController = TextEditingController(text: widget.item['quantity'] ?? '');
     _detailController = TextEditingController(text: widget.item['detail'] ?? '');
     _remoteImages = List<String>.from(widget.item['image'] ?? []);
-    _selectedCategory = widget.item['category'];
+    _selectedCategory = widget.item['category'] ?? _categories[0];
   }
 
   List<String> _categories = [
@@ -159,20 +158,19 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
 
 
   Future getImages() async {
-    // Limitar a 4 imágenes
-    if (_itemImg.length >= 4) {
+    if (_localImages.length + _remoteImages.length >= 4) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Máximo 4 imágenes.')),
       );
       return;
     }
-    // Seleccionar las imágenes
+
     final List<XFile>? tempImgs = await picker.pickMultiImage();
     if (tempImgs != null) {
       setState(() {
         for (var img in tempImgs) {
-          if (_itemImg.length < 4) {
-            _itemImg.add(File(img.path));
+          if (_localImages.length + _remoteImages.length < 4) {
+            _localImages.add(File(img.path));
           }
         }
       });
@@ -200,7 +198,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
           side: const BorderSide(
-            color: Colors.blueGrey, // Cambia al color deseado
+            color: AppColors.primaryVariantColor,
             width: 1.0,
           ),
         ),
@@ -212,6 +210,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
                 // Carrusel de imágenes
                 Center(
                   child: (_remoteImages.isEmpty && _localImages.isEmpty)
@@ -223,9 +222,11 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                       autoPlay: false,
                       enableInfiniteScroll: false,
                       aspectRatio: 1.0,
-                      viewportFraction: 0.4,
+                      viewportFraction: 0.7,
                     ),
                     items: [
+
+                      //Imagenes remotas
                       ..._remoteImages.asMap().entries.map((entry) {
                         int index = entry.key;
                         String url = entry.value;
@@ -238,14 +239,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                                   height: 120,
                                   width: 120,
                                   fit: BoxFit.contain,
-                                  errorBuilder:
-                                      (context, error, stackTrace) {
-                                    return const Icon(
-                                      Icons.error,
-                                      size: 120,
-                                      color: Colors.red,
-                                    );
-                                  },
                                 ),
                                 Positioned(
                                   right: 0,
@@ -273,6 +266,8 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                           },
                         );
                       }).toList(),
+
+                      //Imagenes locales
                       ..._localImages.asMap().entries.map((entry) {
                         int index = entry.key;
                         File file = entry.value;
@@ -284,7 +279,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                                   file,
                                   height: 120,
                                   width: 120,
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
                                 ),
                                 Positioned(
                                   right: 0,
@@ -366,38 +361,50 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                 const SizedBox(height: 15.0),
                 Text('Categoría', style: Theme.of(context).textTheme.bodyMedium),
                 const SizedBox(height: 6.0),
-                DropdownButtonFormField<String>(
-                  value: _selectedCategory,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Colors.blueGrey,
-                        width: 1.0,
+                SizedBox(
+                  width: double.infinity,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedCategory,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: AppColors.primaryVariantColor,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: AppColors.primaryVariantColor,
+                          width: 1.0,
+                        ),
                       ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(
-                        color: Colors.blueGrey,
-                        width: 1.0,
-                      ),
+                    hint: const Text('Seleccione una categoría',),
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
                     ),
+                    items: _categories.map((String category) {
+                      return DropdownMenuItem<String>(
+                        value: category,
+                        child: Text(
+                          category,
+                          style: const TextStyle(color: Colors.black,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w400),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedCategory = value ?? _categories[0];
+                      });
+                    },
+                    menuMaxHeight: 170.0,
+                    dropdownColor: AppColors.primaryColor,
                   ),
-                  hint: const Text('Seleccione una categoría'),
-                  items: _categories.map((category) {
-                    return DropdownMenuItem(
-                      value: category,
-                      child: Text(category),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCategory = value;
-                    });
-                  },
-                  validator: (value) =>
-                  value == null ? 'Seleccione una categoría' : null,
                 ),
                 const SizedBox(height: 30.0),
                 Center(
@@ -406,10 +413,9 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState?.validate() == true) {
-                          // Lógica para guardar
                         }
                       },
-                      child: const Text("Guardar Cambios"),
+                      child: const Text("Guardar"),
                     ),
                   ),
                 ),
