@@ -175,7 +175,7 @@ class _InventoryTabState extends State<InventoryTab> {
                         ),
                       ),
                     ),
-                    hintText: 'Filtrar',
+                    hintText: _selectedCategory == null ? 'Filtrar' : _selectedCategory!,
                     onSelected: (String? value) {
                       setState(() {
                         _selectedCategory = value;
@@ -476,75 +476,146 @@ class InventoryCard extends StatelessWidget {
 
   //Modal de añadir item a la orden de despacho
   void addItem(Map<String, dynamic> item) {
-    final TextEditingController quantityController =
-    TextEditingController(text: item['quantity']);
-    final TextEditingController additionalInfoController =
-    TextEditingController();
+    int currentQuantity = 1;
+    final int maxQuantity = int.tryParse(item['quantity'].toString()) ?? 0;
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 15.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.of(context).pop())),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Image.asset(
-                      item['image']!,
-                      height: 130.0,
-                    ),
-                    const SizedBox(height: 15),
-                    Text(
-                      'Añadir a Orden',
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleSmall,
-                    ),
-                    const SizedBox(height: 10),
-                    Text('Producto: ${item['name']}'),
-                    const SizedBox(height: 10),
-                    Text('Stock: ${item['quantity']}'),
-                    const SizedBox(height: 10),
-                    const TextField(
-                      decoration: InputDecoration(labelText: 'Cantidad'),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: additionalInfoController,
-                      decoration:
-                      const InputDecoration(labelText: 'Observaciones:'),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('Añadir'),
-                    ),
-                  ],
-                ),
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setDialogState) {
+            return AlertDialog(
+              backgroundColor: AppColors.primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
               ),
-            ],
-          ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_outline, size: 30, color: Colors.black),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 4),
+                            Text(
+                              'Seleccione la cantidad a añadir',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Item: ${item['name'] ?? 'Nombre del ítem'}',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Disponibilidad: $maxQuantity',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: currentQuantity > 1
+                            ? () {
+                          setDialogState(() {
+                            currentQuantity--;
+                          });
+                        }
+                            : null,
+                      ),
+                      SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: TextField(
+                          textAlign: TextAlign.center,
+                          controller: TextEditingController(
+                            text: currentQuantity.toString(),
+                          ),
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: currentQuantity < maxQuantity
+                            ? () {
+                          setDialogState(() {
+                            currentQuantity++;
+                          });
+                        }
+                            : null,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  style: ButtonStyle(
+                    foregroundColor: WidgetStateProperty.all(AppColors.onPrimaryColor),
+                    overlayColor: WidgetStateProperty.all(AppColors.onSecondaryColor),
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14.0),
+                      ),
+                    ),
+                    minimumSize: WidgetStateProperty.all(const Size(110, 43)),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancelar'),
+                ),
+
+                ElevatedButton(
+                  onPressed: maxQuantity > 0
+                      ? () {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Añadiste $currentQuantity unidad(es) de ${item['name']} al carrito.'),
+                      ),
+                    );
+                  }
+                      : null,
+                  child: const Text('Confirmar'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
+
+
+
 
 
   // * Ventana modal info
