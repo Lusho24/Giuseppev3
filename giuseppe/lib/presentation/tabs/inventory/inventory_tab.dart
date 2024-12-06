@@ -17,6 +17,11 @@ class InventoryTab extends StatefulWidget {
 
 class _InventoryTabState extends State<InventoryTab> {
   String? _selectedCategory;
+  bool isAdmin = false;
+  List<Map<String, dynamic>> inventoryItems = [];
+  final ObjectService _objectService = ObjectService();
+  final SessionInLocalStorageService _localStorage = SessionInLocalStorageService();
+
   final List<String> _categories = [
     'Accesorios', //ia
     'Auxiliares',
@@ -29,12 +34,7 @@ class _InventoryTabState extends State<InventoryTab> {
     'Vajilla', //ia
     'Otros',
   ];
-  bool isAdmin = false;
 
-  List<Map<String, dynamic>> inventoryItems = [];
-
-  final ObjectService _objectService = ObjectService();
-  final SessionInLocalStorageService _localStorage = SessionInLocalStorageService();
 
   @override
   void initState() {
@@ -276,20 +276,21 @@ class InventoryCard extends StatelessWidget {
                   const SizedBox(height: 10.0),
                   Text(
                     item['name']!,
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .titleSmall,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w300,
+
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: 5.0),
                   Expanded(
                     child: Text(
                       "Disponibles: ${item['quantity']!}",
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodySmall,
+                      style: TextStyle(
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.w300,
+                      ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                     ),
