@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:giuseppe/models/user_model.dart';
 import 'dart:developer' as dev;
@@ -19,7 +21,8 @@ class LoginService {
       }
 
       var userData = querySnapshot.docs.first.data() as Map<String, dynamic>;
-      if (userData['password'] == password) {
+      String hashedPassword = userData['password'];
+      if (hashedPassword == hashPassword(password)) {
         if (userData['role'] == "ADMIN") {
           dev.log(" ** SESION INICIADA COMO ADMIN");
           return [true, true];
@@ -37,6 +40,11 @@ class LoginService {
       dev.log(" * ERROR en el servicio signIn: $e");
       return [false, false];
     }
+  }
+
+  String hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    return sha512.convert(bytes).toString();
   }
 
 }
