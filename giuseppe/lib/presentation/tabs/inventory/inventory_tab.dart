@@ -136,6 +136,9 @@ class _InventoryTabState extends State<InventoryTab> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: "Buscar",
+                      hintStyle: TextStyle(
+                        fontWeight: FontWeight.w300,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
@@ -158,6 +161,9 @@ class _InventoryTabState extends State<InventoryTab> {
                   child: DropdownMenu(
                     initialSelection: _selectedCategory,
                     inputDecorationTheme: InputDecorationTheme(
+                      hintStyle: TextStyle(
+                        fontWeight: FontWeight.w300,
+                      ),
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                       ),
@@ -189,7 +195,6 @@ class _InventoryTabState extends State<InventoryTab> {
                   ),
                 ),
                 const SizedBox(width: 10.0),
-
 
                 // Verificacion si es admin o no
                 FutureBuilder<bool>(
