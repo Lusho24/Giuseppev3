@@ -61,6 +61,10 @@ class CustomTextFormField extends StatelessWidget {
             onPressed: onSuffixIconPressed,
           ) : null,
         ),
+        style: const TextStyle(
+          fontSize: 14.0,
+          fontWeight: FontWeight.w400,
+        ),
         validator: (value) => validateFormField(value: value, formFieldType: formFieldType),
       ),
     );

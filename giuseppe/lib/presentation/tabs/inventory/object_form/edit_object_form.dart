@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:giuseppe/models/object_model.dart';
+import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
@@ -305,7 +306,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                                       },
                                     ),
                                   );
-                                }).toList(),
+                                }),
                                 // Imágenes locales
                                 ..._localImages.asMap().entries.map((entry) {
                                   int index =
@@ -368,42 +369,25 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                   ),
                 ),
                 const SizedBox(height: 15.0),
-                // Campos de texto
                 Text('Nombre', style: Theme.of(context).textTheme.bodyMedium),
-                TextFormField(
+                CustomTextFormField(
+                  formFieldType: FormFieldType.name,
+                  hintText: 'Ingrese nombre del item',
                   controller: _nameController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    hintText: 'Ingrese nombre del item',
-                  ),
-                  validator: (value) =>
-                      value?.isEmpty == true ? 'Campo requerido' : null,
                 ),
                 const SizedBox(height: 15.0),
                 Text('Cantidad', style: Theme.of(context).textTheme.bodyMedium),
-                TextFormField(
+                CustomTextFormField(
+                  formFieldType: FormFieldType.quantity,
+                  hintText: 'Ingrese la cantidad en stock',
                   controller: _quantityController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    hintText: 'Ingrese la cantidad en stock',
-                  ),
-                  validator: (value) =>
-                      value?.isEmpty == true ? 'Campo requerido' : null,
                 ),
                 const SizedBox(height: 15.0),
                 Text('Detalle', style: Theme.of(context).textTheme.bodyMedium),
-                TextFormField(
+                CustomTextFormField(
+                  hintText: 'Ingrese detalles del item',
+                  formFieldType: FormFieldType.description,
                   controller: _detailController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    hintText: 'Ingrese detalles del item',
-                  ),
                 ),
                 const SizedBox(height: 15.0),
                 Text('Categoría',
