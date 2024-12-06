@@ -19,8 +19,10 @@ class _InventoryTabState extends State<InventoryTab> {
   String? _selectedCategory;
   bool isAdmin = false;
   List<Map<String, dynamic>> inventoryItems = [];
+  List<Map<String, dynamic>> filteredItems = [];
   final ObjectService _objectService = ObjectService();
   final SessionInLocalStorageService _localStorage = SessionInLocalStorageService();
+  final TextEditingController _searchController = TextEditingController();
 
   final List<String> _categories = [
     'Accesorios', //ia
@@ -40,6 +42,7 @@ class _InventoryTabState extends State<InventoryTab> {
   void initState() {
     super.initState();
     _loadInventoryItems();
+    _searchController.addListener(_onSearchChanged);
   }
 
   // Funcion para cargar los objetos desde la bdd
@@ -56,8 +59,33 @@ class _InventoryTabState extends State<InventoryTab> {
           'category': item['category'] ?? '',
         };
       }).toList();
+      filteredItems = List.from(inventoryItems);
     });
   }
+  // Filtrar ítems
+  void _onSearchChanged() {
+    setState(() {
+      _applyFilters();
+    });
+  }
+
+  // Aplicar filtros
+  void _applyFilters() {
+    filteredItems = inventoryItems.where((item) {
+      final matchesSearch = item['name'].toLowerCase().contains(_searchController.text.toLowerCase());
+      final matchesCategory = _selectedCategory == null || _selectedCategory!.isEmpty || item['category'] == _selectedCategory;
+      return matchesSearch && matchesCategory;
+    }).toList();
+  }
+
+  // Quitar el filtro de categoría
+  void _clearCategoryFilter() {
+    setState(() {
+      _selectedCategory = null;
+      _applyFilters();
+    });
+  }
+
 
   // Función para eliminar un objeto
   Future<void> _deleteItem(Map<String, dynamic> item, int index) async {
@@ -105,6 +133,7 @@ class _InventoryTabState extends State<InventoryTab> {
               children: [
                 Expanded(
                   child: TextFormField(
+                    controller: _searchController,
                     decoration: InputDecoration(
                       hintText: "Buscar",
                       border: OutlineInputBorder(
@@ -144,10 +173,7 @@ class _InventoryTabState extends State<InventoryTab> {
                     onSelected: (String? value) {
                       setState(() {
                         _selectedCategory = value;
-                        inventoryItems = inventoryItems.where((item) {
-                          if (_selectedCategory == null || _selectedCategory!.isEmpty) return true;
-                          return item['category'] == _selectedCategory;
-                        }).toList();
+                        _applyFilters();
                       });
                     },
                     dropdownMenuEntries: _categories.map((String category) {
@@ -167,7 +193,8 @@ class _InventoryTabState extends State<InventoryTab> {
 
                 // Verificacion si es admin o no
                 FutureBuilder<bool>(
-                  future: _localStorage.fetchSession().then((sessionData) => sessionData?['isAdmin'] ?? false),
+                  future: _localStorage.fetchSession().then((sessionData) =>
+                  sessionData?['isAdmin'] ?? false),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data == true) {
                       return SizedBox(
@@ -195,6 +222,8 @@ class _InventoryTabState extends State<InventoryTab> {
               ],
             ),
           ),
+
+
           const Divider(
             color: AppColors.primaryVariantColor,
             thickness: 1.0,
@@ -202,6 +231,25 @@ class _InventoryTabState extends State<InventoryTab> {
             endIndent: 20.0,
           ),
 
+          // Mensaje de filtro y restablecer
+          if (_selectedCategory != null && _selectedCategory!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Filtro: $_selectedCategory',),
+                  TextButton(
+                    onPressed: _clearCategoryFilter,
+                    child: const Text('Restablecer',
+                    style: TextStyle(
+                      color: AppColors.onPrimaryColor,
+                      fontWeight: FontWeight.w400,
+                    ),),
+                  ),
+                ],
+              ),
+            ),
 
           // Parte desplazable
           Expanded(
@@ -215,14 +263,14 @@ class _InventoryTabState extends State<InventoryTab> {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
-                itemCount: inventoryItems.length,
+                itemCount: filteredItems.length,
                 itemBuilder: (context, index) {
                   return InventoryCard(
-                    item: inventoryItems[index],
+                    item: filteredItems[index],
                     objectService: _objectService,
                     context: context,
                     onDelete: () {
-                      _deleteItem(inventoryItems[index], index);
+                      _deleteItem(filteredItems[index], index);
                     },
                   );
                 },
