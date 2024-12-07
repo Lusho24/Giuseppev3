@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:giuseppe/presentation/tabs/orders/order_history_admin_view_model.dart';
+import 'package:giuseppe/presentation/tabs/orders_history_admin/order_history_admin_view_model.dart';
+
 import 'package:provider/provider.dart';
 
 class OrderHistoryAdminTab extends StatefulWidget {
