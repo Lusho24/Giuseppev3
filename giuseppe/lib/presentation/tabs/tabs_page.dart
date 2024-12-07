@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/tabs/dispatch_order/dispatch_order_tab.dart';
 import 'package:giuseppe/presentation/tabs/inventory/object_form/add_object_form.dart';
 import 'package:giuseppe/presentation/tabs/order_history_user/order_history_user_tab.dart';
-import 'package:giuseppe/presentation/tabs/orders/orders_tab.dart';
+import 'package:giuseppe/presentation/tabs/orders/order_history_admin_tab.dart';
 import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
 import 'package:giuseppe/presentation/tabs/tabs_view_model.dart';
@@ -27,7 +27,7 @@ class _TabsPageState extends State<TabsPage> {
     const InventoryTab(),
     const AddObjectForm(),
     const DispatchOrderTab(),
-    OrdersTab(isAdmin: _isAdmin)
+    const OrderHistoryAdminTab()
   ];
 
   // Navegación para admin
