@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:giuseppe/presentation/tabs/inventory/inventory_view_model.dart';
 import 'package:giuseppe/presentation/tabs/inventory/object_form/edit_object_form.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
@@ -7,6 +8,7 @@ import 'package:giuseppe/services/local_storage/session_in_local_storage_service
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:provider/provider.dart';
 
 class InventoryTab extends StatefulWidget {
   const InventoryTab({super.key});
@@ -115,174 +117,214 @@ class _InventoryTabState extends State<InventoryTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          // Parte estática
-          Container(
-            padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-            child: const Image(
-              image: AssetImage('assets/images/logo.png'),
-              height: 70.0,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return ChangeNotifierProvider(
+      create: (context) => InventoryViewModel(),
+      child: Scaffold(
+        body: Column(
+          children: [
+            // Parte estática
+            Stack(
+              alignment: Alignment.center,
               children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: "Buscar",
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w300,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: const BorderSide(
-                          color: AppColors.primaryVariantColor,
-                          width: 1.0,
-                        ),
-                      ),
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: AppColors.primaryVariantColor,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10.0),
-                Expanded(
-                  child: DropdownMenu(
-                    initialSelection: _selectedCategory,
-                    inputDecorationTheme: InputDecorationTheme(
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w300,
-                      ),
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: const BorderSide(
-                          color: AppColors.primaryVariantColor,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                    hintText: _selectedCategory == null ? 'Filtrar' : _selectedCategory!,
-                    onSelected: (String? value) {
-                      setState(() {
-                        _selectedCategory = value;
-                        _applyFilters();
-                      });
-                    },
-                    dropdownMenuEntries: _categories.map((String category) {
-                      return DropdownMenuEntry<String>(
-                        value: category,
-                        label: category,
-                      );
-                    }).toList(),
-                    menuStyle: MenuStyle(
-                      backgroundColor: WidgetStateProperty.all(AppColors.primaryColor),
-                      maximumSize: WidgetStateProperty.all(Size.fromHeight(350.0)),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10.0),
-
-                // Verificacion si es admin o no
-                FutureBuilder<bool>(
-                  future: _localStorage.fetchSession().then((sessionData) =>
-                  sessionData?['isAdmin'] ?? false),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data == true) {
-                      return SizedBox(
-                        width: 50,
-                        height: 55,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const SearchObjectTab()),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                          ),
-                          child: const Icon(Icons.camera_alt,
-                              size: 16, color: AppColors.primaryColor),
-                        ),
+                Consumer<InventoryViewModel>(
+                    builder: (context, viewmodel, child){
+                      return Container(
+                          alignment: Alignment.topLeft,
+                          padding: const EdgeInsets.only(bottom: 40.0),
+                          child: MenuAnchor(
+                            menuChildren: [
+                              MenuItemButton(
+                                onPressed: () async {
+                                  await viewmodel.removeSessionInLocalStorage(
+                                      context: context
+                                  );
+                                },
+                                child: const Text("Salir"),
+                              ),
+                            ],
+                            builder: (BuildContext context, MenuController controller, Widget? child) {
+                              return IconButton(
+                                icon: const Icon(Icons.more_vert),
+                                onPressed: () {
+                                  if (controller.isOpen) {
+                                    controller.close();
+                                  } else {
+                                    controller.open();
+                                  }
+                                },
+                              );
+                            },
+                          )
                       );
                     }
-                    return const SizedBox.shrink();
-                  },
+                ),
+                Container(
+                  padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
+                  child: const Image(
+                    image: AssetImage('assets/images/logo.png'),
+                    height: 70.0,
+                  ),
                 ),
               ],
             ),
-          ),
-
-
-          const Divider(
-            color: AppColors.primaryVariantColor,
-            thickness: 1.0,
-            indent: 20.0,
-            endIndent: 20.0,
-          ),
-
-          // Mensaje de filtro y restablecer
-          if (_selectedCategory != null && _selectedCategory!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+            Container(
+              padding: const EdgeInsets.all(20.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Filtro: $_selectedCategory',),
-                  TextButton(
-                    onPressed: _clearCategoryFilter,
-                    child: const Text('Restablecer',
-                    style: TextStyle(
-                      color: AppColors.onPrimaryColor,
-                      fontWeight: FontWeight.w400,
-                    ),),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: "Buscar",
+                        hintStyle: TextStyle(
+                          fontWeight: FontWeight.w300,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                          borderSide: const BorderSide(
+                            color: AppColors.primaryVariantColor,
+                            width: 1.0,
+                          ),
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: AppColors.primaryVariantColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: DropdownMenu(
+                      initialSelection: _selectedCategory,
+                      inputDecorationTheme: InputDecorationTheme(
+                        hintStyle: TextStyle(
+                          fontWeight: FontWeight.w300,
+                        ),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                          borderSide: const BorderSide(
+                            color: AppColors.primaryVariantColor,
+                            width: 1.0,
+                          ),
+                        ),
+                      ),
+                      hintText: _selectedCategory == null ? 'Filtrar' : _selectedCategory!,
+                      onSelected: (String? value) {
+                        setState(() {
+                          _selectedCategory = value;
+                          _applyFilters();
+                        });
+                      },
+                      dropdownMenuEntries: _categories.map((String category) {
+                        return DropdownMenuEntry<String>(
+                          value: category,
+                          label: category,
+                        );
+                      }).toList(),
+                      menuStyle: MenuStyle(
+                        backgroundColor: WidgetStateProperty.all(AppColors.primaryColor),
+                        maximumSize: WidgetStateProperty.all(Size.fromHeight(350.0)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+
+                  // Verificacion si es admin o no
+                  FutureBuilder<bool>(
+                    future: _localStorage.fetchSession().then((sessionData) =>
+                    sessionData?['isAdmin'] ?? false),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data == true) {
+                        return SizedBox(
+                          width: 50,
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const SearchObjectTab()),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: const Icon(Icons.camera_alt,
+                                size: 16, color: AppColors.primaryColor),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   ),
                 ],
               ),
             ),
 
-          // Parte desplazable
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const AlwaysScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
+
+            const Divider(
+              color: AppColors.primaryVariantColor,
+              thickness: 1.0,
+              indent: 20.0,
+              endIndent: 20.0,
+            ),
+
+            // Mensaje de filtro y restablecer
+            if (_selectedCategory != null && _selectedCategory!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Filtro: $_selectedCategory',),
+                    TextButton(
+                      onPressed: _clearCategoryFilter,
+                      child: const Text('Restablecer',
+                      style: TextStyle(
+                        color: AppColors.onPrimaryColor,
+                        fontWeight: FontWeight.w400,
+                      ),),
+                    ),
+                  ],
                 ),
-                itemCount: filteredItems.length,
-                itemBuilder: (context, index) {
-                  return InventoryCard(
-                    item: filteredItems[index],
-                    objectService: _objectService,
-                    context: context,
-                    onDelete: () {
-                      _deleteItem(filteredItems[index], index);
-                    },
-                  );
-                },
+              ),
+
+            // Parte desplazable
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: filteredItems.length,
+                  itemBuilder: (context, index) {
+                    return InventoryCard(
+                      item: filteredItems[index],
+                      objectService: _objectService,
+                      context: context,
+                      onDelete: () {
+                        _deleteItem(filteredItems[index], index);
+                      },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
