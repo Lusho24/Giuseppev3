@@ -4,6 +4,7 @@ import 'package:giuseppe/presentation/tabs/inventory/inventory_view_model.dart';
 import 'package:giuseppe/presentation/tabs/inventory/object_form/edit_object_form.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
+import 'package:giuseppe/services/firebase_services/firestore_database/cart_service.dart';
 import 'package:giuseppe/services/local_storage/session_in_local_storage_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:photo_view/photo_view.dart';
@@ -515,10 +516,9 @@ class InventoryCard extends StatelessWidget {
     );
   }
 
-
   //Modal de añadir item a la orden de despacho
   void addItem(Map<String, dynamic> item) {
-    int currentQuantity = 1;
+    int orderQuantity = 1;
     final int maxQuantity = int.tryParse(item['quantity'].toString()) ?? 0;
 
     showDialog(
@@ -579,10 +579,10 @@ class InventoryCard extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.remove),
-                        onPressed: currentQuantity > 1
+                        onPressed: orderQuantity > 1
                             ? () {
                           setDialogState(() {
-                            currentQuantity--;
+                            orderQuantity--;
                           });
                         }
                             : null,
@@ -593,7 +593,7 @@ class InventoryCard extends StatelessWidget {
                         child: TextField(
                           textAlign: TextAlign.center,
                           controller: TextEditingController(
-                            text: currentQuantity.toString(),
+                            text: orderQuantity.toString(),
                           ),
                           readOnly: true,
                           decoration: const InputDecoration(
@@ -604,10 +604,10 @@ class InventoryCard extends StatelessWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.add),
-                        onPressed: currentQuantity < maxQuantity
+                        onPressed: orderQuantity < maxQuantity
                             ? () {
                           setDialogState(() {
-                            currentQuantity++;
+                            orderQuantity++;
                           });
                         }
                             : null,
@@ -633,17 +633,33 @@ class InventoryCard extends StatelessWidget {
                   },
                   child: const Text('Cancelar'),
                 ),
-
                 ElevatedButton(
                   onPressed: maxQuantity > 0
-                      ? () {
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Añadiste $currentQuantity unidad(es) de ${item['name']} al carrito.'),
-                      ),
-                    );
+                      ? () async {
+                    String itemId = item['id'];
+                    try {
+                      await CartService().addItemToCart(itemId, orderQuantity);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Añadiste $orderQuantity unidad(es) de ${item['name']} al carrito.',
+                            ),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error al agregar al carrito: $e'),
+                          ),
+                        );
+                      }
+                    }
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
                   }
                       : null,
                   child: const Text('Confirmar'),
@@ -655,10 +671,6 @@ class InventoryCard extends StatelessWidget {
       },
     );
   }
-
-
-
-
 
   // * Ventana modal info
   void modalObject() {
