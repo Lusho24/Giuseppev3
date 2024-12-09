@@ -377,8 +377,9 @@ class _NumberInputState extends State<NumberInput> {
         const SizedBox(width: 10.0),
         SizedBox(
           height: 30.0,
-          width: 30.0,
+          width: 35.0,
           child: TextField(
+            readOnly: true,
             controller: _controller,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,

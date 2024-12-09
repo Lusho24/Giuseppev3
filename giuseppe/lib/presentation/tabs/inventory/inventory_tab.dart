@@ -517,9 +517,24 @@ class InventoryCard extends StatelessWidget {
   }
 
   //Modal de añadir item a la orden de despacho
-  void addItem(Map<String, dynamic> item) {
+  void addItem(Map<String, dynamic> item) async {
     int orderQuantity = 1;
     final int maxQuantity = int.tryParse(item['quantity'].toString()) ?? 0;
+
+    final cartItems = await CartService().fetchCartItems();
+    int currentQuantityInCart = 0;
+
+    final existingItem = cartItems.firstWhere(
+          (cartItem) => cartItem['itemId'] == item['id'],
+      orElse: () => {'itemId': '', 'quantityOrder': 0},
+    );
+
+    currentQuantityInCart = existingItem['quantityOrder'] ?? 0;
+    final int availableToAdd = maxQuantity - currentQuantityInCart;
+
+    final TextEditingController quantityController = TextEditingController(
+      text: orderQuantity.toString(),
+    );
 
     showDialog(
       context: context,
@@ -565,9 +580,15 @@ class InventoryCard extends StatelessWidget {
                       fontWeight: FontWeight.w300,
                     ),
                   ),
-                  const SizedBox(height: 10),
                   Text(
                     'Disponibilidad: $maxQuantity',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  Text(
+                    'Cantidad actual en el carrito: $currentQuantityInCart',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w300,
@@ -583,19 +604,28 @@ class InventoryCard extends StatelessWidget {
                             ? () {
                           setDialogState(() {
                             orderQuantity--;
+                            quantityController.text =
+                                orderQuantity.toString();
                           });
                         }
                             : null,
                       ),
                       SizedBox(
-                        width: 40,
-                        height: 40,
+                        width: 55,
+                        height: 45,
                         child: TextField(
-                          textAlign: TextAlign.center,
-                          controller: TextEditingController(
-                            text: orderQuantity.toString(),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w300,
                           ),
-                          readOnly: true,
+                          textAlign: TextAlign.center,
+                          controller: quantityController,
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setDialogState(() {
+                              orderQuantity = int.tryParse(value) ?? 1;
+                            });
+                          },
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             isDense: true,
@@ -604,10 +634,12 @@ class InventoryCard extends StatelessWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.add),
-                        onPressed: orderQuantity < maxQuantity
+                        onPressed: orderQuantity < availableToAdd
                             ? () {
                           setDialogState(() {
                             orderQuantity++;
+                            quantityController.text =
+                                orderQuantity.toString();
                           });
                         }
                             : null,
@@ -634,34 +666,53 @@ class InventoryCard extends StatelessWidget {
                   child: const Text('Cancelar'),
                 ),
                 ElevatedButton(
-                  onPressed: maxQuantity > 0
-                      ? () async {
-                    String itemId = item['id'];
-                    try {
-                      await CartService().addItemToCart(itemId, orderQuantity);
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(
+                      orderQuantity > availableToAdd
+                          ? AppColors.primaryVariantColor
+                          : AppColors.onPrimaryColor,
+                    ),
+                  ),
+                  onPressed: orderQuantity > availableToAdd
+                      ? null
+                      : () async {
+                    if (orderQuantity > availableToAdd) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Añadiste $orderQuantity unidad(es) de ${item['name']} al carrito.',
+                              'Solo puedes agregar $availableToAdd unidad(es) de ${item['name']} al carrito.',
                             ),
                           ),
                         );
                       }
-                    } catch (e) {
+                    } else {
+                      String itemId = item['id'];
+                      try {
+                        await CartService().addItemToCart(itemId, orderQuantity);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Añadiste $orderQuantity unidad(es) de ${item['name']} al carrito.',
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error al agregar al carrito: $e'),
+                            ),
+                          );
+                        }
+                      }
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Error al agregar al carrito: $e'),
-                          ),
-                        );
+                        Navigator.of(context).pop();
                       }
                     }
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                    }
-                  }
-                      : null,
+                  },
                   child: const Text('Confirmar'),
                 ),
               ],
@@ -671,6 +722,7 @@ class InventoryCard extends StatelessWidget {
       },
     );
   }
+
 
   // * Ventana modal info
   void modalObject() {

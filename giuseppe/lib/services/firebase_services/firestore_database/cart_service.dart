@@ -44,6 +44,7 @@ class CartService extends ChangeNotifier {
     notifyListeners();
   }
 
+  ///Actualizar Cantidad
   Future<void> updateItemQuantity(String itemId, int newQuantity) async {
       final docSnapshot = await FirebaseFirestore.instance.collection('cart').doc('active_order').get();
       var items = docSnapshot.data()?['items'] ?? [];
