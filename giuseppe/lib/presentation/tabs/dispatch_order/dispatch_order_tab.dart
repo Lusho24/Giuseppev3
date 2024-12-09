@@ -92,7 +92,7 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
             ),
           ),
 
-          SizedBox(
+          const SizedBox(
             height: 16.0,
           ),
           const Divider(
@@ -355,16 +355,25 @@ class _NumberInputState extends State<NumberInput> {
     }
   }
 
-  //funcion para actualizar cantidad
+  // Función para actualizar cantidad
   Future<void> _updateQuantity() async {
     try {
       await CartService().updateItemQuantity(widget.itemId, _currentValue);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cantidad actualizada exitosamente')),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al actualizar la cantidad: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al actualizar la cantidad: $e')),
+        );
+      }
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
