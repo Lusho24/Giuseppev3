@@ -29,15 +29,15 @@ class CartService extends ChangeNotifier {
       final existingItemIndex = items.indexWhere((cartItem) => cartItem['itemId'] == itemId);
 
       if (existingItemIndex != -1) {
-        items[existingItemIndex]['quantity'] += quantity;
+        items[existingItemIndex]['quantityOrder'] += quantity;
         await docRef.update({'items': items});
       } else {
-        items.add({'itemId': itemId, 'quantity': quantity});
+        items.add({'itemId': itemId, 'quantityOrder': quantity});
         await docRef.update({'items': items});
       }
     } else {
       await docRef.set({
-        'items': [{'itemId': itemId, 'quantity': quantity}],
+        'items': [{'itemId': itemId, 'quantityOrder': quantity}],
       });
     }
 

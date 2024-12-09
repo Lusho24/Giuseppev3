@@ -10,7 +10,7 @@ class ObjectService {
   /// Subir la imagen al Storage y obtener su URL
   Future<String?> uploadImage(File imageFile) async {
     try {
-      // Generar un nombre para la imagen
+      // Asignar nombre a la imagen
       String timeKey = DateTime.now().millisecondsSinceEpoch.toString();
       Reference ref = _storage.ref().child("Object Images/$timeKey.jpg");
       UploadTask uploadTask = ref.putFile(imageFile);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf.dart';
+import 'package:giuseppe/services/firebase_services/firestore_database/cart_service.dart';
+import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 
 class DispatchOrderTab extends StatefulWidget {
@@ -11,13 +13,42 @@ class DispatchOrderTab extends StatefulWidget {
 }
 
 class _DispatchOrderTabState extends State<DispatchOrderTab> {
-  // Simulamos una lista de ordenes
-  final List<Map<String, String>> _orders = [
-    {"name": "Nombre", "abiable": "999", 'image': 'assets/images/lampara.png'},
-    {"name": "Objeto 1", "abiable": "99", 'image': 'assets/images/mesa.png'},
-    {"name": "Objeto 2", "abiable": "99", 'image': 'assets/images/mesa.png'},
-    {"name": "Silla", "abiable": "20", 'image': 'assets/images/silla.png'},
-  ];
+  final CartService _cartService = CartService();
+  final ObjectService _objectService = ObjectService();
+
+  List<Map<String, dynamic>> _cartItems = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCartItems();
+  }
+
+  Future<void> _loadCartItems() async {
+    try {
+      final cartItems = await _cartService.fetchCartItems();
+      final objects = await _objectService.getAllItems();
+      _cartItems = cartItems.map((cartItem) {
+        final object = objects.firstWhere(
+              (obj) => obj['id'] == cartItem['itemId'],
+          orElse: () => {},
+        );
+        return {
+          ...object,
+          'quantityOrder': cartItem['quantityOrder'],
+          'quantity': object['quantity'],
+        };
+      }).toList();
+    } catch (e) {
+      print('Error al cargar los items del carrito: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,82 +74,89 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
               ),
             ),
           ),
+
           // Parte desplazable
           Expanded(
-            child: Column(
+            child: Stack(
               children: [
-                Expanded(
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverGrid(
-                        gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 1,
-                          childAspectRatio: 1.95,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                            return Container(
-                              padding: const EdgeInsets.all(5.0),
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                      color: Colors.grey, width: 1.5),
+                CustomScrollView(
+                  slivers: [
+                    SliverGrid(
+                      gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 1,
+                        childAspectRatio: 1.95,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                          return Container(
+                            padding: const EdgeInsets.all(5.0),
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: Colors.grey, width: 1.5),
+                              ),
+                            ),
+                            child: OrderCard(order: _cartItems[index]),
+                          );
+                        },
+                        childCount: _cartItems.length,
+                      ),
+                    ),
+                    SliverList(
+                      delegate: SliverChildListDelegate([
+                        Container(
+                          padding: const EdgeInsets.only(
+                            top: 30.0,
+                            left: 100.0,
+                            right: 100.0,
+                            bottom: 20.0,
+                          ),
+                          child: SizedBox(
+                            height: 40,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      DispatchOrderModal(),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6.0),
                                 ),
                               ),
-                              child: OrderCard(order: _orders[index]),
-                            );
-                          },
-                          childCount: _orders.length,
-                        ),
-                      ),
-                      SliverList(
-                        delegate: SliverChildListDelegate([
-                          Container(
-                            padding: const EdgeInsets.only(
-                              top: 30.0,
-                              left: 100.0,
-                              right: 100.0,
-                              bottom: 20.0,
-                            ),
-                            child: SizedBox(
-                              height: 40,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) => DispatchOrderModal(),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6.0),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Siguiente",
+                                    style: TextStyle(fontSize: 16.0),
                                   ),
-                                ),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "Siguiente",
-                                      style: TextStyle(fontSize: 16.0),
-                                    ),
-                                    SizedBox(width: 20),
-                                    Icon(
-                                      Icons.arrow_forward,
-                                      size: 18,
-                                      color: AppColors.primaryColor,
-                                    ),
-                                  ],
-                                ),
+                                  SizedBox(width: 20),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    size: 18,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        ]),
-                      ),
-                    ],
-                  ),
+                        ),
+                      ]),
+                    ),
+                  ],
                 ),
+                if (_isLoading)
+                  const Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -127,13 +165,15 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
     );
   }
 }
-
 class OrderCard extends StatelessWidget {
-  final Map<String, String> order;
+  final Map<String, dynamic> order;
   const OrderCard({required this.order, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final objectQuantity = order['quantity'];
+    final cartQuantity = order['quantityOrder'];
+
     return Card(
       elevation: 0,
       color: Colors.white,
@@ -145,8 +185,8 @@ class OrderCard extends StatelessWidget {
             SizedBox(
               height: 100.0,
               width: 100.0,
-              child: Image.asset(
-                order['image']!,
+              child: Image.network(
+                order['images']?.first ?? '',
                 fit: BoxFit.scaleDown,
               ),
             ),
@@ -157,7 +197,7 @@ class OrderCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    order['name']!,
+                    order['name'] ?? 'Nombre desconocido',
                     style: const TextStyle(
                       color: AppColors.primaryTextColor,
                       fontSize: 20,
@@ -166,7 +206,7 @@ class OrderCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    "Disponible: ${order['abiable']!}",
+                    "Disponible: ${objectQuantity ?? 'N/A'}",
                     style: const TextStyle(
                       color: AppColors.primaryTextColor,
                       fontSize: 14,
@@ -177,15 +217,18 @@ class OrderCard extends StatelessWidget {
                   const SizedBox(height: 5.0),
                   Row(
                     children: [
-                      const Expanded(
-                        child: NumberInput(),
+                      NumberInput(
+                        initialValue: cartQuantity ?? 0,
                       ),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                        },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(50, 30),
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
                           textStyle: const TextStyle(fontSize: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6),
@@ -214,7 +257,7 @@ class OrderCard extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -222,24 +265,31 @@ class OrderCard extends StatelessWidget {
   }
 }
 
+
 class NumberInput extends StatefulWidget {
-  const NumberInput({super.key});
+  final int initialValue;
+
+  const NumberInput({super.key, required this.initialValue});
 
   @override
   State<NumberInput> createState() => _NumberInputState();
 }
 
 class _NumberInputState extends State<NumberInput> {
-  TextEditingController _controller = TextEditingController();
+  late TextEditingController _controller;
   int _currentValue = 0;
-
+  @override
+  void initState() {
+    super.initState();
+    _currentValue = widget.initialValue;
+    _controller = TextEditingController(text: _currentValue.toString());
+  }
   void _increment() {
     setState(() {
       _currentValue++;
       _controller.text = _currentValue.toString();
     });
   }
-
   void _decrement() {
     setState(() {
       _currentValue--;
@@ -290,7 +340,6 @@ class _NumberInputState extends State<NumberInput> {
           ),
         ),
 
-
         const SizedBox(width: 10.0),
 
         Container(
@@ -312,8 +361,8 @@ class _NumberInputState extends State<NumberInput> {
       ],
     );
   }
-
 }
+
 
 // * Ventana modal
 class DispatchOrderModal extends StatefulWidget {

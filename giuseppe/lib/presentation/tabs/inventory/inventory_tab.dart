@@ -450,7 +450,7 @@ class InventoryCard extends StatelessWidget {
         _navigateAndReloadItems(item);
         break;
       case 'eliminar':
-        _DeleteDialog(item);
+        _deleteDialog(item);
         break;
     }
   }
@@ -478,7 +478,7 @@ class InventoryCard extends StatelessWidget {
   }
 
   // Modal de eliminacion
-  void _DeleteDialog(Map<String, dynamic> item) {
+  void _deleteDialog(Map<String, dynamic> item) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
