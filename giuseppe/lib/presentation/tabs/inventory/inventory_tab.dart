@@ -156,10 +156,10 @@ class _InventoryTabState extends State<InventoryTab> {
                           fontWeight: FontWeight.w300,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
+                          borderRadius: BorderRadius.circular(14.0),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
+                          borderRadius: BorderRadius.circular(14.0),
                           borderSide: const BorderSide(
                             color: AppColors.primaryVariantColor,
                             width: 1.0,
@@ -181,10 +181,10 @@ class _InventoryTabState extends State<InventoryTab> {
                           fontWeight: FontWeight.w300,
                         ),
                         border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                          borderRadius: BorderRadius.all(Radius.circular(14.0)),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
+                          borderRadius: BorderRadius.circular(14.0),
                           borderSide: const BorderSide(
                             color: AppColors.primaryVariantColor,
                             width: 1.0,
@@ -231,6 +231,9 @@ class _InventoryTabState extends State<InventoryTab> {
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14.0),
+                              )
                             ),
                             child: const Icon(Icons.camera_alt,
                                 size: 16, color: AppColors.primaryColor),
@@ -513,7 +516,7 @@ class _InventoryCardState extends State<InventoryCard> {
               },
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.primaryColor,
-                backgroundColor: AppColors.onPrimaryColor,
+                backgroundColor: AppColors.secondaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14.0),
                 )
@@ -680,10 +683,15 @@ class _InventoryCardState extends State<InventoryCard> {
                 ),
                 ElevatedButton(
                   style: ButtonStyle(
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14.0),
+                      ),
+                    ),
                     backgroundColor: WidgetStateProperty.all(
                       orderQuantity > availableToAdd
                           ? AppColors.primaryVariantColor
-                          : AppColors.onPrimaryColor,
+                          : AppColors.secondaryColor,
                     ),
                   ),
                   onPressed: orderQuantity > availableToAdd

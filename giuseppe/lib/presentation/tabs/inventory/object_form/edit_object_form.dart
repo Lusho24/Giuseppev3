@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:giuseppe/models/object_model.dart';
@@ -14,10 +13,10 @@ class EditObjectForm extends StatefulWidget {
   final ObjectService objectService;
 
   const EditObjectForm({
-    Key? key,
+    super.key,
     required this.item,
     required this.objectService,
-  }) : super(key: key);
+  });
 
   @override
   State<EditObjectForm> createState() => _EditObjectFormState();
@@ -110,11 +109,10 @@ class _EditObjectFormBody extends StatefulWidget {
   final Function(bool) setLoading;
 
   const _EditObjectFormBody({
-    Key? key,
     required this.item,
     required this.objectService,
     required this.setLoading,
-  }) : super(key: key);
+  });
 
   @override
   State<_EditObjectFormBody> createState() => _EditObjectFormBodyState();
@@ -129,8 +127,8 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
   int _currentImageIndex = 0;
 
   List<String> _remoteImages = [];
-  List<File> _localImages = [];
-  List<String> _imagesToRemove = [];
+  final List<File> _localImages = [];
+  final List<String> _imagesToRemove = [];
   String? _selectedCategory;
 
   @override
@@ -172,17 +170,15 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
       return;
     }
 
-    final List<XFile>? tempImgs = await picker.pickMultiImage();
-    if (tempImgs != null) {
-      setState(() {
-        for (var img in tempImgs) {
-          if (_localImages.length + _remoteImages.length < 4) {
-            _localImages.add(File(img.path));
-          }
+    final List<XFile> tempImgs = await picker.pickMultiImage();
+    setState(() {
+      for (var img in tempImgs) {
+        if (_localImages.length + _remoteImages.length < 4) {
+          _localImages.add(File(img.path));
         }
-      });
+      }
+    });
     }
-  }
 
   void _removeImage(int index, bool isRemote) {
     setState(() {
@@ -226,6 +222,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
         _localImages,
       );
 
+      if(mounted){
       if (success) {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -236,6 +233,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al actualizar el item.')),
         );
+      }
       }
       widget.setLoading(false);
     }
@@ -322,7 +320,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                                       fit: BoxFit.contain,
                                     ),
                                   );
-                                }).toList(),
+                                }),
                               ],
                             ),
                             // Flecha izquierda
@@ -477,7 +475,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
     showModalBottomSheet(
       backgroundColor: AppColors.primaryColor,
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       builder: (BuildContext context) {
