@@ -31,7 +31,7 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
       final objects = await _objectService.getAllItems();
       _cartItems = cartItems.map((cartItem) {
         final object = objects.firstWhere(
-              (obj) => obj['id'] == cartItem['itemId'],
+          (obj) => obj['id'] == cartItem['itemId'],
           orElse: () => {},
         );
         return {
@@ -46,7 +46,6 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
       });
     }
   }
-
 
   Future<void> _removeCartItem(String itemId) async {
     try {
@@ -65,7 +64,6 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -110,98 +108,92 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                   const Center(
                     child: CircularProgressIndicator(),
                   )
-                else
-                  if (_cartItems.isEmpty)
-                    const Center(
-                      child: Text(
-                        "Aún no has agregado ningún ítem a tu orden",
-                        style: TextStyle(
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.primaryVariantColor,
-                        ),
-                        textAlign: TextAlign.center,
+                else if (_cartItems.isEmpty)
+                  const Center(
+                    child: Text(
+                      "Aún no has agregado ningún ítem a tu orden",
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.primaryVariantColor,
                       ),
-                    )
-                  else
-                    CustomScrollView(
-                      slivers: [
-                        SliverGrid(
-                          gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 1,
-                            childAspectRatio: 1.95,
-                          ),
-                          delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                              final item = _cartItems[index];
-                              return Container(
-                                padding: const EdgeInsets.all(5.0),
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                        color: Colors.grey, width: 1.5),
-                                  ),
-                                ),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                else
+                  CustomScrollView(
+                    slivers: [
+                      SliverGrid(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 1,
+                          childAspectRatio: 1.95,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final item = _cartItems[index];
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 5.0, right: 5.0),
+                              child: SizedBox(
                                 child: OrderCard(
                                   order: item,
                                   onDelete: () => _removeCartItem(item['id']),
                                 ),
-                              );
-                            },
-                            childCount: _cartItems.length,
-                          ),
+                              ),
+                            );
+                          },
+                          childCount: _cartItems.length,
                         ),
-                        if (_cartItems.isNotEmpty)
-                          SliverList(
-                            delegate: SliverChildListDelegate([
-                              Container(
-                                padding: const EdgeInsets.only(
-                                  top: 30.0,
-                                  left: 100.0,
-                                  right: 100.0,
-                                  bottom: 20.0,
-                                ),
-                                child: SizedBox(
-                                  height: 40,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) =>
-                                        const DispatchOrderModal(),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            6.0),
+                      ),
+                      if (_cartItems.isNotEmpty)
+                        SliverList(
+                          delegate: SliverChildListDelegate([
+                            Container(
+                              padding: const EdgeInsets.only(
+                                top: 30.0,
+                                left: 100.0,
+                                right: 100.0,
+                                bottom: 20.0,
+                              ),
+                              child: SizedBox(
+                                height: 40,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          const DispatchOrderModal(),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6.0),
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Siguiente",
+                                        style: TextStyle(fontSize: 16.0),
                                       ),
-                                    ),
-                                    child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment
-                                          .center,
-                                      children: [
-                                        Text(
-                                          "Siguiente",
-                                          style: TextStyle(fontSize: 16.0),
-                                        ),
-                                        SizedBox(width: 20),
-                                        Icon(
-                                          Icons.arrow_forward,
-                                          size: 18,
-                                          color: AppColors.primaryColor,
-                                        ),
-                                      ],
-                                    ),
+                                      SizedBox(width: 20),
+                                      Icon(
+                                        Icons.arrow_forward,
+                                        size: 18,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            ]),
-                          ),
-                      ],
-                    ),
+                            ),
+                          ]),
+                        ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -211,8 +203,7 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
   }
 }
 
-
-  class OrderCard extends StatelessWidget {
+class OrderCard extends StatelessWidget {
   final Map<String, dynamic> order;
   final VoidCallback onDelete;
 
@@ -290,6 +281,26 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                     ],
                   ),
                   const SizedBox(height: 5.0),
+                  TextField(
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w300,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "Observaciones:",
+                      hintStyle: const TextStyle(
+                        fontSize: 14.0,
+                        color: AppColors.hintTextColor,
+                        fontWeight: FontWeight.w300,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10.0,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -299,7 +310,6 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
     );
   }
 }
-
 
 class NumberInput extends StatefulWidget {
   final int initialValue;
@@ -359,11 +369,6 @@ class _NumberInputState extends State<NumberInput> {
   Future<void> _updateQuantity() async {
     try {
       await CartService().updateItemQuantity(widget.itemId, _currentValue);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cantidad actualizada exitosamente')),
-        );
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -372,8 +377,6 @@ class _NumberInputState extends State<NumberInput> {
       }
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -402,7 +405,10 @@ class _NumberInputState extends State<NumberInput> {
             controller: _controller,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14.0),
+            style: const TextStyle(
+              fontSize: 14.0,
+              fontWeight: FontWeight.w300,
+            ),
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               contentPadding: EdgeInsets.symmetric(vertical: 5.0),
@@ -442,7 +448,6 @@ class _NumberInputState extends State<NumberInput> {
   }
 }
 
-
 // * Ventana modal
 class DispatchOrderModal extends StatefulWidget {
   const DispatchOrderModal({super.key});
@@ -474,7 +479,6 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -487,20 +491,21 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(Icons.info_outline,size: 16.0),
+                  const Icon(Icons.info_outline, size: 16.0),
                   const SizedBox(width: 10.0),
                   const Expanded(
-                    child: Text("DATOS DE ORDEN DE DESPACHO",
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    child: Text(
+                      "DATOS DE ORDEN DE DESPACHO",
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                       overflow: TextOverflow.visible,
                     ),
                   ),
                   IconButton(
-                    onPressed: (){
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.close)
-                  )
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.close))
                 ],
               ),
               const SizedBox(height: 20),
@@ -509,15 +514,16 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('CLIENTE', style: Theme.of(context).textTheme.bodyMedium),
+                    Text('CLIENTE',
+                        style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.client_name,
                       hintText: 'Nombre del Cliente',
                       controller: _clientNameController,
                     ),
                     const SizedBox(height: 10),
-
-                    Text('FECHA DE BODA', style: Theme.of(context).textTheme.bodyMedium),
+                    Text('FECHA DE BODA',
+                        style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.event_date,
                       hintText: 'dd/mm/yy',
@@ -525,8 +531,8 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                       onSuffixIconPressed: () => _selectDate(context),
                     ),
                     const SizedBox(height: 10),
-
-                    Text('UBICACIÓN', style: Theme.of(context).textTheme.bodyMedium),
+                    Text('UBICACIÓN',
+                        style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.url_location,
                       hintText: 'Link',
@@ -541,7 +547,8 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                   if (_formKey.currentState!.validate()) {
                     String clientName = _clientNameController.text;
                     String link = _linkController.text;
-                    String formattedDate = "${_eventDate.day.toString().padLeft(2, '0')}/"
+                    String formattedDate =
+                        "${_eventDate.day.toString().padLeft(2, '0')}/"
                         "${_eventDate.month.toString().padLeft(2, '0')}/"
                         "${_eventDate.year}";
 
@@ -551,11 +558,9 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                           builder: (context) => OrderPdf(
                               name: clientName,
                               date: formattedDate,
-                              link: link)
-                      ),
+                              link: link)),
                     );
                   }
-
                 },
                 child: const Text("Crear Orden"),
               ),
