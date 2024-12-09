@@ -92,6 +92,16 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
             ),
           ),
 
+          SizedBox(
+            height: 16.0,
+          ),
+          const Divider(
+            color: AppColors.primaryVariantColor,
+            thickness: 1.0,
+            indent: 20.0,
+            endIndent: 20.0,
+          ),
+
           // Parte desplazable
           Expanded(
             child: Stack(
