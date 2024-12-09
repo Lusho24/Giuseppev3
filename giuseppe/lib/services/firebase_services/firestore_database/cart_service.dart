@@ -29,13 +29,16 @@ class CartService extends ChangeNotifier {
       final existingItemIndex = items.indexWhere((cartItem) => cartItem['itemId'] == itemId);
 
       if (existingItemIndex != -1) {
+        // Si el ítem ya existe en el carrito, actualizamos la cantidad
         items[existingItemIndex]['quantityOrder'] += quantity;
         await docRef.update({'items': items});
       } else {
+        // Si el ítem no está en el carrito, lo agregamos
         items.add({'itemId': itemId, 'quantityOrder': quantity});
         await docRef.update({'items': items});
       }
     } else {
+      // Si el carrito no existe, lo creamos con el primer ítem
       await docRef.set({
         'items': [{'itemId': itemId, 'quantityOrder': quantity}],
       });
@@ -66,5 +69,7 @@ class CartService extends ChangeNotifier {
 
     notifyListeners();
   }
+
+
 
 }

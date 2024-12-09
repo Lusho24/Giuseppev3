@@ -256,7 +256,11 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                   const SizedBox(height: 5.0),
                   Row(
                     children: [
-                      NumberInput(initialValue: cartQuantity ?? 0),
+                      NumberInput(
+                        initialValue: cartQuantity ?? 0,
+                        maxValue: int.tryParse(objectQuantity) ?? 0,
+                        onDelete: onDelete,
+                      ),
                       ElevatedButton(
                         onPressed: onDelete,
                         style: ElevatedButton.styleFrom(
@@ -288,8 +292,15 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
 
 class NumberInput extends StatefulWidget {
   final int initialValue;
+  final int maxValue;
+  final VoidCallback onDelete; // Callback para manejar la eliminación
 
-  const NumberInput({super.key, required this.initialValue});
+  const NumberInput({
+    super.key,
+    required this.initialValue,
+    required this.maxValue,
+    required this.onDelete,
+  });
 
   @override
   State<NumberInput> createState() => _NumberInputState();
@@ -298,6 +309,7 @@ class NumberInput extends StatefulWidget {
 class _NumberInputState extends State<NumberInput> {
   late TextEditingController _controller;
   int _currentValue = 0;
+
   @override
   void initState() {
     super.initState();
@@ -305,16 +317,23 @@ class _NumberInputState extends State<NumberInput> {
     _controller = TextEditingController(text: _currentValue.toString());
   }
   void _increment() {
-    setState(() {
-      _currentValue++;
-      _controller.text = _currentValue.toString();
-    });
+    if (_currentValue < widget.maxValue) {
+      setState(() {
+        _currentValue++;
+        _controller.text = _currentValue.toString();
+      });
+    }
   }
   void _decrement() {
-    setState(() {
-      _currentValue--;
-      _controller.text = _currentValue.toString();
-    });
+    if (_currentValue > 0) {
+      setState(() {
+        _currentValue--;
+        _controller.text = _currentValue.toString();
+      });
+    }
+    if (_currentValue == 0) {
+      widget.onDelete();
+    }
   }
 
   @override
@@ -326,7 +345,6 @@ class _NumberInputState extends State<NumberInput> {
           width: 30,
           decoration: BoxDecoration(
             color: AppColors.secondaryColor,
-            shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(6.0),
           ),
           child: IconButton(
@@ -337,37 +355,36 @@ class _NumberInputState extends State<NumberInput> {
           ),
         ),
         const SizedBox(width: 10.0),
-
         SizedBox(
           height: 30.0,
           width: 30.0,
           child: TextField(
-            enabled: true,
             controller: _controller,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 14.0),
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: '',
               contentPadding: EdgeInsets.symmetric(vertical: 5.0),
             ),
             onChanged: (text) {
-              setState(() {
-                _currentValue = int.tryParse(text) ?? 0;
-              });
+              int? value = int.tryParse(text);
+              if (value != null && value <= widget.maxValue && value >= 0) {
+                setState(() {
+                  _currentValue = value;
+                });
+              } else {
+                _controller.text = _currentValue.toString();
+              }
             },
           ),
         ),
-
         const SizedBox(width: 10.0),
-
         Container(
           height: 30,
           width: 30,
           decoration: BoxDecoration(
             color: AppColors.secondaryColor,
-            shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(6.0),
           ),
           child: IconButton(
@@ -382,6 +399,7 @@ class _NumberInputState extends State<NumberInput> {
     );
   }
 }
+
 
 
 // * Ventana modal
