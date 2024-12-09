@@ -322,6 +322,9 @@ class InventoryCard extends StatefulWidget {
 }
 
 class _InventoryCardState extends State<InventoryCard> {
+
+  final CartService _cartService = CartService();
+
   @override
   Widget build(BuildContext context) {
     String imageUrl = widget.item['image']?.isNotEmpty == true ? widget.item['image'][0] : '';
@@ -456,34 +459,45 @@ class _InventoryCardState extends State<InventoryCard> {
     });
   }
 
-
-  // Función para eliminar un objeto
+// Función para eliminar un objeto
   Future<void> _deleteItem(Map<String, dynamic> item) async {
-    List<String> images = List<String>.from(item['image'] ?? []);
-    bool success = await widget.objectService.deleteObject(item['id'], images);
-    if (mounted) {
-      if (success) {
+    bool isInCart = await _cartService.itemInCart(item['id']);
+
+    if (isInCart) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Objeto eliminado exitosamente'),
+            content: Text("No puedes eliminar el ítem porque se encuentra en una orden de despacho en proceso"),
           ),
         );
-        final state = context.findAncestorStateOfType<_InventoryTabState>();
-        if (state != null) {
-          state._loadInventoryItems();
+      }
+    } else {
+      List<String> images = List<String>.from(item['image'] ?? []);
+      bool success = await widget.objectService.deleteObject(item['id'], images);
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Objeto eliminado exitosamente'),
+            ),
+          );
+          final state = context.findAncestorStateOfType<_InventoryTabState>();
+          if (state != null) {
+            state._loadInventoryItems();
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error al eliminar el objeto'),
+            ),
+          );
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al eliminar el objeto'),
-          ),
-        );
       }
     }
   }
 
-
-  // Modal de eliminacion
+  // Modal de eliminación
   void _deleteDialog(Map<String, dynamic> item) {
     showDialog(
       context: context,
@@ -519,7 +533,7 @@ class _InventoryCardState extends State<InventoryCard> {
                 backgroundColor: AppColors.secondaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14.0),
-                )
+                ),
               ),
               child: const Text('Eliminar'),
             ),

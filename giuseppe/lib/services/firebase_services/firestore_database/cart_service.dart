@@ -83,6 +83,15 @@ class CartService extends ChangeNotifier {
     notifyListeners();
   }
 
-
+  /// Verifica si un ítem está en el carrito
+  Future<bool> itemInCart(String itemId) async {
+    final doc = await _firestore.collection(_cartCollection).doc(_cartDocId).get();
+    if (doc.exists) {
+      final data = doc.data();
+      final items = List<Map<String, dynamic>>.from(data?['items'] ?? []);
+      return items.any((cartItem) => cartItem['itemId'] == itemId);
+    }
+    return false;
+  }
 
 }
