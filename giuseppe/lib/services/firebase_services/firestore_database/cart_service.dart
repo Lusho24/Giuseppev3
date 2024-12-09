@@ -29,16 +29,13 @@ class CartService extends ChangeNotifier {
       final existingItemIndex = items.indexWhere((cartItem) => cartItem['itemId'] == itemId);
 
       if (existingItemIndex != -1) {
-        // Si el ítem ya existe en el carrito, actualizamos la cantidad
         items[existingItemIndex]['quantityOrder'] += quantity;
         await docRef.update({'items': items});
       } else {
-        // Si el ítem no está en el carrito, lo agregamos
         items.add({'itemId': itemId, 'quantityOrder': quantity});
         await docRef.update({'items': items});
       }
     } else {
-      // Si el carrito no existe, lo creamos con el primer ítem
       await docRef.set({
         'items': [{'itemId': itemId, 'quantityOrder': quantity}],
       });
@@ -47,6 +44,21 @@ class CartService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateItemQuantity(String itemId, int newQuantity) async {
+      final docSnapshot = await FirebaseFirestore.instance.collection('cart').doc('active_order').get();
+      var items = docSnapshot.data()?['items'] ?? [];
+      var itemIndex = -1;
+      for (int i = 0; i < items.length; i++) {
+        if (items[i]['itemId'] == itemId) {
+          itemIndex = i;
+          break;
+        }
+      }
+      items[itemIndex]['quantityOrder'] = newQuantity;
+      await FirebaseFirestore.instance.collection('cart').doc('active_order').update({
+        'items': items,
+      });
+  }
 
   /// Elimina items
   Future<void> clearCart() async {

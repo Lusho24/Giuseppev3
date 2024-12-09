@@ -259,6 +259,7 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                       NumberInput(
                         initialValue: cartQuantity ?? 0,
                         maxValue: int.tryParse(objectQuantity) ?? 0,
+                        itemId: order['id'],
                         onDelete: onDelete,
                       ),
                       ElevatedButton(
@@ -293,12 +294,14 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
 class NumberInput extends StatefulWidget {
   final int initialValue;
   final int maxValue;
-  final VoidCallback onDelete; // Callback para manejar la eliminación
+  final String itemId; // El ID del documento Firestore
+  final VoidCallback onDelete;
 
   const NumberInput({
     super.key,
     required this.initialValue,
     required this.maxValue,
+    required this.itemId,
     required this.onDelete,
   });
 
@@ -316,23 +319,40 @@ class _NumberInputState extends State<NumberInput> {
     _currentValue = widget.initialValue;
     _controller = TextEditingController(text: _currentValue.toString());
   }
-  void _increment() {
+
+  void _increment() async {
     if (_currentValue < widget.maxValue) {
       setState(() {
         _currentValue++;
         _controller.text = _currentValue.toString();
       });
+
+      await _updateQuantity();
     }
   }
-  void _decrement() {
+
+  void _decrement() async {
     if (_currentValue > 0) {
       setState(() {
         _currentValue--;
         _controller.text = _currentValue.toString();
       });
+
+      await _updateQuantity();
     }
     if (_currentValue == 0) {
       widget.onDelete();
+    }
+  }
+
+  //funcion para actualizar cantidad
+  Future<void> _updateQuantity() async {
+    try {
+      await CartService().updateItemQuantity(widget.itemId, _currentValue);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al actualizar la cantidad: $e')),
+      );
     }
   }
 
@@ -373,6 +393,8 @@ class _NumberInputState extends State<NumberInput> {
                 setState(() {
                   _currentValue = value;
                 });
+
+                _updateQuantity();
               } else {
                 _controller.text = _currentValue.toString();
               }
@@ -399,7 +421,6 @@ class _NumberInputState extends State<NumberInput> {
     );
   }
 }
-
 
 
 // * Ventana modal
