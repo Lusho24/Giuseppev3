@@ -90,32 +90,6 @@ class _InventoryTabState extends State<InventoryTab> {
   }
 
 
-  // Función para eliminar un objeto
-  Future<void> _deleteItem(Map<String, dynamic> item, int index) async {
-    List<String> images = List<String>.from(item['image'] ?? []);
-
-    bool success = await _objectService.deleteObject(item['id'], images);
-
-    if (mounted) {
-      if (success) {
-        setState(() {
-          inventoryItems.removeAt(index); //refresh
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Objeto eliminado exitosamente'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al eliminar el objeto'),
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -178,7 +152,7 @@ class _InventoryTabState extends State<InventoryTab> {
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: "Buscar",
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontWeight: FontWeight.w300,
                         ),
                         border: OutlineInputBorder(
@@ -203,7 +177,7 @@ class _InventoryTabState extends State<InventoryTab> {
                     child: DropdownMenu(
                       initialSelection: _selectedCategory,
                       inputDecorationTheme: InputDecorationTheme(
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontWeight: FontWeight.w300,
                         ),
                         border: const OutlineInputBorder(
@@ -232,7 +206,7 @@ class _InventoryTabState extends State<InventoryTab> {
                       }).toList(),
                       menuStyle: MenuStyle(
                         backgroundColor: WidgetStateProperty.all(AppColors.primaryColor),
-                        maximumSize: WidgetStateProperty.all(Size.fromHeight(350.0)),
+                        maximumSize: WidgetStateProperty.all(const Size.fromHeight(350.0)),
                       ),
                     ),
                   ),
@@ -316,9 +290,6 @@ class _InventoryTabState extends State<InventoryTab> {
                       item: filteredItems[index],
                       objectService: _objectService,
                       context: context,
-                      onDelete: () {
-                        _deleteItem(filteredItems[index], index);
-                      },
                     );
                   },
                 ),
@@ -331,23 +302,26 @@ class _InventoryTabState extends State<InventoryTab> {
   }
 }
 
-class InventoryCard extends StatelessWidget {
+class InventoryCard extends StatefulWidget {
   final Map<String, dynamic> item;
   final BuildContext context;
   final ObjectService objectService;
-  final Function onDelete;
 
   const InventoryCard({
     super.key,
     required this.item,
     required this.objectService,
-    required this.onDelete,
     required this.context,
   });
 
   @override
+  State<InventoryCard> createState() => _InventoryCardState();
+}
+
+class _InventoryCardState extends State<InventoryCard> {
+  @override
   Widget build(BuildContext context) {
-    String imageUrl = item['image']?.isNotEmpty == true ? item['image'][0] : '';
+    String imageUrl = widget.item['image']?.isNotEmpty == true ? widget.item['image'][0] : '';
     return GestureDetector(
       onTap: () {
         modalObject();
@@ -371,8 +345,8 @@ class InventoryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 10.0),
                   Text(
-                    item['name']!,
-                    style: TextStyle(
+                    widget.item['name']!,
+                    style: const TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.w300,
 
@@ -382,8 +356,8 @@ class InventoryCard extends StatelessWidget {
                   const SizedBox(height: 5.0),
                   Expanded(
                     child: Text(
-                      "Disponibles: ${item['quantity']!}",
-                      style: TextStyle(
+                      "Disponibles: ${widget.item['quantity']!}",
+                      style: const TextStyle(
                         fontSize: 13.0,
                         fontWeight: FontWeight.w300,
                       ),
@@ -444,38 +418,67 @@ class InventoryCard extends StatelessWidget {
   void handleMenuOption(String value) {
     switch (value) {
       case 'añadir_orden':
-        addItem(item);
+        addItem(widget.item);
         break;
       case 'editar':
-        _navigateAndReloadItems(item);
+        _navigateAndReloadItems(widget.item);
         break;
       case 'eliminar':
-        _deleteDialog(item);
+        _deleteDialog(widget.item);
         break;
     }
   }
 
   //Funcion editar items
   void _navigateAndReloadItems(Map<String, dynamic> item) {
+    final state = context.findAncestorStateOfType<_InventoryTabState>();
+    if (state == null) {
+      debugPrint("No se pudo encontrar el estado de _InventoryTabState");
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditObjectForm(
           item: item,
-          objectService: objectService,
+          objectService: widget.objectService,
         ),
       ),
     ).then((shouldReload) {
       if (shouldReload == true) {
-        if (context.mounted) {
-          final state = context.findAncestorStateOfType<_InventoryTabState>();
-          if (state != null) {
-            state._loadInventoryItems();
-          }
+        if (mounted) {
+          state._loadInventoryItems();
         }
       }
     });
   }
+
+
+  // Función para eliminar un objeto
+  Future<void> _deleteItem(Map<String, dynamic> item) async {
+    List<String> images = List<String>.from(item['image'] ?? []);
+    bool success = await widget.objectService.deleteObject(item['id'], images);
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Objeto eliminado exitosamente'),
+          ),
+        );
+        final state = context.findAncestorStateOfType<_InventoryTabState>();
+        if (state != null) {
+          state._loadInventoryItems();
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al eliminar el objeto'),
+          ),
+        );
+      }
+    }
+  }
+
 
   // Modal de eliminacion
   void _deleteDialog(Map<String, dynamic> item) {
@@ -485,28 +488,35 @@ class InventoryCard extends StatelessWidget {
         return AlertDialog(
           actionsAlignment: MainAxisAlignment.center,
           backgroundColor: AppColors.primaryColor,
-          title: Center(
-            child: const Text('Eliminar Item'),
+          title: const Center(
+            child: Text('Eliminar Item'),
           ),
           content: Text(
-            '¿Está seguro que desea eliminar el item "${item['name']}"?, Esta acción es irreversible.',
+            '¿Está seguro que desea eliminar el item "${item['name']}"? Esta acción es irreversible.',
             textAlign: TextAlign.justify,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.onPrimaryColor, // Color del texto (letra)
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.0),
+                ),
+                foregroundColor: AppColors.onPrimaryColor,
               ),
               child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                onDelete(); // Llama a la función de eliminar
+                await _deleteItem(item);
               },
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.errorColor,
+                foregroundColor: AppColors.primaryColor,
+                backgroundColor: AppColors.onPrimaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.0),
+                )
               ),
               child: const Text('Eliminar'),
             ),
@@ -515,6 +525,7 @@ class InventoryCard extends StatelessWidget {
       },
     );
   }
+
 
   //Modal de añadir item a la orden de despacho
   void addItem(Map<String, dynamic> item) async {
@@ -535,7 +546,7 @@ class InventoryCard extends StatelessWidget {
     final TextEditingController quantityController = TextEditingController(
       text: orderQuantity.toString(),
     );
-
+    if (mounted){
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -651,8 +662,10 @@ class InventoryCard extends StatelessWidget {
               actions: [
                 TextButton(
                   style: ButtonStyle(
-                    foregroundColor: WidgetStateProperty.all(AppColors.onPrimaryColor),
-                    overlayColor: WidgetStateProperty.all(AppColors.onSecondaryColor),
+                    foregroundColor: WidgetStateProperty.all(
+                        AppColors.onPrimaryColor),
+                    overlayColor: WidgetStateProperty.all(
+                        AppColors.onSecondaryColor),
                     shape: WidgetStateProperty.all(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14.0),
@@ -689,7 +702,8 @@ class InventoryCard extends StatelessWidget {
                     } else {
                       String itemId = item['id'];
                       try {
-                        await CartService().addItemToCart(itemId, orderQuantity);
+                        await CartService().addItemToCart(
+                            itemId, orderQuantity);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -722,12 +736,13 @@ class InventoryCard extends StatelessWidget {
       },
     );
   }
+  }
 
 
   // * Ventana modal info
   void modalObject() {
-    List<dynamic> images = item['image'] ?? [];
-    final CarouselSliderController _carouselController =
+    List<dynamic> images = widget.item['image'] ?? [];
+    final CarouselSliderController carouselController =
     CarouselSliderController();
     int currentIndex = 0;
 
@@ -759,7 +774,7 @@ class InventoryCard extends StatelessWidget {
                         // Carrusel de imágenes
                         CarouselSlider(
                           carouselController:
-                          _carouselController,
+                          carouselController,
                           // Usa CarouselSliderController aquí
                           options: CarouselOptions(
                             height: 200.0,
@@ -779,7 +794,7 @@ class InventoryCard extends StatelessWidget {
                               },
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10.0),
-                                child: Container(
+                                child: SizedBox(
                                   height: 150.0,
                                   width: double.infinity,
                                   child: Image.network(
@@ -819,7 +834,7 @@ class InventoryCard extends StatelessWidget {
                             child: IconButton(
                               icon: const Icon(Icons.arrow_back_ios),
                               onPressed: () {
-                                _carouselController.previousPage();
+                                carouselController.previousPage();
                               },
                             ),
                           ),
@@ -832,7 +847,7 @@ class InventoryCard extends StatelessWidget {
                             child: IconButton(
                               icon: const Icon(Icons.arrow_forward_ios),
                               onPressed: () {
-                                _carouselController.nextPage();
+                                carouselController.nextPage();
                               },
                             ),
                           ),
@@ -842,23 +857,23 @@ class InventoryCard extends StatelessWidget {
                     const Text("No hay imágenes disponibles."),
                   const SizedBox(height: 15),
                   Text(
-                    item['name']!,
-                    style: TextStyle(
+                    widget.item['name']!,
+                    style: const TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w400,
 
                     ),
                   ),
                   Text(
-                    "Disponibles: ${item['quantity']!}",
-                    style: TextStyle(
+                    "Disponibles: ${widget.item['quantity']!}",
+                    style: const TextStyle(
                       fontSize: 15.0,
                       fontWeight: FontWeight.w300,
                     ),
                   ),
                   Text(
-                    "Detalle: ${item['detail']!}",
-                    style: TextStyle(
+                    "Detalle: ${widget.item['detail']!}",
+                    style: const TextStyle(
                       fontSize: 15.0,
                       fontWeight: FontWeight.w300,
                     ),
@@ -874,7 +889,8 @@ class InventoryCard extends StatelessWidget {
 
 
   //visualizacion de la imagen en grande
-  void _showImagePreview(BuildContext context, List<dynamic> images, int initialIndex) {
+  void _showImagePreview(BuildContext context, List<dynamic> images,
+      int initialIndex) {
     showDialog(
       context: context,
       builder: (context) {
@@ -884,8 +900,14 @@ class InventoryCard extends StatelessWidget {
             alignment: Alignment.center,
             child: Container(
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.6,
-                maxWidth: MediaQuery.of(context).size.width * 0.9,
+                maxHeight: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.6,
+                maxWidth: MediaQuery
+                    .of(context)
+                    .size
+                    .width * 0.9,
               ),
               child: Stack(
                 children: [
@@ -899,7 +921,7 @@ class InventoryCard extends StatelessWidget {
                       );
                     },
                     scrollPhysics: const BouncingScrollPhysics(),
-                    backgroundDecoration: BoxDecoration(
+                    backgroundDecoration: const BoxDecoration(
                       color: AppColors.primaryColor,
                     ),
                     pageController: PageController(initialPage: initialIndex),
@@ -908,7 +930,9 @@ class InventoryCard extends StatelessWidget {
                   Positioned(
                     right: 0.0,
                     child: IconButton(
-                      icon: Icon(Icons.close, color: AppColors.primaryVariantColor, size: 30),
+                      icon: const Icon(
+                          Icons.close, color: AppColors.primaryVariantColor,
+                          size: 30),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },

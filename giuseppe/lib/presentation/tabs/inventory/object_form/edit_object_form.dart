@@ -363,6 +363,13 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                   child: SizedBox(
                     width: 160,
                     child: ElevatedButton(
+                      style: ButtonStyle(
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14.0),
+                          ),
+                        ),
+                      ),
                       onPressed: getImages,
                       child: const Text("Añadir Imágenes"),
                     ),
@@ -445,6 +452,13 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                   child: SizedBox(
                     width: 160,
                     child: ElevatedButton(
+                      style: ButtonStyle(
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14.0),
+                          ),
+                        ),
+                      ),
                       onPressed: _saveObject,
                       child: const Text("Guardar"),
                     ),
