@@ -50,4 +50,21 @@ class CartService extends ChangeNotifier {
     await _firestore.collection(_cartCollection).doc(_cartDocId).delete();
     notifyListeners();
   }
+
+  /// Elimina un ítem específico del carrito
+  Future<void> removeItemFromCart(String itemId) async {
+    final docRef = _firestore.collection(_cartCollection).doc(_cartDocId);
+    final doc = await docRef.get();
+
+    if (doc.exists) {
+      final data = doc.data();
+      final items = List<Map<String, dynamic>>.from(data?['items'] ?? []);
+      items.removeWhere((cartItem) => cartItem['itemId'] == itemId);
+
+      await docRef.update({'items': items});
+    }
+
+    notifyListeners();
+  }
+
 }

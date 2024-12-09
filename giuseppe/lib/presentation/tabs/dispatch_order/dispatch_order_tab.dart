@@ -40,12 +40,29 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
           'quantity': object['quantity'],
         };
       }).toList();
-    } catch (e) {
-      print('Error al cargar los items del carrito: $e');
     } finally {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+
+  Future<void> _removeCartItem(String itemId) async {
+    try {
+      await _cartService.removeItemFromCart(itemId);
+      await _loadCartItems();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Ítem eliminado del carrito")),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error al eliminar el ítem: $e")),
+        );
+      }
     }
   }
 
@@ -79,84 +96,102 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
           Expanded(
             child: Stack(
               children: [
-                CustomScrollView(
-                  slivers: [
-                    SliverGrid(
-                      gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 1,
-                        childAspectRatio: 1.95,
+                if (_isLoading)
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                else
+                  if (_cartItems.isEmpty)
+                    const Center(
+                      child: Text(
+                        "Aún no has agregado ningún ítem a tu orden",
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.primaryVariantColor,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                          return Container(
-                            padding: const EdgeInsets.all(5.0),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: Colors.grey, width: 1.5),
-                              ),
-                            ),
-                            child: OrderCard(order: _cartItems[index]),
-                          );
-                        },
-                        childCount: _cartItems.length,
-                      ),
-                    ),
-                    SliverList(
-                      delegate: SliverChildListDelegate([
-                        Container(
-                          padding: const EdgeInsets.only(
-                            top: 30.0,
-                            left: 100.0,
-                            right: 100.0,
-                            bottom: 20.0,
+                    )
+                  else
+                    CustomScrollView(
+                      slivers: [
+                        SliverGrid(
+                          gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 1,
+                            childAspectRatio: 1.95,
                           ),
-                          child: SizedBox(
-                            height: 40,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      DispatchOrderModal(),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.zero,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6.0),
+                          delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                              final item = _cartItems[index];
+                              return Container(
+                                padding: const EdgeInsets.all(5.0),
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                        color: Colors.grey, width: 1.5),
+                                  ),
                                 ),
-                              ),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "Siguiente",
-                                    style: TextStyle(fontSize: 16.0),
-                                  ),
-                                  SizedBox(width: 20),
-                                  Icon(
-                                    Icons.arrow_forward,
-                                    size: 18,
-                                    color: AppColors.primaryColor,
-                                  ),
-                                ],
-                              ),
-                            ),
+                                child: OrderCard(
+                                  order: item,
+                                  onDelete: () => _removeCartItem(item['id']),
+                                ),
+                              );
+                            },
+                            childCount: _cartItems.length,
                           ),
                         ),
-                      ]),
+                        if (_cartItems.isNotEmpty)
+                          SliverList(
+                            delegate: SliverChildListDelegate([
+                              Container(
+                                padding: const EdgeInsets.only(
+                                  top: 30.0,
+                                  left: 100.0,
+                                  right: 100.0,
+                                  bottom: 20.0,
+                                ),
+                                child: SizedBox(
+                                  height: 40,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                        const DispatchOrderModal(),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            6.0),
+                                      ),
+                                    ),
+                                    child: const Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .center,
+                                      children: [
+                                        Text(
+                                          "Siguiente",
+                                          style: TextStyle(fontSize: 16.0),
+                                        ),
+                                        SizedBox(width: 20),
+                                        Icon(
+                                          Icons.arrow_forward,
+                                          size: 18,
+                                          color: AppColors.primaryColor,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ]),
+                          ),
+                      ],
                     ),
-                  ],
-                ),
-                if (_isLoading)
-                  const Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 16.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -165,9 +200,13 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
     );
   }
 }
-class OrderCard extends StatelessWidget {
+
+
+  class OrderCard extends StatelessWidget {
   final Map<String, dynamic> order;
-  const OrderCard({required this.order, super.key});
+  final VoidCallback onDelete;
+
+  const OrderCard({required this.order, required this.onDelete, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -217,12 +256,9 @@ class OrderCard extends StatelessWidget {
                   const SizedBox(height: 5.0),
                   Row(
                     children: [
-                      NumberInput(
-                        initialValue: cartQuantity ?? 0,
-                      ),
+                      NumberInput(initialValue: cartQuantity ?? 0),
                       ElevatedButton(
-                        onPressed: () {
-                        },
+                        onPressed: onDelete,
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(50, 30),
                           padding: const EdgeInsets.symmetric(
@@ -239,22 +275,6 @@ class OrderCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 5.0),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: "Observaciones:",
-                      hintStyle: const TextStyle(
-                        fontSize: 13.0,
-                        color: AppColors.hintTextColor,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -423,7 +443,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                     icon: const Icon(Icons.close)
                   )
                 ],
-              ), 
+              ),
               const SizedBox(height: 20),
               Form(
                 key: _formKey,
