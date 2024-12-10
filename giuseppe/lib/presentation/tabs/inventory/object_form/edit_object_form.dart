@@ -205,7 +205,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
       String objectId = widget.item['id'];
       ObjectModel updatedObject = ObjectModel(
         name: _nameController.text,
-        quantity: _quantityController.text,
+        quantity: int.parse(_quantityController.text),
         detail: _detailController.text,
         category: _selectedCategory!,
         images: _remoteImages,

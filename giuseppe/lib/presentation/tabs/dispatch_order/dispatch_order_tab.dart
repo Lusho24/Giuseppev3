@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
+import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
 //import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/cart_service.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
@@ -215,8 +216,8 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final objectQuantity = order['quantity'];
-    final cartQuantity = order['quantityOrder'];
+    final int objectQuantity = order['quantity'] ?? 0;
+    final int cartQuantity = order['quantityOrder'] ?? 0;
 
     return Card(
       elevation: 0,
@@ -250,7 +251,7 @@ class OrderCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    "Disponible: ${objectQuantity ?? 'N/A'}",
+                    "Disponible: $objectQuantity",
                     style: const TextStyle(
                       color: AppColors.primaryTextColor,
                       fontSize: 14,
@@ -262,8 +263,8 @@ class OrderCard extends StatelessWidget {
                   Row(
                     children: [
                       NumberInput(
-                        initialValue: cartQuantity ?? 0,
-                        maxValue: int.tryParse(objectQuantity) ?? 0,
+                        initialValue: cartQuantity,
+                        maxValue: objectQuantity,
                         itemId: order['id'],
                         onDelete: onDelete,
                       ),
@@ -550,7 +551,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
         return {
           'itemName': item['name'],
           'quantityOrder': item['quantityOrder'],
-          'observations': item['observations'],
+          'observations': item['observations'] ?? '',
         };
       }).toList();
 
@@ -578,6 +579,9 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
         responsibleName: responsibleName,
       );
 
+      //reducir la cantidad del item
+      await ObjectService().reduceItemQuantity(widget.cartItems);
+
       // Vacia el carrito
       await CartService().clearCart();
 
@@ -585,7 +589,10 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Orden creada con éxito")),
         );
-        Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const InventoryTab()), //hacer que mande a la pag inicial y se vea el navbar
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -646,7 +653,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                         style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.dispatch_date,
-                      hintText: 'dd/mm/yy',
+                      hintText: 'yyyy-mm-dd',
                       controller: _dateController,
                       onSuffixIconPressed: () => _selectDate(context),
                     ),

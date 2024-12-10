@@ -104,5 +104,28 @@ class ObjectService {
     }
   }
 
+  // Método para reducir la cantidad de los objetos
+  Future<void> reduceItemQuantity(List<Map<String, dynamic>> cartItems) async {
+    for (var item in cartItems) {
+      String itemId = item['id'] ?? '';
+      int quantityOrder = item['quantityOrder'] ?? 0;
+      if (itemId.isNotEmpty) {
+        DocumentSnapshot doc = await _firestore.collection('objects').doc(itemId).get();
+        if (doc.exists) {
+          int currentQuantity = 0;
+          if (doc['quantity'] != null) {
+            currentQuantity = int.tryParse(doc['quantity'].toString()) ?? 0;
+          }
+          int newQuantity = currentQuantity - quantityOrder;
+          if (newQuantity >= 0) {
+            await _firestore.collection('objects').doc(itemId).update({
+              'quantity': newQuantity,
+            });
+          }
+        }
+      }
+    }
+  }
+
 
 }

@@ -1,6 +1,6 @@
 class ObjectModel {
   String name;
-  String quantity;
+  int quantity;
   String detail;
   String category;
   List<String> images;

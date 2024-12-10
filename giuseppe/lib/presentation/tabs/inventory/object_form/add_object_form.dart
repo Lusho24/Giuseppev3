@@ -400,15 +400,15 @@ class _NewObjectFormState extends State<_NewObjectForm> {
     // Validar los campos
     if (_formKey.currentState!.validate()) {
       var parentState = context.findAncestorStateOfType<_AddObjectFormState>();
-      parentState?.setLoading(true);  // Activar el indicador de carga
+      parentState?.setLoading(true);
 
       // Crear el objeto y asignar la lista de imágenes
       ObjectModel object = ObjectModel(
         name: _nameController.text,
-        quantity: _quantityController.text,
+        quantity: int.parse(_quantityController.text),
         detail: _detailController.text,
         category: _selectedCategory ?? 'Sin categoría',
-        images: [],  // Inicializar la lista de imágenes
+        images: [],
       );
 
       // Guardar el objeto en Firestore
