@@ -454,7 +454,6 @@ class _ObservationInputState extends State<ObservationInput> {
   @override
   void initState() {
     super.initState();
-    print("Initial Observations for ${widget.itemId}: ${widget.initialObservations}");
     _controller = TextEditingController(text: widget.initialObservations);
   }
 
@@ -466,7 +465,6 @@ class _ObservationInputState extends State<ObservationInput> {
   }
 
   void _updateObservations(String observations) async {
-    // Llamamos al servicio para actualizar las observaciones en Firestore
     await CartService().updateItemObservations(widget.itemId, observations);
   }
 
@@ -484,16 +482,11 @@ class _ObservationInputState extends State<ObservationInput> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 10.0),
       ),
       onChanged: (text) {
-        // Actualizamos las observaciones en Firestore cuando el texto cambia
         _updateObservations(text);
       },
     );
   }
 }
-
-
-
-
 
 
 // * Ventana modal
