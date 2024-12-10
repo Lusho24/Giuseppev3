@@ -461,6 +461,11 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
   final TextEditingController _clientNameController = TextEditingController();
   final TextEditingController _linkController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _driverNameController = TextEditingController();
+  final TextEditingController _deliveryTimeController = TextEditingController();
+  final TextEditingController _receiveNameController = TextEditingController();
+  final TextEditingController _responsibleNameController = TextEditingController();
+
   DateTime _eventDate = DateTime.now();
 
   // Método para seleccionar la fecha
@@ -556,8 +561,8 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                         style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.client_name,
-                      hintText: 'Nombre del Cliente',
-                      controller: _clientNameController,
+                      hintText: 'Nombre del Chofer',
+                      controller: _driverNameController,
                     ),
                     const SizedBox(height: 10),
                     Text('Lugar de entrega',
@@ -573,7 +578,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                     CustomTextFormField(
                       formFieldType: FormFieldType.client_name,
                       hintText: 'Nombre del Cliente',
-                      controller: _clientNameController,
+                      controller: _deliveryTimeController,
                     ),
                     const SizedBox(height: 10),
                     Text('Recibe',
@@ -581,7 +586,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                     CustomTextFormField(
                       formFieldType: FormFieldType.client_name,
                       hintText: 'Nombre del Cliente',
-                      controller: _clientNameController,
+                      controller: _receiveNameController,
                     ),
                     const SizedBox(height: 10),
                     Text('Responsable de despacho',
@@ -589,7 +594,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                     CustomTextFormField(
                       formFieldType: FormFieldType.client_name,
                       hintText: 'Nombre del Cliente',
-                      controller: _clientNameController,
+                      controller: _responsibleNameController,
                     ),
                   ],
                 ),

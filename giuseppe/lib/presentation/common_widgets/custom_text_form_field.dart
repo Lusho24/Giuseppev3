@@ -8,7 +8,7 @@ enum FormFieldType{
   // Campos para los formularios de Objetos:
   id, name, description, quantity, status, category,
   // Campos para ventana modal de despacho de orden:
-  client_name, dispatch_date, driver_name, url_location, delivery_time, receive, responsible_dispatch,
+  client_name, dispatch_date, driver_name, url_location, delivery_time, receive_name, responsible_name,
 }
 
 class CustomTextFormField extends StatelessWidget {
