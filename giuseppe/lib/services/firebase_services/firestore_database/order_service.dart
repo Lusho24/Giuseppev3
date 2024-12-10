@@ -5,7 +5,7 @@ class OrderDispatchService {
 
   Future<void> createOrder({
     required List<Map<String, dynamic>> items,
-    required String clienteName,
+    required String clientName,
     required String location,
     required String dispachDate,
     required String driverName,
@@ -13,24 +13,24 @@ class OrderDispatchService {
     required String receiveName,
     required String responsibleName,
   }) async {
-    try {
       DocumentReference orderRef = _firestore.collection('order_dispach').doc();
+
+      DateTime now = DateTime.now();
+      String orderDate = "${now.day.toString().padLeft(2, '0')}/"
+          "${now.month.toString().padLeft(2, '0')}/"
+          "${now.year}";
 
       await orderRef.set({
         'items': items,
-        'clienteName': clienteName,
+        'clientName': clientName,
         'location': location,
         'dispachDate': dispachDate,
         'driverName': driverName,
         'deliveryTime': deliveryTime,
         'receiveName': receiveName,
         'responsibleName': responsibleName,
+        'orderDate': orderDate,  // Fecha en formato dd/MM/yyyy
       });
 
-      print("Orden creada con éxito");
-    } catch (e) {
-      print("Error al crear la orden: $e");
-      throw Exception("Error al crear la orden: $e");
-    }
   }
 }

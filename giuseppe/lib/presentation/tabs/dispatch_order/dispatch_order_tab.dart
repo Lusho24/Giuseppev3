@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
-import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf.dart';
+//import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/cart_service.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
+import 'package:giuseppe/services/firebase_services/firestore_database/order_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 
 class DispatchOrderTab extends StatefulWidget {
@@ -164,8 +165,9 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                                   onPressed: () {
                                     showDialog(
                                       context: context,
-                                      builder: (BuildContext context) =>
-                                          const DispatchOrderModal(),
+                                      builder: (BuildContext context) => DispatchOrderModal(
+                                        cartItems: _cartItems,
+                                      ),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -445,10 +447,10 @@ class ObservationInput extends StatefulWidget {
   });
 
   @override
-  _ObservationInputState createState() => _ObservationInputState();
+  ObservationInputState createState() => ObservationInputState();
 }
 
-class _ObservationInputState extends State<ObservationInput> {
+class ObservationInputState extends State<ObservationInput> {
   late TextEditingController _controller;
 
   @override
@@ -491,7 +493,9 @@ class _ObservationInputState extends State<ObservationInput> {
 
 // * Ventana modal
 class DispatchOrderModal extends StatefulWidget {
-  const DispatchOrderModal({super.key});
+  final List<Map<String, dynamic>> cartItems;
+
+  const DispatchOrderModal({super.key, required this.cartItems});
 
   @override
   State<DispatchOrderModal> createState() => _DispatchOrderModalState();
@@ -531,7 +535,6 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
         );
       },
     );
-
     if (pickedDate != null && pickedDate != _eventDate) {
       setState(() {
         _eventDate = pickedDate;
@@ -540,8 +543,58 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
     }
   }
 
+  void _createDispatchOrder() async {
+    try {
+      // Toma los datos del item
+      List<Map<String, dynamic>> itemsData = widget.cartItems.map((item) {
+        return {
+          'itemName': item['name'],
+          'quantityOrder': item['quantityOrder'],
+          'observations': item['observations'],
+        };
+      }).toList();
 
+      //toma los datos del formulario
+      String clientName = _clientNameController.text;
+      String location = _linkController.text;
+      String formattedDate =
+          "${_eventDate.day.toString().padLeft(2, '0')}/"
+          "${_eventDate.month.toString().padLeft(2, '0')}/"
+          "${_eventDate.year}";
+      String driverName = _driverNameController.text;
+      String deliveryTime = _deliveryTimeController.text;
+      String receiveName = _receiveNameController.text;
+      String responsibleName = _responsibleNameController.text;
 
+      //crea la orden de despacho
+      await OrderDispatchService().createOrder(
+        items: itemsData,
+        clientName: clientName,
+        location: location,
+        dispachDate: formattedDate,
+        driverName: driverName,
+        deliveryTime: deliveryTime,
+        receiveName: receiveName,
+        responsibleName: responsibleName,
+      );
+
+      // Vacia el carrito
+      await CartService().clearCart();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Orden creada con éxito")),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error al crear la orden: $e")),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -643,7 +696,8 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
+                    _createDispatchOrder();
+/*                  if (_formKey.currentState!.validate()) {
                     String clientName = _clientNameController.text;
                     String link = _linkController.text;
                     String formattedDate =
@@ -659,7 +713,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                               date: formattedDate,
                               link: link)),
                     );
-                  }
+                  }*/
                 },
                 child: const Text("Crear Orden"),
               ),

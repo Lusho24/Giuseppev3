@@ -81,7 +81,7 @@ class _EditObjectFormState extends State<EditObjectForm> {
             ],
           ),
 
-          // Fondo opaco y animación de carga
+          // Fondo y animación de carga
           if (_isLoading)
             Positioned.fill(
               child: Container(
@@ -192,7 +192,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
   }
 
   Future<void> _saveObject() async {
-    // Verificar si las imágenes están vacías
     if (_localImages.isEmpty && _remoteImages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Debe seleccionar al menos una imagen.')),
@@ -204,8 +203,6 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
       widget.setLoading(true);
 
       String objectId = widget.item['id'];
-
-      // Crear un ObjectModel
       ObjectModel updatedObject = ObjectModel(
         name: _nameController.text,
         quantity: _quantityController.text,
@@ -308,7 +305,7 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
                                 // Imágenes locales
                                 ..._localImages.asMap().entries.map((entry) {
                                   int index =
-                                      entry.key; // Definimos 'index' aquí
+                                      entry.key;
                                   File file = entry.value;
                                   return GestureDetector(
                                     onTap: () => _showDeleteOption(
