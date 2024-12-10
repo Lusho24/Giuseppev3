@@ -470,7 +470,22 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
       initialDate: _eventDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.black,
+              surface: Colors.white,
+            ),
+            textTheme: const TextTheme(
+              bodyLarge: TextStyle(color: Colors.black),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
     if (pickedDate != null && pickedDate != _eventDate) {
       setState(() {
         _eventDate = pickedDate;
@@ -479,33 +494,39 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
     }
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: AppColors.primaryColor,
       child: Padding(
         padding: const EdgeInsets.all(15.0),
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.info_outline, size: 16.0),
-                  const SizedBox(width: 10.0),
-                  const Expanded(
-                    child: Text(
-                      "DATOS DE ORDEN DE DESPACHO",
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.visible,
+                  Icon(Icons.info_outline, size: 30, color: Colors.black),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 4),
+                        Text(
+                          'DATOS DE LA ORDEN',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.close))
                 ],
               ),
               const SizedBox(height: 20),
@@ -514,7 +535,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('CLIENTE',
+                    Text('Cliente',
                         style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.client_name,
@@ -522,21 +543,53 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                       controller: _clientNameController,
                     ),
                     const SizedBox(height: 10),
-                    Text('FECHA DE BODA',
+                    Text('Fecha de despacho',
                         style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
-                      formFieldType: FormFieldType.event_date,
+                      formFieldType: FormFieldType.dispatch_date,
                       hintText: 'dd/mm/yy',
                       controller: _dateController,
                       onSuffixIconPressed: () => _selectDate(context),
                     ),
                     const SizedBox(height: 10),
-                    Text('UBICACIÓN',
+                    Text('Chofer',
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    CustomTextFormField(
+                      formFieldType: FormFieldType.client_name,
+                      hintText: 'Nombre del Cliente',
+                      controller: _clientNameController,
+                    ),
+                    const SizedBox(height: 10),
+                    Text('Lugar de entrega',
                         style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.url_location,
                       hintText: 'Link',
                       controller: _linkController,
+                    ),
+                    const SizedBox(height: 10),
+                    Text('Hora de entrega',
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    CustomTextFormField(
+                      formFieldType: FormFieldType.client_name,
+                      hintText: 'Nombre del Cliente',
+                      controller: _clientNameController,
+                    ),
+                    const SizedBox(height: 10),
+                    Text('Recibe',
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    CustomTextFormField(
+                      formFieldType: FormFieldType.client_name,
+                      hintText: 'Nombre del Cliente',
+                      controller: _clientNameController,
+                    ),
+                    const SizedBox(height: 10),
+                    Text('Responsable de despacho',
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    CustomTextFormField(
+                      formFieldType: FormFieldType.client_name,
+                      hintText: 'Nombre del Cliente',
+                      controller: _clientNameController,
                     ),
                   ],
                 ),

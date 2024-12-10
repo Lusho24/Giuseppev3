@@ -8,7 +8,7 @@ enum FormFieldType{
   // Campos para los formularios de Objetos:
   id, name, description, quantity, status, category,
   // Campos para ventana modal de despacho de orden:
-  client_name, event_date, url_location
+  client_name, dispatch_date, driver_name, url_location, delivery_time, receive, responsible_dispatch,
 }
 
 class CustomTextFormField extends StatelessWidget {
@@ -39,7 +39,7 @@ class CustomTextFormField extends StatelessWidget {
         maxLines: formFieldType == FormFieldType.description ? 2 : 1,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(color: AppColors.hintTextColor,fontSize: 13.0, fontWeight: FontWeight.w400),
+          hintStyle: const TextStyle(color: AppColors.hintTextColor,fontSize: 13.0, fontWeight: FontWeight.w300),
           errorMaxLines: 2,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
@@ -55,9 +55,9 @@ class CustomTextFormField extends StatelessWidget {
               ? EdgeInsets.symmetric(
               vertical: height! , horizontal: 8.0)
               : const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-          suffixIcon: formFieldType == FormFieldType.event_date ?
+          suffixIcon: formFieldType == FormFieldType.dispatch_date ?
           IconButton(
-            icon: const Icon(Icons.calendar_today),
+            icon: const Icon(Icons.calendar_month_outlined),
             onPressed: onSuffixIconPressed,
           ) : null,
         ),
