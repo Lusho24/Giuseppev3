@@ -1,3 +1,5 @@
+import 'package:giuseppe/models/order_item_model.dart';
+
 class OrderDispatchModel{
   String client;
   String location;
@@ -7,7 +9,7 @@ class OrderDispatchModel{
   String deliveryTime;
   String receiverName;
   String responsibleName;
-  List<Map<String, dynamic>> items;
+  List<OrderItemModel> items;
 
   OrderDispatchModel({
     required this.client,
@@ -31,7 +33,7 @@ class OrderDispatchModel{
       'deliveryTime': deliveryTime,
       'receiverName': receiverName,
       'responsibleName': responsibleName,
-      'items': items
+      'items': items.map((item) => item.toJson()).toList(),
     };
   }
 
@@ -45,7 +47,9 @@ class OrderDispatchModel{
       deliveryTime: json['deliveryTime'],
       receiverName: json['receiverName'],
       responsibleName: json['responsibleName'],
-      items: json['items'],
+      items: (json['items'] as List)
+          .map((item) => OrderItemModel.fromJson(item))
+          .toList(),
     );
   }
 

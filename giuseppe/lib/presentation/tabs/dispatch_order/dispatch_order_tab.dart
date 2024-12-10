@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/models/order_dispatch_model.dart';
+import 'package:giuseppe/models/order_item_model.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/presentation/tabs/dispatch_order/dispatch_order_view_model.dart';
 import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
@@ -568,13 +569,13 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
     try {
       late OrderDispatchModel orderDispatch;
 
-      // Toma los datos del item
-      List<Map<String, dynamic>> itemsData = widget.cartItems.map((item) {
-        return {
-          'itemName': item['name'],
-          'quantityOrder': item['quantityOrder'],
-          'observations': item['observations'] ?? '',
-        };
+      // Toma los datos del item y los convierte a un objeto
+      List<OrderItemModel> items = widget.cartItems.map((item) {
+        return OrderItemModel(
+          name: item['name'],
+          observations: item['observations'] ?? '',
+          quantity: item['quantityOrder'],
+        );
       }).toList();
 
       //formateo de la fecha de despacho
@@ -592,7 +593,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
           deliveryTime: _deliveryTimeController.text,
           receiverName:  _receiveNameController.text,
           responsibleName: _responsibleNameController.text,
-          items: itemsData
+          items: items
       );
 
       widget.viewModel.saveOrderDispatch(orderDispatch);
