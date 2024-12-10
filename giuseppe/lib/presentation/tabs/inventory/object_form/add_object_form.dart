@@ -408,7 +408,7 @@ class _NewObjectFormState extends State<_NewObjectForm> {
         quantity: int.parse(_quantityController.text),
         detail: _detailController.text,
         category: _selectedCategory ?? 'Sin categoría',
-        images: [],
+        images: [], 
       );
 
       // Guardar el objeto en Firestore
