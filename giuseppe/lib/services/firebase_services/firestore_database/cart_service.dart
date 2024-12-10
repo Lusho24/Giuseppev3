@@ -32,7 +32,7 @@ class CartService extends ChangeNotifier {
         items[existingItemIndex]['quantityOrder'] += quantity;
         await docRef.update({'items': items});
       } else {
-        items.add({'itemId': itemId, 'quantityOrder': quantity});
+        items.add({'itemId': itemId, 'quantityOrder': quantity, 'observations': ""});
         await docRef.update({'items': items});
       }
     } else {
@@ -43,6 +43,28 @@ class CartService extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future<void> updateItemObservations(String itemId, String observations) async {
+    try {
+      // Obtenemos el documento del carrito
+      final docRef = FirebaseFirestore.instance.collection(_cartCollection).doc(_cartDocId);
+      final docSnapshot = await docRef.get();
+      final data = docSnapshot.data();
+      final items = List<Map<String, dynamic>>.from(data?['items'] ?? []);
+
+      // Buscamos el item que coincide con el itemId
+      final itemIndex = items.indexWhere((item) => item['itemId'] == itemId);
+      if (itemIndex != -1) {
+        // Actualizamos las observaciones del item correspondiente
+        items[itemIndex]['observations'] = observations;
+        await docRef.update({'items': items});
+      }
+    } catch (e) {
+      throw Exception("Error al actualizar las observaciones: $e");
+    }
+  }
+
+
 
   ///Actualizar Cantidad
   Future<void> updateItemQuantity(String itemId, int newQuantity) async {

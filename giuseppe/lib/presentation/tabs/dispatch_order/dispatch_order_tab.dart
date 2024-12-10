@@ -29,14 +29,16 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
     try {
       final cartItems = await _cartService.fetchCartItems();
       final objects = await _objectService.getAllItems();
+
       _cartItems = cartItems.map((cartItem) {
         final object = objects.firstWhere(
-          (obj) => obj['id'] == cartItem['itemId'],
+              (obj) => obj['id'] == cartItem['itemId'],
           orElse: () => {},
         );
         return {
           ...object,
           'quantityOrder': cartItem['quantityOrder'],
+          'observations': cartItem['observations'],
           'quantity': object['quantity'],
         };
       }).toList();
@@ -281,25 +283,9 @@ class OrderCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 5.0),
-                  TextField(
-                    style: const TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w300,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "Observaciones:",
-                      hintStyle: const TextStyle(
-                        fontSize: 14.0,
-                        color: AppColors.hintTextColor,
-                        fontWeight: FontWeight.w300,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6.0),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                      ),
-                    ),
+                  ObservationInput(
+                    itemId: order['id'],
+                    initialObservations: order['observations'] ?? '',
                   ),
                 ],
               ),
@@ -314,7 +300,7 @@ class OrderCard extends StatelessWidget {
 class NumberInput extends StatefulWidget {
   final int initialValue;
   final int maxValue;
-  final String itemId; // El ID del documento Firestore
+  final String itemId;
   final VoidCallback onDelete;
 
   const NumberInput({
@@ -447,6 +433,68 @@ class _NumberInputState extends State<NumberInput> {
     );
   }
 }
+
+class ObservationInput extends StatefulWidget {
+  final String itemId;
+  final String initialObservations;
+
+  const ObservationInput({
+    super.key,
+    required this.itemId,
+    required this.initialObservations,
+  });
+
+  @override
+  _ObservationInputState createState() => _ObservationInputState();
+}
+
+class _ObservationInputState extends State<ObservationInput> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    print("Initial Observations for ${widget.itemId}: ${widget.initialObservations}");
+    _controller = TextEditingController(text: widget.initialObservations);
+  }
+
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _updateObservations(String observations) async {
+    // Llamamos al servicio para actualizar las observaciones en Firestore
+    await CartService().updateItemObservations(widget.itemId, observations);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300),
+      decoration: InputDecoration(
+        hintText: widget.initialObservations.isEmpty ? "Observaciones:" : null,
+        hintStyle: const TextStyle(fontSize: 14.0, color: Colors.grey, fontWeight: FontWeight.w300),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6.0),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10.0),
+      ),
+      onChanged: (text) {
+        // Actualizamos las observaciones en Firestore cuando el texto cambia
+        _updateObservations(text);
+      },
+    );
+  }
+}
+
+
+
+
+
 
 // * Ventana modal
 class DispatchOrderModal extends StatefulWidget {
