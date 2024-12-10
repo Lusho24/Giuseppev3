@@ -610,7 +610,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                         style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.url_location,
-                      hintText: 'Link',
+                      hintText: 'Lugar de entrega',
                       controller: _linkController,
                     ),
                     const SizedBox(height: 10),
@@ -618,7 +618,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                         style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.client_name,
-                      hintText: 'Nombre del Cliente',
+                      hintText: 'Hora de entrega',
                       controller: _deliveryTimeController,
                     ),
                     const SizedBox(height: 10),
@@ -626,7 +626,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                         style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.client_name,
-                      hintText: 'Nombre del Cliente',
+                      hintText: 'Nombre de quien recibe',
                       controller: _receiveNameController,
                     ),
                     const SizedBox(height: 10),
@@ -634,7 +634,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
                         style: Theme.of(context).textTheme.bodyMedium),
                     CustomTextFormField(
                       formFieldType: FormFieldType.client_name,
-                      hintText: 'Nombre del Cliente',
+                      hintText: 'Nombre del responsable',
                       controller: _responsibleNameController,
                     ),
                   ],
