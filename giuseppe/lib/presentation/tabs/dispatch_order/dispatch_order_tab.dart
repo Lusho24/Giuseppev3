@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:giuseppe/models/order_dispatch_model.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
+import 'package:giuseppe/presentation/tabs/dispatch_order/dispatch_order_view_model.dart';
 import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
-//import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/cart_service.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
-import 'package:giuseppe/services/firebase_services/firestore_database/order_service.dart';
+import 'package:giuseppe/services/firebase_services/firestore_database/order_dispatch_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
+import 'package:provider/provider.dart';
 
 class DispatchOrderTab extends StatefulWidget {
   const DispatchOrderTab({super.key});
@@ -17,15 +19,11 @@ class DispatchOrderTab extends StatefulWidget {
 class _DispatchOrderTabState extends State<DispatchOrderTab> {
   final CartService _cartService = CartService();
   final ObjectService _objectService = ObjectService();
+  late DispatchOrderViewModel _viewModel;
 
   List<Map<String, dynamic>> _cartItems = [];
   bool _isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadCartItems();
-  }
 
   Future<void> _loadCartItems() async {
     try {
@@ -70,139 +68,156 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
   }
 
   @override
+  void initState() {
+    _viewModel = DispatchOrderViewModel();
+    _loadCartItems();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _viewModel.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          // Parte fija
-          Container(
-            padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-            child: const Image(
-              image: AssetImage('assets/images/logo.png'),
-              height: 70.0,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 22.0),
-            alignment: Alignment.center,
-            child: const Text(
-              "ORDEN DE DESPACHO",
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w300,
+    return ChangeNotifierProvider<DispatchOrderViewModel>.value(
+      value: _viewModel,
+      child: Scaffold(
+        body: Column(
+          children: [
+            // Parte fija
+            Container(
+              padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
+              child: const Image(
+                image: AssetImage('assets/images/logo.png'),
+                height: 70.0,
               ),
             ),
-          ),
-
-          const SizedBox(
-            height: 16.0,
-          ),
-          const Divider(
-            color: AppColors.primaryVariantColor,
-            thickness: 1.0,
-            indent: 20.0,
-            endIndent: 20.0,
-          ),
-
-          // Parte desplazable
-          Expanded(
-            child: Stack(
-              children: [
-                if (_isLoading)
-                  const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                else if (_cartItems.isEmpty)
-                  const Center(
-                    child: Text(
-                      "Aún no has agregado ningún ítem a tu orden",
-                      style: TextStyle(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.primaryVariantColor,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                else
-                  CustomScrollView(
-                    slivers: [
-                      SliverGrid(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 1,
-                          childAspectRatio: 1.95,
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 22.0),
+              alignment: Alignment.center,
+              child: const Text(
+                "ORDEN DE DESPACHO",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+            ),
+      
+            const SizedBox(
+              height: 16.0,
+            ),
+            const Divider(
+              color: AppColors.primaryVariantColor,
+              thickness: 1.0,
+              indent: 20.0,
+              endIndent: 20.0,
+            ),
+      
+            // Parte desplazable
+            Expanded(
+              child: Stack(
+                children: [
+                  if (_isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  else if (_cartItems.isEmpty)
+                    const Center(
+                      child: Text(
+                        "Aún no has agregado ningún ítem a tu orden",
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.primaryVariantColor,
                         ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final item = _cartItems[index];
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 5.0, right: 5.0),
-                              child: SizedBox(
-                                child: OrderCard(
-                                  order: item,
-                                  onDelete: () => _removeCartItem(item['id']),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  else
+                    CustomScrollView(
+                      slivers: [
+                        SliverGrid(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 1,
+                            childAspectRatio: 1.95,
+                          ),
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final item = _cartItems[index];
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 5.0, right: 5.0),
+                                child: SizedBox(
+                                  child: OrderCard(
+                                    order: item,
+                                    onDelete: () => _removeCartItem(item['id']),
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          childCount: _cartItems.length,
+                              );
+                            },
+                            childCount: _cartItems.length,
+                          ),
                         ),
-                      ),
-                      if (_cartItems.isNotEmpty)
-                        SliverList(
-                          delegate: SliverChildListDelegate([
-                            Container(
-                              padding: const EdgeInsets.only(
-                                top: 30.0,
-                                left: 100.0,
-                                right: 100.0,
-                                bottom: 20.0,
-                              ),
-                              child: SizedBox(
-                                height: 40,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) => DispatchOrderModal(
-                                        cartItems: _cartItems,
+                        if (_cartItems.isNotEmpty)
+                          SliverList(
+                            delegate: SliverChildListDelegate([
+                              Container(
+                                padding: const EdgeInsets.only(
+                                  top: 30.0,
+                                  left: 100.0,
+                                  right: 100.0,
+                                  bottom: 20.0,
+                                ),
+                                child: SizedBox(
+                                  height: 40,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) => DispatchOrderModal(
+                                          cartItems: _cartItems,
+                                          viewModel: _viewModel,
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6.0),
                                       ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6.0),
+                                    ),
+                                    child: const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Siguiente",
+                                          style: TextStyle(fontSize: 16.0),
+                                        ),
+                                        SizedBox(width: 20),
+                                        Icon(
+                                          Icons.arrow_forward,
+                                          size: 18,
+                                          color: AppColors.primaryColor,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Siguiente",
-                                        style: TextStyle(fontSize: 16.0),
-                                      ),
-                                      SizedBox(width: 20),
-                                      Icon(
-                                        Icons.arrow_forward,
-                                        size: 18,
-                                        color: AppColors.primaryColor,
-                                      ),
-                                    ],
-                                  ),
                                 ),
                               ),
-                            ),
-                          ]),
-                        ),
-                    ],
-                  ),
-              ],
+                            ]),
+                          ),
+                      ],
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -495,8 +510,13 @@ class ObservationInputState extends State<ObservationInput> {
 // * Ventana modal
 class DispatchOrderModal extends StatefulWidget {
   final List<Map<String, dynamic>> cartItems;
+  final DispatchOrderViewModel viewModel;
 
-  const DispatchOrderModal({super.key, required this.cartItems});
+  const DispatchOrderModal({
+    required this.cartItems,
+    required this.viewModel,
+    super.key
+  });
 
   @override
   State<DispatchOrderModal> createState() => _DispatchOrderModalState();
@@ -546,6 +566,8 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
 
   void _createDispatchOrder() async {
     try {
+      late OrderDispatchModel orderDispatch;
+
       // Toma los datos del item
       List<Map<String, dynamic>> itemsData = widget.cartItems.map((item) {
         return {
@@ -555,29 +577,25 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
         };
       }).toList();
 
-      //toma los datos del formulario
-      String clientName = _clientNameController.text;
-      String location = _linkController.text;
+      //formateo de la fecha de despacho
       String formattedDate =
           "${_eventDate.day.toString().padLeft(2, '0')}/"
           "${_eventDate.month.toString().padLeft(2, '0')}/"
           "${_eventDate.year}";
-      String driverName = _driverNameController.text;
-      String deliveryTime = _deliveryTimeController.text;
-      String receiveName = _receiveNameController.text;
-      String responsibleName = _responsibleNameController.text;
 
       //crea la orden de despacho
-      await OrderDispatchService().createOrder(
-        items: itemsData,
-        clientName: clientName,
-        location: location,
-        dispachDate: formattedDate,
-        driverName: driverName,
-        deliveryTime: deliveryTime,
-        receiveName: receiveName,
-        responsibleName: responsibleName,
+      orderDispatch = OrderDispatchModel(
+          client: _clientNameController.text,
+          location: _linkController.text,
+          dispachDate: formattedDate,
+          driverName: _driverNameController.text,
+          deliveryTime: _deliveryTimeController.text,
+          receiverName:  _receiveNameController.text,
+          responsibleName: _responsibleNameController.text,
+          items: itemsData
       );
+
+      widget.viewModel.saveOrderDispatch(orderDispatch);
 
       //reducir la cantidad del item
       await ObjectService().reduceItemQuantity(widget.cartItems);
