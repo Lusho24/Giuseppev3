@@ -3,7 +3,7 @@ import 'package:giuseppe/models/order_dispatch_model.dart';
 import 'package:giuseppe/models/order_item_model.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/presentation/tabs/dispatch_order/dispatch_order_view_model.dart';
-import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
+import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf/order_pdf.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/cart_service.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/order_dispatch_service.dart';
@@ -608,9 +608,13 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Orden creada con éxito")),
         );
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const InventoryTab()), //hacer que mande a la pag inicial y se vea el navbar
+          MaterialPageRoute(
+              builder: (context) => OrderPdf(
+                orderDispatch: orderDispatch,
+              )
+          ),
         );
       }
     } catch (e) {

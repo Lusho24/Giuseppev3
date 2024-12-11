@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:giuseppe/models/order_dispatch_model.dart';
+import 'package:giuseppe/models/order_item_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -7,14 +9,10 @@ import 'dart:developer' as dev;
 
 
 class OrderPdf extends StatefulWidget {
-  final String name;
-  final String date;
-  final String link;
+  final OrderDispatchModel orderDispatch;
 
   const OrderPdf({
-    required this.name,
-    required this.date,
-    required this.link,
+    required this.orderDispatch,
     super.key
   });
 
@@ -24,6 +22,8 @@ class OrderPdf extends StatefulWidget {
 
 class _OrderPdfState extends State<OrderPdf> {
   final pdf = pw.Document();
+  late OrderDispatchModel _order;
+  late List<OrderItemModel> _items;
 
   List<Map<String, String>> dataList = [
     {
@@ -108,7 +108,7 @@ class _OrderPdfState extends State<OrderPdf> {
                                       decoration: pw.BoxDecoration(
                                         border: pw.Border.all(width: 1, color: PdfColors.black),
                                       ),
-                                      child: pw.Text(widget.date, style: pw.TextStyle(font: arial, fontSize: 9)),
+                                      child: pw.Text(_order.orderDate!, style: pw.TextStyle(font: arial, fontSize: 9)),
                                     ),
                                   ],
                                 ),
@@ -130,7 +130,7 @@ class _OrderPdfState extends State<OrderPdf> {
                                       decoration: pw.BoxDecoration(
                                         border: pw.Border.all(width: 1, color: PdfColors.black),
                                       ),
-                                      child: pw.Text(widget.name, style: pw.TextStyle(font: arial, fontSize: 9)),
+                                      child: pw.Text(_order.client, style: pw.TextStyle(font: arial, fontSize: 9)),
                                     ),
                                   ],
                                 ),
@@ -172,7 +172,10 @@ class _OrderPdfState extends State<OrderPdf> {
                 // - Detalles
                 pw.Table(
                   columnWidths: {
-                    3: const pw.FixedColumnWidth(134.0),
+                    0: const pw.FixedColumnWidth(40.0),
+                    1: const pw.FixedColumnWidth(40.0),
+                    2: const pw.FixedColumnWidth(100.0),
+                    3: const pw.FixedColumnWidth(90.0),
                   },
                   border: pw.TableBorder.all(width: 1),
                   children: [
@@ -205,7 +208,7 @@ class _OrderPdfState extends State<OrderPdf> {
                       ],
                     ),
                     // - items
-                    ...dataList.map((item) {
+                    ..._items.map((item) {
                       return pw.TableRow(
                         children: [
                           pw.Padding(
@@ -215,15 +218,15 @@ class _OrderPdfState extends State<OrderPdf> {
                           pw.Container(
                             padding: const pw.EdgeInsets.all(1),
                             alignment: pw.Alignment.center,
-                            child: pw.Text(item['cantidad'] ?? '', style: pw.TextStyle(font: arial,fontSize: 9)),
+                            child: pw.Text(item.quantity.toString(), style: pw.TextStyle(font: arial,fontSize: 9)),
                           ),
                           pw.Padding(
                               padding: const pw.EdgeInsets.all(1),
-                              child: pw.Text(item['detalle'] ?? '', style: pw.TextStyle(font: arial,fontSize: 9))
+                              child: pw.Text(item.name, style: pw.TextStyle(font: arial,fontSize: 9))
                           ),
                           pw.Padding(
                               padding: const pw.EdgeInsets.all(1),
-                              child: pw.Text(item['observaciones'] ?? '', style: pw.TextStyle(font: arial,fontSize: 9))
+                              child: pw.Text(item.observations, style: pw.TextStyle(font: arial,fontSize: 9))
                           ),
                         ],
                       );
@@ -248,7 +251,7 @@ class _OrderPdfState extends State<OrderPdf> {
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(1.5),
-                          child: pw.Text("Miercoles 16 de marzo 2022", style: pw.TextStyle(font: arial, fontSize: 9))
+                          child: pw.Text(_order.dispachDate, style: pw.TextStyle(font: arial, fontSize: 9))
                         ),
                       ]
                     ),
@@ -260,7 +263,7 @@ class _OrderPdfState extends State<OrderPdf> {
                           ),
                           pw.Padding(
                               padding: const pw.EdgeInsets.all(1.5),
-                              child: pw.Text("Patricio Quinchuqui", style: pw.TextStyle(font: arial, fontSize: 9))
+                              child: pw.Text(_order.driverName, style: pw.TextStyle(font: arial, fontSize: 9))
                           ),
                         ]
                     ),
@@ -272,7 +275,7 @@ class _OrderPdfState extends State<OrderPdf> {
                           ),
                           pw.Padding(
                               padding: const pw.EdgeInsets.all(1.5),
-                              child: pw.Text("Quinta el alcazar", style: pw.TextStyle(font: arial, fontSize: 9))
+                              child: pw.Text(_order.location, style: pw.TextStyle(font: arial, fontSize: 9))
                           ),
                         ]
                     ),
@@ -284,7 +287,7 @@ class _OrderPdfState extends State<OrderPdf> {
                           ),
                           pw.Padding(
                               padding: const pw.EdgeInsets.all(1.5),
-                              child: pw.Text("20:30", style: pw.TextStyle(font: arial, fontSize: 9))
+                              child: pw.Text(_order.deliveryTime, style: pw.TextStyle(font: arial, fontSize: 9))
                           ),
                         ]
                     ),
@@ -296,7 +299,7 @@ class _OrderPdfState extends State<OrderPdf> {
                           ),
                           pw.Padding(
                               padding: const pw.EdgeInsets.all(1.5),
-                              child: pw.Text("Sr. Cristian Herrera", style: pw.TextStyle(font: arial, fontSize: 9))
+                              child: pw.Text(_order.receiverName, style: pw.TextStyle(font: arial, fontSize: 9))
                           ),
                         ]
                     ),
@@ -308,7 +311,7 @@ class _OrderPdfState extends State<OrderPdf> {
                           ),
                           pw.Padding(
                               padding: const pw.EdgeInsets.all(1.5),
-                              child: pw.Text("Luis Espinosa", style: pw.TextStyle(font: arial, fontSize: 9))
+                              child: pw.Text(_order.responsibleName, style: pw.TextStyle(font: arial, fontSize: 9))
                           ),
                         ]
                     ),
@@ -369,6 +372,8 @@ class _OrderPdfState extends State<OrderPdf> {
 
   @override
   void initState() {
+    _order = widget.orderDispatch;
+    _items = _order.items;
     _createPdf();
     super.initState();
   }
