@@ -6,7 +6,6 @@ import 'package:giuseppe/presentation/tabs/dispatch_order/dispatch_order_view_mo
 import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf/order_pdf.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/cart_service.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
-import 'package:giuseppe/services/firebase_services/firestore_database/order_dispatch_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -49,6 +48,16 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
       });
     }
   }
+
+  void _updateCartItemObservations(String itemId, String observations) {
+    setState(() {
+      final index = _cartItems.indexWhere((item) => item['id'] == itemId);
+      if (index != -1) {
+        _cartItems[index]['observations'] = observations;
+      }
+    });
+  }
+
 
   Future<void> _removeCartItem(String itemId) async {
     try {
@@ -157,7 +166,9 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                                   child: OrderCard(
                                     order: item,
                                     onDelete: () => _removeCartItem(item['id']),
+                                    onObservationsChanged: _updateCartItemObservations,
                                   ),
+
                                 ),
                               );
                             },
@@ -227,8 +238,14 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
 class OrderCard extends StatelessWidget {
   final Map<String, dynamic> order;
   final VoidCallback onDelete;
+  final Function(String, String) onObservationsChanged;
 
-  const OrderCard({required this.order, required this.onDelete, super.key});
+  const OrderCard({
+    required this.order,
+    required this.onDelete,
+    required this.onObservationsChanged,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -305,6 +322,7 @@ class OrderCard extends StatelessWidget {
                   ObservationInput(
                     itemId: order['id'],
                     initialObservations: order['observations'] ?? '',
+                    onObservationsChanged: onObservationsChanged,
                   ),
                 ],
               ),
@@ -456,11 +474,13 @@ class _NumberInputState extends State<NumberInput> {
 class ObservationInput extends StatefulWidget {
   final String itemId;
   final String initialObservations;
+  final Function(String, String) onObservationsChanged;
 
   const ObservationInput({
     super.key,
     required this.itemId,
     required this.initialObservations,
+    required this.onObservationsChanged,
   });
 
   @override
@@ -485,6 +505,7 @@ class ObservationInputState extends State<ObservationInput> {
 
   void _updateObservations(String observations) async {
     await CartService().updateItemObservations(widget.itemId, observations);
+    widget.onObservationsChanged(widget.itemId, observations);
   }
 
   @override
@@ -500,9 +521,7 @@ class ObservationInputState extends State<ObservationInput> {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 10.0),
       ),
-      onChanged: (text) {
-        _updateObservations(text);
-      },
+      onChanged: _updateObservations,
     );
   }
 }
