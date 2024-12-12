@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/tabs/dispatch_order/dispatch_order_tab.dart';
 import 'package:giuseppe/presentation/tabs/inventory/object_form/add_object_form.dart';
-import 'package:giuseppe/presentation/tabs/order_history_user/order_history_user_tab.dart';
 import 'package:giuseppe/presentation/tabs/inventory/inventory_tab.dart';
-import 'package:giuseppe/presentation/tabs/orders_history_admin/order_history_admin_tab.dart';
+import 'package:giuseppe/presentation/tabs/orders_history/order_history_tab.dart';
 import 'package:giuseppe/presentation/tabs/search_object/search_object_tab.dart';
 import 'package:giuseppe/presentation/tabs/tabs_view_model.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
@@ -27,7 +26,7 @@ class _TabsPageState extends State<TabsPage> {
     const InventoryTab(),
     const AddObjectForm(),
     const DispatchOrderTab(),
-    const OrderHistoryAdminTab()
+    const OrderHistoryTab()
   ];
 
   // Navegación para admin
@@ -58,7 +57,7 @@ class _TabsPageState extends State<TabsPage> {
   late final List<Widget> _userTabsOptions = [
     const InventoryTab(),
     const SearchObjectTab(),
-    const OrderHistoryUserTab()
+    const OrderHistoryTab()
   ];
 
   late final List<NavigationDestination> _userDestinations = const [

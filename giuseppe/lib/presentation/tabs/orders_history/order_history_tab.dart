@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:giuseppe/models/order_dispatch_model.dart';
-import 'package:giuseppe/presentation/tabs/orders_history_admin/order_history_admin_view_model.dart';
+import 'package:giuseppe/presentation/tabs/orders_history/order_history_view_model.dart';
 
 import 'package:provider/provider.dart';
 
-class OrderHistoryAdminTab extends StatefulWidget {
-  const OrderHistoryAdminTab({super.key});
+class OrderHistoryTab extends StatefulWidget {
+  const OrderHistoryTab({super.key});
 
   @override
-  State<OrderHistoryAdminTab> createState() => _OrderHistoryAdminTabState();
+  State<OrderHistoryTab> createState() => _OrderHistoryTabState();
 }
 
-class _OrderHistoryAdminTabState extends State<OrderHistoryAdminTab> {
+class _OrderHistoryTabState extends State<OrderHistoryTab> {
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => OrderHistoryAdminViewModel(),
+      create: (_) => OrderHistoryViewModel(),
       child: Scaffold(
           body: SingleChildScrollView(
             child: Center(
@@ -58,12 +58,17 @@ class OrderTable extends StatefulWidget {
 }
 
 class _OrderTableState extends State<OrderTable> {
+  late final bool? _isAdmin;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final viewModel = Provider.of<OrderHistoryAdminViewModel>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final viewModel = Provider.of<OrderHistoryViewModel>(context, listen: false);
+      Map<String, dynamic>? sessionData = await viewModel.fetchSessionInLocalStorage();
+      setState(() {
+        _isAdmin = sessionData!['isAdmin'];
+      });
       viewModel.loadAllOrders();
     });
   }
@@ -84,7 +89,7 @@ class _OrderTableState extends State<OrderTable> {
             ),
             TextButton(
               onPressed: () {
-                final viewModel = Provider.of<OrderHistoryAdminViewModel>(context, listen: false);
+                final viewModel = Provider.of<OrderHistoryViewModel>(context, listen: false);
                 viewModel.returnQuantityToInventory(
                   order: selectedOrder,
                   showMessage: (message){
@@ -108,8 +113,8 @@ class _OrderTableState extends State<OrderTable> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<OrderHistoryAdminViewModel>(context);
-    if (viewModel.isLoadingOrders) {
+    final viewModel = Provider.of<OrderHistoryViewModel>(context);
+    if (viewModel.isLoadingOrders && _isAdmin == null) {
       return const Center(child: CircularProgressIndicator());
     }
     return DataTable(
@@ -128,7 +133,8 @@ class _OrderTableState extends State<OrderTable> {
               DataCell(Center(child: Text(order.orderDate!,textAlign: TextAlign.center))),
               DataCell(
                 Center(
-                  child: MenuAnchor(
+                  child: _isAdmin! ?
+                  MenuAnchor(
                     menuChildren: [
                       MenuItemButton(
                         onPressed: () {
@@ -156,6 +162,14 @@ class _OrderTableState extends State<OrderTable> {
                           }
                         },
                       );
+                    },
+                  ) :
+                  IconButton(
+                    icon: const Icon(Icons.file_open),
+                    onPressed: () {
+                      viewModel.generatePdf(
+                          context: context,
+                          order: order);
                     },
                   )
                 ),
