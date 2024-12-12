@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:giuseppe/models/order_dispatch_model.dart';
 import 'package:giuseppe/presentation/tabs/orders_history_admin/order_history_admin_view_model.dart';
 
 import 'package:provider/provider.dart';
@@ -11,55 +12,11 @@ class OrderHistoryAdminTab extends StatefulWidget {
 }
 
 class _OrderHistoryAdminTabState extends State<OrderHistoryAdminTab> {
-  late OrderHistoryAdminViewModel _viewModel;
-  Order? selectedOrder;
-
-  Future<void> _showConfirmationDialog(Order selectedOrder) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Confirmar"),
-          content: const Text("¿Estás seguro de que deseas regresar al inventario?"),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-              },
-              child: const Text("No"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-                _viewModel.checkOrder(selectedOrder); // Llama a checkOrder con la orden seleccionada
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Orden seleccionada: ${selectedOrder.detail}")),
-                );
-              },
-              child: const Text("Sí"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    _viewModel = OrderHistoryAdminViewModel();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<OrderHistoryAdminViewModel>.value(
-      value: _viewModel,
+    return ChangeNotifierProvider(
+      create: (_) => OrderHistoryAdminViewModel(),
       child: Scaffold(
           body: SingleChildScrollView(
             child: Center(
@@ -81,21 +38,8 @@ class _OrderHistoryAdminTabState extends State<OrderHistoryAdminTab> {
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: OrderTable(
-                      viewModel: _viewModel,
-                      onSelectOrder: (Order order) {
-                        setState(() {
-                          selectedOrder = order;
-                        });
-                      },
-                    ),
+                    child: const OrderTable(),
                   ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                      onPressed: () {
-                        _showConfirmationDialog(selectedOrder!);
-                      },
-                      child: const Text("Regresar al inventario"))
                 ],
               ),
             ),
@@ -107,59 +51,113 @@ class _OrderHistoryAdminTabState extends State<OrderHistoryAdminTab> {
 
 
 class OrderTable extends StatefulWidget {
-  final OrderHistoryAdminViewModel viewModel;
-  final Function(Order) onSelectOrder;
-  const OrderTable({
-    required this.viewModel,
-    required this.onSelectOrder,
-    super.key});
+  const OrderTable({super.key});
 
   @override
   State<OrderTable> createState() => _OrderTableState();
 }
 
 class _OrderTableState extends State<OrderTable> {
-  Order? selectedOrder;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final viewModel = Provider.of<OrderHistoryAdminViewModel>(context, listen: false);
+      viewModel.loadAllOrders();
+    });
+  }
+
+  Future<void> _showConfirmationDialog(OrderDispatchModel selectedOrder, BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text("Confirmar"),
+          content: const Text("¿Estás seguro de que deseas regresar al inventario?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                final viewModel = Provider.of<OrderHistoryAdminViewModel>(context, listen: false);
+                viewModel.returnQuantityToInventory(
+                  order: selectedOrder,
+                  showMessage: (message){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(message)),
+                    );
+                  }
+                );
+                Navigator.of(dialogContext).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Orden seleccionada: ${selectedOrder.client}")),
+                );
+              },
+              child: const Text("Sí"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = widget.viewModel;
-
+    final viewModel = Provider.of<OrderHistoryAdminViewModel>(context);
+    if (viewModel.isLoadingOrders) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return DataTable(
       columns: const [
-        DataColumn(label: Text('DETALLE')),
-        DataColumn(label: Text('FECHA')),
-        DataColumn(label: Text('ESTADO')),
+        DataColumn(label: Text('DETALLE'), headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(label: Text('FECHA'),  headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(label: Text('OPCIONES'),  headingRowAlignment: MainAxisAlignment.center),
       ],
       rows: List<DataRow>.generate(
-        viewModel.orders.length,
-            (index) {
-          final order = viewModel.orders[index];
+        viewModel.ordersList.length, (index) {
+          final order = viewModel.ordersList[index];
 
           return DataRow(
             cells: [
-              DataCell(Center(child: Text(order.detail))),
-              DataCell(Center(child: Text(order.date))),
+              DataCell(Center(child: Text(order.client,textAlign: TextAlign.center))) ,
+              DataCell(Center(child: Text(order.orderDate!,textAlign: TextAlign.center))),
               DataCell(
                 Center(
-                  child: Checkbox(
-                    value: order.isChecked,
-                    onChanged: (bool? newValue) {
-                      setState(() {
-                        order.isChecked = newValue ?? false;
-                        if (order.isChecked) {
-                          selectedOrder = order;
-                        } else {
-                          if (selectedOrder == order) {
-                            selectedOrder = null;
+                  child: MenuAnchor(
+                    menuChildren: [
+                      MenuItemButton(
+                        onPressed: () {
+                          viewModel.generatePdf(
+                              context: context,
+                              order: order);
+                        },
+                        child: const Text("Ver PDF"),
+                      ),
+                      MenuItemButton(
+                        onPressed: () async {
+                          _showConfirmationDialog(order, context);
+                        },
+                        child: const Text("Regresar al inventario"),
+                      ),
+                    ],
+                    builder: (BuildContext context, MenuController controller, Widget? child) {
+                      return IconButton(
+                        icon: const Icon(Icons.menu),
+                        onPressed: () {
+                          if (controller.isOpen) {
+                            controller.close();
+                          } else {
+                            controller.open();
                           }
-                        }
-                      });
-                      if (selectedOrder != null) {
-                        widget.onSelectOrder(selectedOrder!);
-                      }
+                        },
+                      );
                     },
-                  ),
+                  )
                 ),
               ),
             ],

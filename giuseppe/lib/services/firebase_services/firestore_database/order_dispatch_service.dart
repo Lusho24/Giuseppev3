@@ -18,7 +18,7 @@ class OrderDispatchService {
     }
   }
 
-  Future<OrderDispatchModel?> findOrderDispatch(String client) async {
+  Future<OrderDispatchModel?> findOrderDispatchByClient(String client) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('order_dispatch')
@@ -31,7 +31,25 @@ class OrderDispatchService {
 
       return OrderDispatchModel.fromJson(querySnapshot.docs.first.data() as Map<String, dynamic>);
     }catch(e){
-      throw Exception(" * ERROR al crear la orden: $e");
+      throw Exception(" * ERROR al encontrar la orden: $e");
+    }
+  }
+
+  Future<List<OrderDispatchModel>> findAllOrdersDispatch() async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('order_dispatch')
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        return [];
+      }
+
+      return querySnapshot.docs
+          .map((doc) => OrderDispatchModel.fromJson(doc.data() as Map<String,dynamic>))
+          .toList();
+    }catch(e){
+      throw Exception(" * ERROR al devolver las ordenes: $e");
     }
   }
 

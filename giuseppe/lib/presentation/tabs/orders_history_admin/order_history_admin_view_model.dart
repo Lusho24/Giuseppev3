@@ -1,31 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:giuseppe/models/order_dispatch_model.dart';
+import 'package:giuseppe/models/order_item_model.dart';
+import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf/order_pdf.dart';
+import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/order_dispatch_service.dart';
-import 'dart:developer' as dev;
 
 class OrderHistoryAdminViewModel extends ChangeNotifier{
   final OrderDispatchService _orderDispatchService = OrderDispatchService();
+  final ObjectService _objectService = ObjectService();
+  final List<OrderDispatchModel> _ordersList = [];
+  bool _isLoadingOrders = false;
 
-  final List<Order> _orders = [
-    Order(detail: 'Orden A', date: '21/11/24', isChecked: false),
-    Order(detail: 'Orden B', date: '22/11/24', isChecked: false),
-    Order(detail: 'Orden C', date: '23/11/24', isChecked: false),
-  ];
+  Future<void> loadAllOrders() async {
+    _isLoadingOrders = true;
+    notifyListeners();
 
-  Future<void> checkOrder(Order order) async {
-    var aux = await _orderDispatchService.findOrderDispatch("Carmen");
-    dev.log("Orden seleccionada: $order");
+    List<OrderDispatchModel> ordersData = await _orderDispatchService.findAllOrdersDispatch();
+    _ordersList.addAll(ordersData);
+
+    _isLoadingOrders = false;
     notifyListeners();
   }
 
-  List<Order> get orders => _orders;
-}
+  void generatePdf({required BuildContext context, required OrderDispatchModel order}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => OrderPdf(
+            orderDispatch: order,
+          )
+      ),
+    );
+  }
+
+  Future<void> returnQuantityToInventory({required OrderDispatchModel order, required Function(String) showMessage}) async {
+    List<OrderItemModel> items = order.items;
+    bool response = await _objectService.addItemsQuantity(items);
+    if(response) {
+      showMessage("Los items han sido devueltos al inventario exitosamente.");
+    } else {
+      showMessage("Hubo un error al devolver los items al al inventario.");
+    }
+  }
 
 
-// Modelo para representar una orden
-class Order {
-  String detail;
-  String date;
-  bool isChecked;
+  // GETTERS
+  List<OrderDispatchModel> get ordersList => _ordersList;
+  bool get isLoadingOrders => _isLoadingOrders;
 
-  Order({required this.detail, required this.date, this.isChecked = false});
 }

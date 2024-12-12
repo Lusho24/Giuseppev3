@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:giuseppe/models/object_model.dart';
+import 'package:giuseppe/models/order_item_model.dart';
 
 class ObjectService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -124,6 +125,32 @@ class ObjectService {
           }
         }
       }
+    }
+  }
+
+  Future<bool> addItemsQuantity(List<OrderItemModel> itemsList) async {
+    try {
+      for(OrderItemModel orderItem in itemsList){
+        QuerySnapshot querySnapshot = await _firestore
+            .collection('objects')
+            .where('name', isEqualTo: orderItem.name)
+            .get();
+
+        if(querySnapshot.docs.isEmpty){
+          return false;
+        }
+
+        var objectData = ObjectModel.fromJson(querySnapshot.docs.first.data() as Map<String,dynamic>);
+        int newQuantity = objectData.quantity + orderItem.quantity;
+
+        await querySnapshot.docs.first.reference.update({
+          'quantity': newQuantity,
+        });
+      }
+
+      return true;
+    } catch(e) {
+      throw Exception(" * Error al regresar items al inventario: $e");
     }
   }
 
