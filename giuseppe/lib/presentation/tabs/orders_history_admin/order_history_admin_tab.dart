@@ -46,8 +46,8 @@ class _OrderHistoryAdminTabState extends State<OrderHistoryAdminTab> {
 
   @override
   void initState() {
-    super.initState();
     _viewModel = OrderHistoryAdminViewModel();
+    super.initState();
   }
 
   @override
@@ -58,46 +58,49 @@ class _OrderHistoryAdminTabState extends State<OrderHistoryAdminTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SingleChildScrollView(
-          child: Center(
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-                  child: const Image(
-                    image: AssetImage('assets/images/logo.png'),
-                    height: 70.0,
+    return ChangeNotifierProvider<OrderHistoryAdminViewModel>.value(
+      value: _viewModel,
+      child: Scaffold(
+          body: SingleChildScrollView(
+            child: Center(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
+                    child: const Image(
+                      image: AssetImage('assets/images/logo.png'),
+                      height: 70.0,
+                    ),
                   ),
-                ),
-                Container(
-                    padding: const EdgeInsets.symmetric(vertical: 15.0),
-                    alignment: Alignment.center,
-                    child: Text("HISTORIAL DE ORDENES",
-                        style: Theme.of(context).textTheme.headlineSmall
-                    )
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: OrderTable(
-                    viewModel: _viewModel,
-                    onSelectOrder: (Order order) {
-                      setState(() {
-                        selectedOrder = order;
-                      });
-                    },
+                  Container(
+                      padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      alignment: Alignment.center,
+                      child: Text("HISTORIAL DE ORDENES",
+                          style: Theme.of(context).textTheme.headlineSmall
+                      )
                   ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                    onPressed: () {
-                      _showConfirmationDialog(selectedOrder!);
-                    },
-                    child: const Text("Regresar al inventario"))
-              ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: OrderTable(
+                      viewModel: _viewModel,
+                      onSelectOrder: (Order order) {
+                        setState(() {
+                          selectedOrder = order;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                      onPressed: () {
+                        _showConfirmationDialog(selectedOrder!);
+                      },
+                      child: const Text("Regresar al inventario"))
+                ],
+              ),
             ),
-          ),
-        )
+          )
+      ),
     );
   }
 }

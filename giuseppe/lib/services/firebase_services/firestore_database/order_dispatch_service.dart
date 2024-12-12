@@ -18,4 +18,21 @@ class OrderDispatchService {
     }
   }
 
+  Future<OrderDispatchModel?> findOrderDispatch(String client) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('order_dispatch')
+          .where('client', isEqualTo: client)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        return null;
+      }
+
+      return OrderDispatchModel.fromJson(querySnapshot.docs.first.data() as Map<String, dynamic>);
+    }catch(e){
+      throw Exception(" * ERROR al crear la orden: $e");
+    }
+  }
+
 }
