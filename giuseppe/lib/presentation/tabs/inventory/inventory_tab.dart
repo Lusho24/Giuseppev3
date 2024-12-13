@@ -334,9 +334,7 @@ class _InventoryCardState extends State<InventoryCard> {
       },
       child: Card(
         elevation: 4.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
+
         color: AppColors.primaryColor,
         child: Stack(
           children: [
@@ -344,10 +342,29 @@ class _InventoryCardState extends State<InventoryCard> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  Image.network(
-                    imageUrl,
-                    height: 70.0,
-                    width: double.infinity,
+                  SizedBox(
+                    height: 75.0,
+                    width: 75.0,
+                    child: imageUrl.isNotEmpty
+                        ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.broken_image,
+                            color: Colors.grey,
+                            size: 50.0,
+                          );
+                        },
+                      ),
+                    )
+                        : const Icon(
+                      Icons.image,
+                      color: Colors.grey,
+                      size: 50.0,
+                    ),
                   ),
                   const SizedBox(height: 10.0),
                   Text(
@@ -355,7 +372,6 @@ class _InventoryCardState extends State<InventoryCard> {
                     style: const TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.w300,
-
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -375,8 +391,7 @@ class _InventoryCardState extends State<InventoryCard> {
               ),
             ),
 
-
-            // Icono de mas opciones
+            // Icono de más opciones
             Positioned(
               top: 4,
               right: 4,
@@ -396,8 +411,7 @@ class _InventoryCardState extends State<InventoryCard> {
                     color: AppColors.primaryVariantColor,
                     size: 20.0,
                   ),
-                  itemBuilder: (BuildContext context) =>
-                  <PopupMenuEntry<String>>[
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                     const PopupMenuItem<String>(
                       value: 'añadir_orden',
                       child: Text('Añadir a Orden'),
@@ -419,6 +433,7 @@ class _InventoryCardState extends State<InventoryCard> {
       ),
     );
   }
+
 
   //Opciones del menú
   void handleMenuOption(String value) {
@@ -761,11 +776,9 @@ class _InventoryCardState extends State<InventoryCard> {
   }
 
 
-  // * Ventana modal info
   void modalObject() {
     List<dynamic> images = widget.item['image'] ?? [];
-    final CarouselSliderController carouselController =
-    CarouselSliderController();
+    final CarouselSliderController carouselController = CarouselSliderController();
     int currentIndex = 0;
 
     showModalBottomSheet(
@@ -795,11 +808,9 @@ class _InventoryCardState extends State<InventoryCard> {
                       children: [
                         // Carrusel de imágenes
                         CarouselSlider(
-                          carouselController:
-                          carouselController,
-                          // Usa CarouselSliderController aquí
+                          carouselController: carouselController,
                           options: CarouselOptions(
-                            height: 200.0,
+                            height: 150.0,
                             enlargeCenterPage: true,
                             enableInfiniteScroll: false,
                             onPageChanged: (index, reason) {
@@ -817,8 +828,7 @@ class _InventoryCardState extends State<InventoryCard> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10.0),
                                 child: SizedBox(
-                                  height: 150.0,
-                                  width: double.infinity,
+                                  width: 170.0,
                                   child: Image.network(
                                     imgUrl,
                                     fit: BoxFit.contain,
@@ -826,19 +836,15 @@ class _InventoryCardState extends State<InventoryCard> {
                                       if (progress == null) return child;
                                       return Center(
                                         child: CircularProgressIndicator(
-                                            value: progress
-                                                .expectedTotalBytes !=
-                                                null
-                                                ? progress
-                                                .cumulativeBytesLoaded /
-                                                progress.expectedTotalBytes!
-                                                : null),
+                                          value: progress.expectedTotalBytes != null
+                                              ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                              : null,
+                                        ),
                                       );
                                     },
                                     errorBuilder: (context, error, stackTrace) {
                                       return const Center(
-                                        child: Icon(Icons.broken_image,
-                                            size: 50, color: Colors.red),
+                                        child: Icon(Icons.broken_image, size: 50, color: Colors.red),
                                       );
                                     },
                                   ),
@@ -852,7 +858,7 @@ class _InventoryCardState extends State<InventoryCard> {
                         if (currentIndex > 0)
                           Positioned(
                             left: 10,
-                            top: 80,
+                            top: 60,
                             child: IconButton(
                               icon: const Icon(Icons.arrow_back_ios),
                               onPressed: () {
@@ -865,7 +871,7 @@ class _InventoryCardState extends State<InventoryCard> {
                         if (currentIndex < images.length - 1)
                           Positioned(
                             right: 10,
-                            top: 80,
+                            top: 60,
                             child: IconButton(
                               icon: const Icon(Icons.arrow_forward_ios),
                               onPressed: () {
@@ -878,14 +884,19 @@ class _InventoryCardState extends State<InventoryCard> {
                   else
                     const Text("No hay imágenes disponibles."),
                   const SizedBox(height: 15),
-                  Text(
-                    widget.item['name']!,
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w400,
-
+                  // Nombre del producto centrado
+                  Center(
+                    child: Text(
+                      widget.item['name']!,
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  // Información adicional
                   Text(
                     "Disponibles: ${widget.item['quantity']!}",
                     style: const TextStyle(
@@ -893,12 +904,14 @@ class _InventoryCardState extends State<InventoryCard> {
                       fontWeight: FontWeight.w300,
                     ),
                   ),
+                  const SizedBox(height: 5),
                   Text(
                     "Detalle: ${widget.item['detail']!}",
                     style: const TextStyle(
                       fontSize: 15.0,
                       fontWeight: FontWeight.w300,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -908,6 +921,7 @@ class _InventoryCardState extends State<InventoryCard> {
       },
     );
   }
+
 
 
   //visualizacion de la imagen en grande
