@@ -58,6 +58,16 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
     });
   }
 
+  void _updateCartItemQuantity(String itemId, int quantity) {
+    setState(() {
+      final index = _cartItems.indexWhere((item) => item['id'] == itemId);
+      if (index != -1) {
+        _cartItems[index]['quantityOrder'] = quantity;
+      }
+    });
+  }
+
+
 
   Future<void> _removeCartItem(String itemId) async {
     try {
@@ -166,7 +176,8 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                                   child: OrderCard(
                                     order: item,
                                     onDelete: () => _removeCartItem(item['id']),
-                                    onObservationsChanged: _updateCartItemObservations,
+                                    onObservationsChanged: _updateCartItemObservations, // Para observaciones
+                                    onQuantityChanged: _updateCartItemQuantity,         // Para cantidades
                                   ),
 
                                 ),
@@ -239,12 +250,15 @@ class OrderCard extends StatelessWidget {
   final Map<String, dynamic> order;
   final VoidCallback onDelete;
   final Function(String, String) onObservationsChanged;
+  final Function(String, int) onQuantityChanged;
 
   const OrderCard({
     required this.order,
     required this.onDelete,
     required this.onObservationsChanged,
+    required this.onQuantityChanged,
     super.key,
+
   });
 
   @override
@@ -300,6 +314,7 @@ class OrderCard extends StatelessWidget {
                         maxValue: objectQuantity,
                         itemId: order['id'],
                         onDelete: onDelete,
+                        onQuantityChanged: onQuantityChanged,
                       ),
                       ElevatedButton(
                         onPressed: onDelete,
@@ -339,6 +354,7 @@ class NumberInput extends StatefulWidget {
   final int maxValue;
   final String itemId;
   final VoidCallback onDelete;
+  final Function(String, int) onQuantityChanged;
 
   const NumberInput({
     super.key,
@@ -346,6 +362,7 @@ class NumberInput extends StatefulWidget {
     required this.maxValue,
     required this.itemId,
     required this.onDelete,
+    required this.onQuantityChanged,
   });
 
   @override
@@ -371,6 +388,8 @@ class _NumberInputState extends State<NumberInput> {
       });
 
       await _updateQuantity();
+      widget.onQuantityChanged(widget.itemId, _currentValue);
+
     }
   }
 
@@ -382,6 +401,7 @@ class _NumberInputState extends State<NumberInput> {
       });
 
       await _updateQuantity();
+      widget.onQuantityChanged(widget.itemId, _currentValue);
     }
     if (_currentValue == 0) {
       widget.onDelete();
