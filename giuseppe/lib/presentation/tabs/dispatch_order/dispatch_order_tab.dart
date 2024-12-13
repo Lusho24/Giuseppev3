@@ -199,14 +199,19 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                                 child: SizedBox(
                                   height: 40,
                                   child: ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(
+                                    onPressed: () async {
+                                      final result = await showDialog<bool>(
                                         context: context,
                                         builder: (BuildContext context) => DispatchOrderModal(
                                           cartItems: _cartItems,
                                           viewModel: _viewModel,
                                         ),
                                       );
+
+                                      if (result == true) {
+                                        _loadCartItems();
+                                      }
+
                                     },
                                     style: ElevatedButton.styleFrom(
                                       padding: EdgeInsets.zero,
@@ -644,17 +649,11 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
       await CartService().clearCart();
 
       if (mounted) {
+        Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Orden creada con éxito")),
         );
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => OrderPdf(
-                orderDispatch: orderDispatch,
-              )
-          ),
-        );
+
       }
     } catch (e) {
       if (mounted) {
@@ -766,23 +765,6 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
               ElevatedButton(
                 onPressed: () {
                     _createDispatchOrder();
-/*                  if (_formKey.currentState!.validate()) {
-                    String clientName = _clientNameController.text;
-                    String link = _linkController.text;
-                    String formattedDate =
-                        "${_eventDate.day.toString().padLeft(2, '0')}/"
-                        "${_eventDate.month.toString().padLeft(2, '0')}/"
-                        "${_eventDate.year}";
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => OrderPdf(
-                              name: clientName,
-                              date: formattedDate,
-                              link: link)),
-                    );
-                  }*/
                 },
                 child: const Text("Crear Orden"),
               ),
