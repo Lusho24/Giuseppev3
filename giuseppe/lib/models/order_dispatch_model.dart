@@ -9,6 +9,7 @@ class OrderDispatchModel{
   String deliveryTime;
   String receiverName;
   String responsibleName;
+  bool? isEnable;
   List<OrderItemModel> items;
 
   OrderDispatchModel({
@@ -20,6 +21,7 @@ class OrderDispatchModel{
     required this.deliveryTime,
     required this.receiverName,
     required this.responsibleName,
+    this.isEnable,
     required this.items
   });
 
@@ -33,6 +35,7 @@ class OrderDispatchModel{
       'deliveryTime': deliveryTime,
       'receiverName': receiverName,
       'responsibleName': responsibleName,
+      'isEnable': isEnable,
       'items': items.map((item) => item.toJson()).toList(),
     };
   }
@@ -47,6 +50,7 @@ class OrderDispatchModel{
       deliveryTime: json['deliveryTime'],
       receiverName: json['receiverName'],
       responsibleName: json['responsibleName'],
+      isEnable: json['isEnable'],
       items: (json['items'] as List)
           .map((item) => OrderItemModel.fromJson(item))
           .toList(),

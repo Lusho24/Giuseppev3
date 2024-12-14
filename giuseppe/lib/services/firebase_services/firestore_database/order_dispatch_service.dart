@@ -11,7 +11,7 @@ class OrderDispatchService {
           "${now.month.toString().padLeft(2, '0')}/"
           "${now.year}";
       order.orderDate = orderDate;
-
+      order.isEnable = true;
       await _firestore.collection('order_dispatch').add(order.toJson());
     }catch(e){
       throw Exception(" * ERROR al crear la orden: $e");
@@ -35,10 +35,11 @@ class OrderDispatchService {
     }
   }
 
-  Future<List<OrderDispatchModel>> findAllOrdersDispatch() async {
+  Future<List<OrderDispatchModel>> findEnableOrdersDispatch() async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('order_dispatch')
+          .where('isEnable', isEqualTo: true)
           .get();
 
       if (querySnapshot.docs.isEmpty) {
@@ -50,6 +51,28 @@ class OrderDispatchService {
           .toList();
     }catch(e){
       throw Exception(" * ERROR al devolver las ordenes: $e");
+    }
+  }
+  
+
+  Future<bool> updateAvailableOrderDispatch(String client) async {
+    try{
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('order_dispatch')
+          .where('client', isEqualTo: client)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        return false;
+      }
+      bool newIsEnable = false;
+
+      await querySnapshot.docs.first.reference.update({
+        'isEnable': newIsEnable,
+      });
+      return true;
+    }catch(e){
+      throw Exception(" * ERROR al actualizar la disponibilidad de la orden: $e");
     }
   }
 

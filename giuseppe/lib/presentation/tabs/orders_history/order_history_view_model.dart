@@ -17,7 +17,7 @@ class OrderHistoryViewModel extends ChangeNotifier{
     _isLoadingOrders = true;
     notifyListeners();
 
-    List<OrderDispatchModel> ordersData = await _orderDispatchService.findAllOrdersDispatch();
+    List<OrderDispatchModel> ordersData = await _orderDispatchService.findEnableOrdersDispatch();
     _ordersList.addAll(ordersData);
 
     _isLoadingOrders = false;
@@ -54,7 +54,11 @@ class OrderHistoryViewModel extends ChangeNotifier{
     List<OrderItemModel> items = order.items;
     bool response = await _objectService.addItemsQuantity(items);
     if(response) {
-      showMessage("Los items han sido devueltos al inventario exitosamente.");
+      bool updateResponse = await _orderDispatchService.updateAvailableOrderDispatch(order.client);
+      if(updateResponse){
+        showMessage("Los items han sido devueltos al inventario exitosamente.");
+      }
+      showMessage("Algo ha salido mal al actualizar el estado de la orden.");
     } else {
       showMessage("Hubo un error al devolver los items al al inventario.");
     }
