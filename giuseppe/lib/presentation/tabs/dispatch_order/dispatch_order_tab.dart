@@ -4,6 +4,7 @@ import 'package:giuseppe/models/order_item_model.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/presentation/tabs/dispatch_order/dispatch_order_view_model.dart';
 import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf/order_pdf.dart';
+import 'package:giuseppe/router/app_routes.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/cart_service.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
 import 'package:giuseppe/utils/theme/app_colors.dart';
@@ -653,7 +654,7 @@ class _DispatchOrderModalState extends State<DispatchOrderModal> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Orden creada con éxito")),
         );
-
+        Navigator.pushReplacementNamed(context, AppRoutes.tabsPage);
       }
     } catch (e) {
       if (mounted) {

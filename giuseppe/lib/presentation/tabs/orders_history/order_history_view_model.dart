@@ -14,6 +14,7 @@ class OrderHistoryViewModel extends ChangeNotifier{
   bool _isLoadingOrders = false;
 
   Future<void> loadAllOrders() async {
+    _ordersList.clear();
     _isLoadingOrders = true;
     notifyListeners();
 
@@ -56,6 +57,7 @@ class OrderHistoryViewModel extends ChangeNotifier{
     if(response) {
       bool updateResponse = await _orderDispatchService.updateAvailableOrderDispatch(order.client);
       if(updateResponse){
+        await loadAllOrders();
         showMessage("Los items han sido devueltos al inventario exitosamente.");
       }
       showMessage("Algo ha salido mal al actualizar el estado de la orden.");
