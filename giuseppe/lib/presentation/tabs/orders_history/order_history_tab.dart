@@ -194,7 +194,7 @@ class _OrderTableState extends State<OrderTable> {
                             builder: (BuildContext context,
                                 MenuController controller, Widget? child) {
                               return IconButton(
-                                icon: const Icon(Icons.menu),
+                                icon: const Icon(Icons.more_vert),
                                 onPressed: () {
                                   if (controller.isOpen) {
                                     controller.close();
