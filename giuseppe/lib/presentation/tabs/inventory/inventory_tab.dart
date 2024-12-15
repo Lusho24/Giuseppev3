@@ -29,12 +29,10 @@ class _InventoryTabState extends State<InventoryTab> {
 
   final List<String> _categories = [
     'Accesorios',
-    'Auxiliares',
     'Bases', //ia
     'Candelabros', //ia
     'Lamparas',
     'Mobiliario', //ia
-    'Vajilla',
     'Otros',
   ];
 

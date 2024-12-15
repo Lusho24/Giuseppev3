@@ -151,12 +151,10 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
 
   final List<String> _categories = [
     'Accesorios',
-    'Auxiliares',
     'Bases', //ia
     'Candelabros', //ia
     'Lamparas',
     'Mobiliario', //ia
-    'Vajilla',
     'Otros',
   ];
 
