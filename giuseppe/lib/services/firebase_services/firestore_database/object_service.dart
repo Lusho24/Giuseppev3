@@ -3,25 +3,58 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:giuseppe/models/object_model.dart';
 import 'package:giuseppe/models/order_item_model.dart';
+import 'package:image/image.dart' as img;
 
 class ObjectService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
+
+///Comprimir la Imagen para hacer liviana
+  Future<File> compressImage(File imageFile, {int maxWidth = 600}) async {
+    try {
+      final imageBytes = await imageFile.readAsBytes();
+      final originalImage = img.decodeImage(imageBytes);
+
+      if (originalImage == null) {
+        throw Exception("No se pudo decodificar la imagen.");
+      }
+      final resizedImage = img.copyResize(originalImage, width: maxWidth);
+
+      final compressedBytes = img.encodeJpg(resizedImage, quality: 80);
+
+      final compressedFile = File(imageFile.path.replaceFirst('.jpg', '_compressed.jpg'))
+        ..writeAsBytesSync(compressedBytes);
+
+      return compressedFile;
+    } catch (e) {
+      throw Exception("Error al comprimir la imagen: $e");
+    }
+  }
+
+
   /// Subir la imagen al Storage y obtener su URL
   Future<String?> uploadImage(File imageFile) async {
     try {
-      // Asignar nombre a la imagen
+      // Comprimir la imagen
+      File compressedFile = await compressImage(imageFile);
+
+      // Subir la imagen comprimida
       String timeKey = DateTime.now().millisecondsSinceEpoch.toString();
       Reference ref = _storage.ref().child("Object Images/$timeKey.jpg");
-      UploadTask uploadTask = ref.putFile(imageFile);
+      UploadTask uploadTask = ref.putFile(compressedFile);
       TaskSnapshot snapshot = await uploadTask;
       String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      // Eliminar la imagen comprimida temporal después de subirla
+      compressedFile.delete();
+
       return downloadUrl;
     } catch (e) {
       return null;
     }
   }
+
 
   /// Guardar datos del item
   Future<bool> saveObject(ObjectModel object) async {

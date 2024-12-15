@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:giuseppe/presentation/tabs/inventory/inventory_view_model.dart';
@@ -348,16 +349,17 @@ class _InventoryCardState extends State<InventoryCard> {
                       child: imageUrl.isNotEmpty
                           ? ClipRRect(
                         borderRadius: BorderRadius.circular(8.0),
-                        child: Image.network(
-                          imageUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.broken_image,
-                              color: Colors.grey,
-                              size: 50.0,
-                            );
-                          },
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.broken_image,
+                            color: Colors.grey,
+                            size: 50.0,
+                          ),
                         ),
                       )
                           : const Icon(

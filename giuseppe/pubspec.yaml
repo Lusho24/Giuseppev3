@@ -26,6 +26,7 @@ dependencies:
   photo_view: ^0.15.0
   shared_preferences: ^2.3.3
   crypto: ^3.0.6
+  image: ^4.1.7
 
 dev_dependencies:
   flutter_test:
