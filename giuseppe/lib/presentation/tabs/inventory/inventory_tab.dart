@@ -45,8 +45,13 @@ class _InventoryTabState extends State<InventoryTab> {
     _searchController.addListener(_onSearchChanged);
   }
 
+  //Funcion para ordenar items alfabeticamente
+  void _sortItems() {
+    filteredItems.sort((a, b) => a['name'].compareTo(b['name']));
+  }
+
   // Funcion para cargar los objetos desde la bdd
-  Future<void> _loadInventoryItems() async {
+  Future<void>  _loadInventoryItems() async {
     List<Map<String, dynamic>> items = await _objectService.getAllItems();
     setState(() {
       inventoryItems = items.map((item) {
@@ -60,6 +65,7 @@ class _InventoryTabState extends State<InventoryTab> {
         };
       }).toList();
       filteredItems = List.from(inventoryItems);
+      _sortItems();
     });
   }
   // Filtrar ítems
@@ -76,6 +82,7 @@ class _InventoryTabState extends State<InventoryTab> {
       final matchesCategory = _selectedCategory == null || _selectedCategory!.isEmpty || item['category'] == _selectedCategory;
       return matchesSearch && matchesCategory;
     }).toList();
+    _sortItems();
   }
 
   // Quitar el filtro de categoría
