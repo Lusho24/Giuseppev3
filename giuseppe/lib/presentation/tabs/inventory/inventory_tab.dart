@@ -101,7 +101,7 @@ class _InventoryTabState extends State<InventoryTab> {
                 Consumer<InventoryViewModel>(
                     builder: (context, viewmodel, child){
                       return Container(
-                          alignment: Alignment.topLeft,
+                          alignment: Alignment.topRight,
                           padding: const EdgeInsets.only(bottom: 40.0),
                           child: MenuAnchor(
                             menuChildren: [
@@ -116,7 +116,7 @@ class _InventoryTabState extends State<InventoryTab> {
                             ],
                             builder: (BuildContext context, MenuController controller, Widget? child) {
                               return IconButton(
-                                icon: const Icon(Icons.more_vert),
+                                icon: const Icon(Icons.exit_to_app),
                                 onPressed: () {
                                   if (controller.isOpen) {
                                     controller.close();
@@ -126,6 +126,10 @@ class _InventoryTabState extends State<InventoryTab> {
                                 },
                               );
                             },
+                            style: MenuStyle(
+                              backgroundColor: WidgetStateProperty.all(
+                                  AppColors.primaryColor),
+                            ),
                           )
                       );
                     }
