@@ -111,18 +111,17 @@ class _NewObjectFormState extends State<_NewObjectForm> {
   final TextEditingController _detailController = TextEditingController();
 
   String? _selectedCategory;
-  List<String> categories = [
-    'Accesorios', //ia
+  final List<String> categories = [
+    'Accesorios',
     'Auxiliares',
     'Bases', //ia
     'Candelabros', //ia
-    'Electrodomésticos',
-    'Herramientas',
-    'Lamparas', //ia
+    'Lamparas',
     'Mobiliario', //ia
-    'Vajilla', //ia
+    'Vajilla',
     'Otros',
   ];
+
 
   @override
   Widget build(BuildContext context) {

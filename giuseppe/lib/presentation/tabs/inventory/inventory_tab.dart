@@ -28,15 +28,13 @@ class _InventoryTabState extends State<InventoryTab> {
   final TextEditingController _searchController = TextEditingController();
 
   final List<String> _categories = [
-    'Accesorios', //ia
+    'Accesorios',
     'Auxiliares',
     'Bases', //ia
     'Candelabros', //ia
-    'Electrodomésticos',
-    'Herramientas',
-    'Lamparas', //ia
+    'Lamparas',
     'Mobiliario', //ia
-    'Vajilla', //ia
+    'Vajilla',
     'Otros',
   ];
 
@@ -328,70 +326,74 @@ class _InventoryCardState extends State<InventoryCard> {
   @override
   Widget build(BuildContext context) {
     String imageUrl = widget.item['image']?.isNotEmpty == true ? widget.item['image'][0] : '';
+
     return GestureDetector(
       onTap: () {
         modalObject();
       },
       child: Card(
         elevation: 4.0,
-
         color: AppColors.primaryColor,
         child: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 75.0,
-                    width: 75.0,
-                    child: imageUrl.isNotEmpty
-                        ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.broken_image,
-                            color: Colors.grey,
-                            size: 50.0,
-                          );
-                        },
+            Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 75.0,
+                      width: 75.0,
+                      child: imageUrl.isNotEmpty
+                          ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
+                              size: 50.0,
+                            );
+                          },
+                        ),
+                      )
+                          : const Icon(
+                        Icons.image,
+                        color: Colors.grey,
+                        size: 50.0,
                       ),
-                    )
-                        : const Icon(
-                      Icons.image,
-                      color: Colors.grey,
-                      size: 50.0,
                     ),
-                  ),
-                  const SizedBox(height: 10.0),
-                  Text(
-                    widget.item['name']!,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w300,
+                    const SizedBox(height: 8.0),
+                    Text(
+                      widget.item['name']!,
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w300,
+                      ),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 5.0),
-                  Expanded(
-                    child: Text(
+                    const SizedBox(height: 3.0),
+                    Text(
                       "Disponibles: ${widget.item['quantity']!}",
                       style: const TextStyle(
                         fontSize: 13.0,
                         fontWeight: FontWeight.w300,
                       ),
+                      textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
-            // Icono de más opciones
             Positioned(
               top: 4,
               right: 4,
@@ -433,7 +435,6 @@ class _InventoryCardState extends State<InventoryCard> {
       ),
     );
   }
-
 
   //Opciones del menú
   void handleMenuOption(String value) {
@@ -499,6 +500,7 @@ class _InventoryCardState extends State<InventoryCard> {
           );
           final state = context.findAncestorStateOfType<_InventoryTabState>();
           if (state != null) {
+            state._clearCategoryFilter();
             state._loadInventoryItems();
           }
         } else {
@@ -511,6 +513,7 @@ class _InventoryCardState extends State<InventoryCard> {
       }
     }
   }
+
 
   // Modal de eliminación
   void _deleteDialog(Map<String, dynamic> item) {

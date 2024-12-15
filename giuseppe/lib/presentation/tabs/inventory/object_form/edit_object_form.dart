@@ -150,17 +150,16 @@ class _EditObjectFormBodyState extends State<_EditObjectFormBody> {
   }
 
   final List<String> _categories = [
-    'Accesorios', //ia
+    'Accesorios',
     'Auxiliares',
     'Bases', //ia
     'Candelabros', //ia
-    'Electrodomésticos',
-    'Herramientas',
-    'Lamparas', //ia
+    'Lamparas',
     'Mobiliario', //ia
-    'Vajilla', //ia
+    'Vajilla',
     'Otros',
   ];
+
 
   Future getImages() async {
     if (_localImages.length + _remoteImages.length >= 4) {
