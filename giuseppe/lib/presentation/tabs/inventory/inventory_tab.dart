@@ -332,6 +332,14 @@ class InventoryCard extends StatefulWidget {
 class _InventoryCardState extends State<InventoryCard> {
 
   final CartService _cartService = CartService();
+  final SessionInLocalStorageService _localStorage = SessionInLocalStorageService();
+  late Future<bool> _isAdminFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _isAdminFuture = _localStorage.fetchSession().then((sessionData) => sessionData?['isAdmin'] ?? false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -408,37 +416,48 @@ class _InventoryCardState extends State<InventoryCard> {
             Positioned(
               top: 4,
               right: 4,
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  popupMenuTheme: const PopupMenuThemeData(
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-                child: PopupMenuButton<String>(
-                  offset: const Offset(0, 40),
-                  onSelected: (String value) {
-                    handleMenuOption(value);
-                  },
-                  icon: const Icon(
-                    Icons.more_vert,
-                    color: AppColors.primaryVariantColor,
-                    size: 20.0,
-                  ),
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: 'añadir_orden',
-                      child: Text('Añadir a Orden'),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'editar',
-                      child: Text('Editar'),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'eliminar',
-                      child: Text('Eliminar'),
-                    ),
-                  ],
-                ),
+              child: FutureBuilder<bool>(
+                future: _isAdminFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox.shrink();
+                  }
+                  if (snapshot.hasData && snapshot.data == true) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        popupMenuTheme: const PopupMenuThemeData(
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                      child: PopupMenuButton<String>(
+                        offset: const Offset(0, 40),
+                        onSelected: (String value) {
+                          handleMenuOption(value);
+                        },
+                        icon: const Icon(
+                          Icons.more_vert,
+                          color: AppColors.primaryVariantColor,
+                          size: 20.0,
+                        ),
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'añadir_orden',
+                            child: Text('Añadir a Orden'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'editar',
+                            child: Text('Editar'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'eliminar',
+                            child: Text('Eliminar'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
             ),
           ],
