@@ -145,6 +145,25 @@ class _OrderTableState extends State<OrderTable> {
     if (viewModel.isLoadingOrders && _isAdmin == null) {
       return const Center(child: CircularProgressIndicator());
     }
+
+    // Verificar si la tabla esta vacia
+    if (viewModel.ordersList.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 210, 20, 20),
+          child: Text(
+            "No hay órdenes generadas",
+            style: TextStyle(
+              fontSize: 15.0,
+              fontWeight: FontWeight.w400,
+              color: AppColors.primaryVariantColor,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
     return DataTable(
       columns: const [
         DataColumn(
