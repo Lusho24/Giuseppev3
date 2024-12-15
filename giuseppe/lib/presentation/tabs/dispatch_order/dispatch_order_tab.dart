@@ -3,7 +3,6 @@ import 'package:giuseppe/models/order_dispatch_model.dart';
 import 'package:giuseppe/models/order_item_model.dart';
 import 'package:giuseppe/presentation/common_widgets/custom_text_form_field.dart';
 import 'package:giuseppe/presentation/tabs/dispatch_order/dispatch_order_view_model.dart';
-import 'package:giuseppe/presentation/tabs/dispatch_order/order_pdf/order_pdf.dart';
 import 'package:giuseppe/router/app_routes.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/cart_service.dart';
 import 'package:giuseppe/services/firebase_services/firestore_database/object_service.dart';
@@ -44,11 +43,15 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
         };
       }).toList();
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
+
 
   void _updateCartItemObservations(String itemId, String observations) {
     setState(() {
@@ -127,7 +130,7 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
                 ),
               ),
             ),
-      
+
             const SizedBox(
               height: 16.0,
             ),
@@ -137,7 +140,7 @@ class _DispatchOrderTabState extends State<DispatchOrderTab> {
               indent: 20.0,
               endIndent: 20.0,
             ),
-      
+
             // Parte desplazable
             Expanded(
               child: Stack(

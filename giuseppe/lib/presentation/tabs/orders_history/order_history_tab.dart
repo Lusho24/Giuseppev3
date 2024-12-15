@@ -30,10 +30,13 @@ class _OrderHistoryTabState extends State<OrderHistoryTab> {
                     ),
                   ),
                   Container(
-                      padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      padding: const EdgeInsets.symmetric(vertical: 22.0),
                       alignment: Alignment.center,
-                      child: Text("HISTORIAL DE ORDENES",
-                          style: Theme.of(context).textTheme.headlineSmall
+                      child: const Text("HISTORIAL DE ORDENES",
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w300,
+                        ),
                       )
                   ),
                   Container(
@@ -121,7 +124,7 @@ class _OrderTableState extends State<OrderTable> {
       columns: const [
         DataColumn(label: Text('DETALLE'), headingRowAlignment: MainAxisAlignment.center),
         DataColumn(label: Text('FECHA'),  headingRowAlignment: MainAxisAlignment.center),
-        DataColumn(label: Text('OPCIONES'),  headingRowAlignment: MainAxisAlignment.center),
+        DataColumn(label: Text(''),  headingRowAlignment: MainAxisAlignment.center),
       ],
       rows: List<DataRow>.generate(
         viewModel.ordersList.length, (index) {
