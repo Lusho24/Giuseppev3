@@ -370,7 +370,7 @@ class _InventoryCardState extends State<InventoryCard> {
                         borderRadius: BorderRadius.circular(8.0),
                         child: CachedNetworkImage(
                           imageUrl: imageUrl,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           placeholder: (context, url) => const Center(
                             child: CircularProgressIndicator(),
                           ),
