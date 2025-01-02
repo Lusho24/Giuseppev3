@@ -71,8 +71,8 @@ class _SearchObjectTabState extends State<SearchObjectTab> {
   // ** Funciones para reconocimiento del modelo
   Future<void> loadYoloModel() async {
     await vision.loadYoloModel(
-        labels: 'assets/models/objetos.txt',
-        modelPath: 'assets/models/objetos64_32_32f.tflite',
+        labels: 'assets/models/objetos_giuseppe.txt',
+        modelPath: 'assets/models/objetos_giuseppe.tflite',
         modelVersion: "yolov8",
         quantization: false,
         numThreads: 1,

@@ -2,7 +2,9 @@
 class Assets {
   Assets._();
 
+  static const String assetsModelsObjetosGiuseppe = 'assets/models/objetos_giuseppe.tflite';
   static const String fontsArial = 'assets/fonts/arial.ttf';
+  static const String fontsArialNegrita = 'assets/fonts/arial_negrita.ttf';
   static const String imagesJarron = 'assets/images/jarron.png';
   static const String imagesJarron2 = 'assets/images/jarron2.png';
   static const String imagesLampara = 'assets/images/lampara.png';
@@ -12,6 +14,7 @@ class Assets {
   static const String lottiefilesLoading1 = 'assets/lottiefiles/loading1.json';
   static const String modelsObjetos = 'assets/models/objetos.txt';
   static const String modelsObjetos643232f = 'assets/models/objetos64_32_32f.tflite';
+  static const String modelsObjetosGiuseppe = 'assets/models/objetos_giuseppe.txt';
   static const String usersFoto1 = 'assets/images/users/foto1.PNG';
   static const String usersFoto2 = 'assets/images/users/foto2.jpg';
 
